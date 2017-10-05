@@ -22,8 +22,6 @@ namespace DAL.Models
         {
             modelBuilder.Entity<Message>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
                 entity.Property(e => e.Message1)
                     .HasColumnName("Message")
                     .HasMaxLength(300);
