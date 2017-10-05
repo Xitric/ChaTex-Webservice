@@ -1,0 +1,10 @@
+C:\Users\Kasper\Documents\Visual Studio Projects\SDU\3 semester\WebApi\WebApi\bin\Release\netcoreapp2.0\ChaTex Webservice.deps.json
+C:\Users\Kasper\Documents\Visual Studio Projects\SDU\3 semester\WebApi\WebApi\bin\Release\netcoreapp2.0\ChaTex Webservice.runtimeconfig.json
+C:\Users\Kasper\Documents\Visual Studio Projects\SDU\3 semester\WebApi\WebApi\bin\Release\netcoreapp2.0\ChaTex Webservice.runtimeconfig.dev.json
+C:\Users\Kasper\Documents\Visual Studio Projects\SDU\3 semester\WebApi\WebApi\bin\Release\netcoreapp2.0\ChaTex Webservice.dll
+C:\Users\Kasper\Documents\Visual Studio Projects\SDU\3 semester\WebApi\WebApi\bin\Release\netcoreapp2.0\ChaTex Webservice.pdb
+C:\Users\Kasper\Documents\Visual Studio Projects\SDU\3 semester\WebApi\WebApi\obj\Release\netcoreapp2.0\ChaTex Webservice.csproj.CoreCompileInputs.cache
+C:\Users\Kasper\Documents\Visual Studio Projects\SDU\3 semester\WebApi\WebApi\obj\Release\netcoreapp2.0\ChaTex Webservice.AssemblyInfoInputs.cache
+C:\Users\Kasper\Documents\Visual Studio Projects\SDU\3 semester\WebApi\WebApi\obj\Release\netcoreapp2.0\ChaTex Webservice.AssemblyInfo.cs
+C:\Users\Kasper\Documents\Visual Studio Projects\SDU\3 semester\WebApi\WebApi\obj\Release\netcoreapp2.0\ChaTex Webservice.dll
+C:\Users\Kasper\Documents\Visual Studio Projects\SDU\3 semester\WebApi\WebApi\obj\Release\netcoreapp2.0\ChaTex Webservice.pdb
