@@ -79,7 +79,6 @@ namespace WebApi.Controllers
 
             var rep = new MessageRepository();
             var msg = new DAL.Models.Message();
-            msg.Id = Convert.ToInt32(message.Id);
             msg.Message1 = message.Content;
 
             rep.AddMessage(msg);
