@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Models;
 using WebApi.Models.Threading;
+using DAL;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -75,6 +76,14 @@ namespace WebApi.Controllers
 
             mailCenter.RegisterMessage(message);
             awaitQueue.Notify();
+
+            var rep = new MessageRepository();
+            var msg = new DAL.Models.Message();
+            msg.Id = Convert.ToInt32(message.Id);
+            msg.Message1 = message.Content;
+
+            rep.AddMessage(msg);
+
             return CreatedAtRoute("GetMessage", new { id = message.Id }, message);
         }
     }
