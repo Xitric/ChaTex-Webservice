@@ -79,7 +79,7 @@ namespace WebApi.Controllers
 
             var rep = new MessageRepository();
             var msg = new DAL.Models.Message();
-            msg.Message1 = message.Content;
+            msg.Content = message.Content;
 
             rep.AddMessage(msg);
 
