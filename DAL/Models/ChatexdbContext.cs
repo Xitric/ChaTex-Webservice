@@ -223,6 +223,8 @@ namespace DAL.Models
                 entity.Property(e => e.IsDeleted).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.LastName).IsRequired();
+
+                entity.Property(e => e.MiddleInitial).HasColumnType("char(4)");
             });
 
             modelBuilder.Entity<UserRole>(entity =>
