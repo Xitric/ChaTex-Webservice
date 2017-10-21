@@ -62,9 +62,12 @@ namespace WebAPI.Controllers
                 return BadRequest("No message specified!");
             }
 
-            IUser user = modelFactory.CreateUser(message.Author, null, null, null, null);
-            IMessage msg = modelFactory.CreateMessage(null, message.Content, user, null);
-            IMessage result = messageManager.PostMessage(msg);
+            if (message.Content == null || message.Author == null)
+            {
+                return BadRequest("Message badly formatted!");
+            }
+            
+            IMessage result = messageManager.PostMessage(message.Content, (long)message.Author);
 
             GetMessage dtoResponse = dtoMapper.ConvertMessage(result);
             return CreatedAtRoute("GetMessage", new { messageID = dtoResponse.Id }, dtoResponse);

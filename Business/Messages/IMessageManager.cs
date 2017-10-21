@@ -4,7 +4,7 @@ namespace Business.Messages
 {
     public interface IMessageManager
     {
-        IMessage PostMessage(IMessage message);
+        IMessage PostMessage(string content, long authorId);
 
         IMessage GetMessage(long id);
     }

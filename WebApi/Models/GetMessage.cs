@@ -41,7 +41,7 @@ namespace WebAPI.Models
         /// <param name="CreationTime">CreationTime (required).</param>
         /// <param name="Content">Content (required).</param>
         /// <param name="Sender">Sender (required).</param>
-        public GetMessage(long? Id = null, DateTime? CreationTime = null, string Content = null, Person Sender = null)
+        public GetMessage(long? Id = null, DateTime? CreationTime = null, string Content = null, User Sender = null)
         {
             // to ensure "Id" is required (not null)
             if (Id == null)
@@ -104,7 +104,7 @@ namespace WebAPI.Models
         /// Gets or Sets Sender
         /// </summary>
         [DataMember(Name="Sender")]
-        public Person Sender { get; set; }
+        public User Sender { get; set; }
 
 
         /// <summary>

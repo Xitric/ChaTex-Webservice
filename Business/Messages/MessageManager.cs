@@ -16,7 +16,7 @@ namespace Business.Messages
             return dal.GetMessage(id);
         }
 
-        public IMessage PostMessage(IMessage message)
+        public IMessage PostMessage(string content, long authorId)
         {
             return dal.AddMessage(message);
         }

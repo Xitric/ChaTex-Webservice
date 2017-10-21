@@ -11,9 +11,9 @@ namespace WebAPI.Mappers
             return new GetMessage(message.Id, message.CreationTime, message.Content, ConvertUser(message.Author));
         }
 
-        public Person ConvertUser(IUser user)
+        public User ConvertUser(IUser user)
         {
-            return new Person(user.Id, user.FirstName, user.MiddleInitial?.ToString(), user.LastName, user.Email);
+            return new User(user.Id, user.FirstName, user.MiddleInitial?.ToString(), user.LastName, user.Email);
         }
     }
 }
