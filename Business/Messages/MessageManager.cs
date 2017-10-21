@@ -1,4 +1,5 @@
 ﻿using Business.Models;
+using System.Collections.Generic;
 
 namespace Business.Messages
 {
@@ -18,7 +19,15 @@ namespace Business.Messages
 
         public IMessage PostMessage(string content, long authorId)
         {
+            User author = new User(authorId, null, null, null, null);
+            Message message = new Message(null, content, author, null);
+
             return dal.AddMessage(message);
+        }
+
+        public List<IGroup> GetGroupsForUser(long userId)
+        {
+            return dal.GetGroupsForUser(userId);
         }
     }
 }

@@ -10,6 +10,8 @@ namespace Business
 
         IMessage GetMessage(long id);
 
-        List<IMessage> getMessagesSince(DateTime since);
+        List<IMessage> GetMessagesSince(DateTime since);
+
+        List<IGroup> GetGroupsForUser(long userId);
     }
 }

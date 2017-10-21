@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Business;
-using Business.Messages;
 using Business.Models;
 using DAL.Models;
 using DAL.Mappers;
@@ -12,12 +11,10 @@ namespace DAL
 {
     class MessageRepository : IDataAccess
     {
-        private readonly IModelFactory modelFactory;
         private readonly ModelMapper modelMapper;
 
-        public MessageRepository(IModelFactory modelFactory)
+        public MessageRepository()
         {
-            this.modelFactory = modelFactory;
             modelMapper = new ModelMapper();
         }
 
@@ -38,11 +35,25 @@ namespace DAL
                     //Load author information for returning the newly created message
                     context.Entry(dalMessage).Reference(msg => msg.User).Load();
 
-                    return ToIMessage(dalMessage);
+                    return new MessageMapper(dalMessage);
                 }
             }
 
             return null;
+        }
+
+        public List<IGroup> GetGroupsForUser(long userId)
+        {
+            using (var context = new ChatexdbContext())
+            {
+                List<Group> groups = context.GroupUser
+                    .Where(gu => gu.UserId == userId)
+                    .Select(gu => gu.Group)
+                    .Include(g => g.Channel)
+                    .ToList();
+
+                return groups.Select(g => new GroupMapper(g)).ToList<IGroup>();
+            }
         }
 
         public IMessage GetMessage(long id)
@@ -56,34 +67,23 @@ namespace DAL
 
                 if (dalMessage != null)
                 {
-                    return ToIMessage(dalMessage);
+                    return new MessageMapper(dalMessage);
                 }
             }
 
             return null;
         }
 
-        public List<IMessage> getMessagesSince(DateTime since)
+        public List<IMessage> GetMessagesSince(DateTime since)
         {
             using (var context = new ChatexdbContext())
             {
                 return context.Message
                     .Where(msg => msg.CreationDate > since.ToUniversalTime())
                     .Include(msg => msg.User)
-                    .Select(msg => ToIMessage(msg))
-                    .ToList();
+                    .Select(msg => new MessageMapper(msg))
+                    .ToList<IMessage>();
             }
-        }
-
-        //TODO: Move this somewhere else
-        private IMessage ToIMessage(Message dalMessage)
-        {
-            User dalAuthor = dalMessage.User;
-
-            IUser author = modelFactory.CreateUser(dalAuthor.UserId, dalAuthor.FirstName, dalAuthor.MiddleInitial?.ToCharArray()[0], dalAuthor.LastName, dalAuthor.Email);
-            IMessage message = modelFactory.CreateMessage(dalMessage.MessageId, dalMessage.Content, author, dalMessage.CreationDate);
-
-            return message;
         }
     }
 }

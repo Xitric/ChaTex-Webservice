@@ -35,13 +35,11 @@ namespace WebAPI.Controllers
     public class MessagesController : Controller
     {
         private readonly IMessageManager messageManager;
-        private readonly IModelFactory modelFactory;
         private readonly DTOMapper dtoMapper;
 
-        public MessagesController(IMessageManager messageManager, IModelFactory modelFactory)
+        public MessagesController(IMessageManager messageManager)
         {
             this.messageManager = messageManager;
-            this.modelFactory = modelFactory;
             dtoMapper = new DTOMapper();
         }
 
