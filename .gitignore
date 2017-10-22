@@ -562,3 +562,4 @@ typings/
 # should be stored in the .pubxml.user file.
 
 # End of https://www.gitignore.io/api/csharp,aspnetcore,visualstudio,visualstudiocode
+.vs/WebAPI/v15/.suo
