@@ -8,7 +8,5 @@ namespace Business.Messages
         IMessage PostMessage(string content, long authorId);
 
         IMessage GetMessage(long id);
-
-        List<IGroup> GetGroupsForUser(long userId);
     }
 }

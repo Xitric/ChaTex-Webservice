@@ -7,7 +7,8 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IServiceCollection AddChaTexDAL(this IServiceCollection services)
         {
-            services.AddSingleton<IDataAccess, MessageRepository>();
+            services.AddSingleton<IMessageRepository, MessageRepository>();
+            services.AddSingleton<IUserRepository, UserRepository>();
             return services;
         }
     }

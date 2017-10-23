@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL
 {
-    class MessageRepository : IDataAccess
+    class MessageRepository : IMessageRepository
     {
         private readonly ModelMapper modelMapper;
 
@@ -42,20 +42,6 @@ namespace DAL
             return null;
         }
 
-        public List<IGroup> GetGroupsForUser(long userId)
-        {
-            using (var context = new ChatexdbContext())
-            {
-                List<Group> groups = context.GroupUser
-                    .Where(gu => gu.UserId == userId)
-                    .Select(gu => gu.Group)
-                    .Include(g => g.Channel)
-                    .ToList();
-
-                return groups.Select(g => new GroupMapper(g)).ToList<IGroup>();
-            }
-        }
-
         public IMessage GetMessage(long id)
         {
             using (var context = new ChatexdbContext())
@@ -83,75 +69,6 @@ namespace DAL
                     .Include(msg => msg.User)
                     .Select(msg => new MessageMapper(msg))
                     .ToList<IMessage>();
-            }
-        }
-
-        public string GetSessionToken(string email)
-        {
-            using (var context = new ChatexdbContext())
-            {
-                int userID;
-
-                try
-                {
-                    userID = GetUserIdFromEmail(email);
-                }
-                catch (InvalidOperationException e)
-                {
-                    return null;
-                }
-
-                UserToken uToken = context.UserToken
-                    .Find(userID);
-
-                if (uToken != null)
-                {
-                    return uToken.Token;
-                }
-
-                return null;
-            }
-        }
-
-        public bool SaveUserToken(string email, string token, DateTime expiration)
-        {
-            using (var context = new ChatexdbContext())
-            {
-                int userID;
-
-                try
-                {
-                    userID = GetUserIdFromEmail(email);
-                }
-                catch(InvalidOperationException e)
-                {
-                    return false;
-                }
-
-                UserToken uToken = new UserToken()
-                {
-                    UserId = userID,
-                    Token = token,
-                    ExpirationDate = expiration
-                };
-
-                context.UserToken.Add(uToken);
-                context.SaveChanges();
-            }
-
-            return true;
-        }
-
-        private int GetUserIdFromEmail(string email)
-        {
-            using (var context = new ChatexdbContext())
-            {
-                int userID = context.User
-                    .Where(u => u.Email.Equals(email))
-                    .Select(u => u.UserId)
-                    .Single();
-
-                return userID;
             }
         }
     }

@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Business.Models;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Business.Authentication
 {
     public interface IUserManager
     {
         string Login(string email);
+
+        List<IGroup> GetGroupsForUser(long userId, string token);
     }
 }

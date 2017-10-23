@@ -6,16 +6,16 @@ namespace Business.Messages
 {
     class MessageManager : IMessageManager
     {
-        private readonly IDataAccess dal;
+        private readonly IMessageRepository messages;
 
-        public MessageManager(IDataAccess dal)
+        public MessageManager(IMessageRepository messages)
         {
-            this.dal = dal;
+            this.messages = messages;
         }
 
         public IMessage GetMessage(long id)
         {
-            return dal.GetMessage(id);
+            return messages.GetMessage(id);
         }
 
         public IMessage PostMessage(string content, long authorId)
@@ -23,12 +23,7 @@ namespace Business.Messages
             User author = new User(authorId, null, null, null, null);
             Message message = new Message(null, content, author, null);
 
-            return dal.AddMessage(message);
-        }
-
-        public List<IGroup> GetGroupsForUser(long userId)
-        {
-            return dal.GetGroupsForUser(userId);
+            return messages.AddMessage(message);
         }
     }
 }

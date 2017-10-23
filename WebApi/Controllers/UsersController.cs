@@ -22,7 +22,6 @@
 
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using WebAPI.Models;
 using Business.Messages;
@@ -30,6 +29,7 @@ using WebAPI.Mappers;
 using Business.Models;
 using System.Linq;
 using Business.Authentication;
+using Microsoft.AspNetCore.Http;
 
 namespace WebAPI.Controllers
 {
@@ -54,30 +54,40 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>Get the available groups to the user with the specified ID.</remarks>
         /// <param name="userID">ID of the user</param>
+        /// <param name="token">The token used to identify an authorized user</param>
         /// <response code="200">Successfully retrieved the user&#39;s groups</response>
+        /// <response code="418">The user was not authorized to access this resource</response>
         [HttpGet]
         [Route("/1.0.0/users/{userID}/groups")]
         [SwaggerOperation("GetGroupsForUser")]
         [SwaggerResponse(200, type: typeof(List<Group>))]
-        public virtual IActionResult GetGroupsForUser([FromRoute]long? userID)
+        public virtual IActionResult GetGroupsForUser([FromRoute]long? userID, [FromHeader]string token)
         {
             if (userID == null)
             {
                 return BadRequest("A user id must be specified!");
             }
 
-            List<IGroup> groups = messageManager.GetGroupsForUser((long)userID);
-            List<Group> dtoResponse = groups.Select(g => dtoMapper.ConvertGroup(g)).ToList();
+            try
+            {
+                List<IGroup> groups = userManager.GetGroupsForUser((long)userID, token);
+                List<Group> dtoResponse = groups.Select(g => dtoMapper.ConvertGroup(g)).ToList();
 
-            return new ObjectResult(dtoResponse);
+                return new ObjectResult(dtoResponse);
+            }
+            catch (AuthException e)
+            {
+                return StatusCode(418);
+            }
         }
 
         /// <summary>
         /// Login a user
         /// </summary>
-        /// <remarks>Login a user who has specified an e-mail</remarks>
+        /// <remarks>Login the user with the specified e-mail</remarks>
         /// <param name="userEmail">The user&#39;s email</param>
-        /// <response code="200">The user was successfully loged in</response>
+        /// <response code="200">The user was successfully logged in</response>
+        /// <response code="404">No user with the specified e-mail was found</response>
         [HttpGet]
         [Route("/1.0.0/users/login")]
         [SwaggerOperation("Login")]

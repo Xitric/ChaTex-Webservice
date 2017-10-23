@@ -9,6 +9,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.AddSingleton<IMessageManager, MessageManager>();
             services.AddSingleton<IUserManager, UserManager>();
+            services.AddSingleton<Authenticator>();
             return services;
         }
     }

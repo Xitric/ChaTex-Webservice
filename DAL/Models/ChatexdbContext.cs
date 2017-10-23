@@ -269,8 +269,6 @@ namespace DAL.Models
 
                 entity.Property(e => e.UserId).ValueGeneratedNever();
 
-                entity.Property(e => e.ExpirationDate).HasColumnType("datetime");
-
                 entity.Property(e => e.Token)
                     .IsRequired()
                     .HasMaxLength(64)

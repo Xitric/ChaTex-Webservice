@@ -1,40 +1,34 @@
-﻿using System;
+﻿using Business.Models;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Business.Authentication
 {
     class UserManager : IUserManager
     {
-        private readonly IDataAccess dal;
+        private readonly IUserRepository users;
+        private readonly Authenticator auth;
 
-        public UserManager(IDataAccess dal)
+        public UserManager(IUserRepository users, Authenticator auth)
         {
-            this.dal = dal;
+            this.users = users;
+            this.auth = auth;
         }
 
         public string Login(string email)
         {
-            string token = dal.GetSessionToken(email);
+            //Forward to authenticator
+            return auth.Login(email);
+        }
 
-            if (token == null)
+        public List<IGroup> GetGroupsForUser(long userId, string token)
+        {
+            if (auth.Authenticate(token, userId))
             {
-                //From:
-                //https://stackoverflow.com/questions/14643735/how-to-generate-a-unique-token-which-expires-after-24-hours
-                token = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
-
-                //Token expires after 24 hours
-                DateTime expiration = DateTime.Now.AddDays(1);
-
-                if (dal.SaveUserToken(email, token, expiration))
-                {
-                    return token;
-                }
-
-                return null;
+                return users.GetGroupsForUser(userId);
             }
 
-            return token;
+            //Not good, I know, but it will do for now
+            throw new AuthException("Authentication failed");
         }
     }
 }
