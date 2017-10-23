@@ -14,6 +14,8 @@ namespace Business
 
         List<IGroup> GetGroupsForUser(long userId);
 
+        string GetSessionToken(string email);
+
         bool SaveUserToken(string email, string token, DateTime expiration);
     }
 }

@@ -86,6 +86,33 @@ namespace DAL
             }
         }
 
+        public string GetSessionToken(string email)
+        {
+            using (var context = new ChatexdbContext())
+            {
+                int userID;
+
+                try
+                {
+                    userID = GetUserIdFromEmail(email);
+                }
+                catch (InvalidOperationException e)
+                {
+                    return null;
+                }
+
+                UserToken uToken = context.UserToken
+                    .Find(userID);
+
+                if (uToken != null)
+                {
+                    return uToken.Token;
+                }
+
+                return null;
+            }
+        }
+
         public bool SaveUserToken(string email, string token, DateTime expiration)
         {
             using (var context = new ChatexdbContext())
@@ -94,10 +121,7 @@ namespace DAL
 
                 try
                 {
-                    userID = context.User
-                    .Where(u => u.Email.Equals(email))
-                    .Select(u => u.UserId)
-                    .Single();
+                    userID = GetUserIdFromEmail(email);
                 }
                 catch(InvalidOperationException e)
                 {
@@ -116,6 +140,19 @@ namespace DAL
             }
 
             return true;
+        }
+
+        private int GetUserIdFromEmail(string email)
+        {
+            using (var context = new ChatexdbContext())
+            {
+                int userID = context.User
+                    .Where(u => u.Email.Equals(email))
+                    .Select(u => u.UserId)
+                    .Single();
+
+                return userID;
+            }
         }
     }
 }
