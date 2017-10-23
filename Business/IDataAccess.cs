@@ -13,5 +13,7 @@ namespace Business
         List<IMessage> GetMessagesSince(DateTime since);
 
         List<IGroup> GetGroupsForUser(long userId);
+
+        bool SaveUserToken(string email, string token, DateTime expiration);
     }
 }

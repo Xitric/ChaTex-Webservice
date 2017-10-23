@@ -85,5 +85,37 @@ namespace DAL
                     .ToList<IMessage>();
             }
         }
+
+        public bool SaveUserToken(string email, string token, DateTime expiration)
+        {
+            using (var context = new ChatexdbContext())
+            {
+                int userID;
+
+                try
+                {
+                    userID = context.User
+                    .Where(u => u.Email.Equals(email))
+                    .Select(u => u.UserId)
+                    .Single();
+                }
+                catch(InvalidOperationException e)
+                {
+                    return false;
+                }
+
+                UserToken uToken = new UserToken()
+                {
+                    UserId = userID,
+                    Token = token,
+                    ExpirationDate = expiration
+                };
+
+                context.UserToken.Add(uToken);
+                context.SaveChanges();
+            }
+
+            return true;
+        }
     }
 }

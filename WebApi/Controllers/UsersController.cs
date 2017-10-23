@@ -29,6 +29,7 @@ using Business.Messages;
 using WebAPI.Mappers;
 using Business.Models;
 using System.Linq;
+using Business.Authentication;
 
 namespace WebAPI.Controllers
 {
@@ -38,11 +39,13 @@ namespace WebAPI.Controllers
     public class UsersController : Controller
     {
         private readonly IMessageManager messageManager;
+        private readonly IUserManager userManager;
         private readonly DTOMapper dtoMapper;
 
-        public UsersController(IMessageManager messageManager)
+        public UsersController(IMessageManager messageManager, IUserManager userManager)
         {
             this.messageManager = messageManager;
+            this.userManager = userManager;
             dtoMapper = new DTOMapper();
         }
 
@@ -67,6 +70,33 @@ namespace WebAPI.Controllers
             List<Group> dtoResponse = groups.Select(g => dtoMapper.ConvertGroup(g)).ToList();
 
             return new ObjectResult(dtoResponse);
+        }
+
+        /// <summary>
+        /// Login a user
+        /// </summary>
+        /// <remarks>Login a user who has specified an e-mail</remarks>
+        /// <param name="userEmail">The user&#39;s email</param>
+        /// <response code="200">The user was successfully loged in</response>
+        [HttpGet]
+        [Route("/1.0.0/users/login")]
+        [SwaggerOperation("Login")]
+        [SwaggerResponse(200, type: typeof(string))]
+        public virtual IActionResult Login([FromQuery]string userEmail)
+        {
+            if (userEmail == null)
+            {
+                return BadRequest("An email must be specified!");
+            }
+
+            string token = userManager.Login(userEmail);
+
+            if (token == null)
+            {
+                return NotFound("No user with the specified email was found!");
+            }
+
+            return new ObjectResult(token);
         }
     }
 }
