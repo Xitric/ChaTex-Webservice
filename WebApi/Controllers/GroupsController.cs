@@ -73,6 +73,10 @@ namespace WebAPI.Controllers
             {
                 return StatusCode(418);
             }
+            groupManager.CreateGroup(userId: (int)userId, groupName: groupName,
+                                     allowEmployeeSticky: (bool)allowEmployeeSticky,
+                                     allowEmployeeAcknowledgeable: (bool)allowEmployeeAcknowledgeable,
+                                     allowEmployeeBookmark: (bool)allowEmployeeBookmark);
             return StatusCode(200);
 
         }

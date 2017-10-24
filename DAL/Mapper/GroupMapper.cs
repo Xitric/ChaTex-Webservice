@@ -36,7 +36,7 @@ namespace DAL.Mapper
                 Channels = group.Channel.Select(ch => ChannelMapper.MapChannelEntityToModel(ch)).ToList(),
                 Creator = group.CreatedByNavigation == null ? null : UserMapper.MapUserEntityToModel(group.CreatedByNavigation),
                 Id = group.GroupId,
-                //IsDeleted = group.IsDeleted
+                IsDeleted = group.IsDeleted,
                 Name = group.Name
 
             };

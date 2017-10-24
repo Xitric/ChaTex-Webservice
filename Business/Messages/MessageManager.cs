@@ -12,12 +12,12 @@ namespace Business.Messages
             this.messages = messages;
         }
 
-        public MessageModel GetMessage(long id)
+        public MessageModel GetMessage(int id)
         {
             return messages.GetMessage(id);
         }
 
-        public void PostMessage(string content, long authorId)
+        public void PostMessage(string content, int authorId)
         {
             UserModel author = new UserModel()
             {

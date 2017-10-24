@@ -2,6 +2,7 @@
 using Business;
 using Business.Models;
 using DAL.Models;
+using DAL.Mapper;
 
 namespace DAL
 {
@@ -9,7 +10,12 @@ namespace DAL
     {
         public void CreateGroup(GroupModel group)
         {
-            throw new NotImplementedException();
+            var entity = GroupMapper.MapGroupModelToEntity(group);
+            using (var db = new ChatexdbContext())
+            {
+                db.Group.Add(entity);
+                db.SaveChanges();
+            }
         }
 
         public bool DeleteGroup(long groupId)

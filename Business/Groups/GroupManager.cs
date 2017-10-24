@@ -4,7 +4,13 @@ namespace Business.Groups
 {
     class GroupManager : IGroupManager
     {
-        public void CreateGroup(long userId, string groupName, bool allowEmployeeSticky = false, bool allowEmployeeAcknowledgeable = false, bool allowEmployeeBookmark = false)
+        private readonly IGroupRepository groupRepository;
+        public GroupManager(IGroupRepository groupRepository)
+        {
+            this.groupRepository = groupRepository;
+        }
+
+        public void CreateGroup(int userId, string groupName, bool allowEmployeeSticky = false, bool allowEmployeeAcknowledgeable = false, bool allowEmployeeBookmark = false)
         {
             GroupModel group = new GroupModel()
             {
@@ -18,11 +24,11 @@ namespace Business.Groups
                 AllowEmployeeBookmark = allowEmployeeBookmark
             };
 
-            //TODO:
+            groupRepository.CreateGroup(group);
 
         }
 
-        public bool DeleteGroup(long userId, bool isDeleted)
+        public bool DeleteGroup(int userId, bool isDeleted)
         {
             return true;
         }

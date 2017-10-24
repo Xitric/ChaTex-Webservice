@@ -16,7 +16,7 @@ namespace DAL.Models
         public string Name { get; set; }
         public int CreatedBy { get; set; }
         public DateTime CreationDate { get; set; }
-        public bool? IsDeleted { get; set; }
+        public bool IsDeleted { get; set; }
         public bool AllowEmployeeSticky { get; set; }
         public bool AllowEmployeeAcknowledgeable { get; set; }
         public bool AllowEmployeeBookmark { get; set; }

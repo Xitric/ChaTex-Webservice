@@ -4,8 +4,8 @@ namespace Business.Messages
 {
     public interface IMessageManager
     {
-        void PostMessage(string content, long authorId);
+        void PostMessage(string content, int authorId);
 
-        MessageModel GetMessage(long id);
+        MessageModel GetMessage(int id);
     }
 }

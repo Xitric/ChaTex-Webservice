@@ -6,8 +6,8 @@ namespace Business.Groups
 {
     public interface IGroupManager
     {
-        void CreateGroup(long userId, string groupName, bool allowEmployeeSticky = false, bool allowEmployeeAcknowledgeable = false, bool allowEmployeeBookmark = false);
+        void CreateGroup(int userId, string groupName, bool allowEmployeeSticky = false, bool allowEmployeeAcknowledgeable = false, bool allowEmployeeBookmark = false);
 
-        bool DeleteGroup(long userId, Boolean isDeleted);
+        bool DeleteGroup(int userId, Boolean isDeleted);
     }
 }

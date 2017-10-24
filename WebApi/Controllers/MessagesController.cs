@@ -65,7 +65,7 @@ namespace WebAPI.Controllers
                 return BadRequest("Message badly formatted!");
             }
             
-            messageManager.PostMessage(message.Content, (long)message.Author);
+            messageManager.PostMessage(message.Content, (int)message.Author);
             
             return StatusCode(200);
         }
@@ -81,14 +81,14 @@ namespace WebAPI.Controllers
         [Route("/1.0.0/messages/{messageID}", Name = "GetMessage")]
         [SwaggerOperation("GetMessageByID")]
         [SwaggerResponse(200, type: typeof(GetMessageDTO))]
-        public virtual IActionResult GetMessageByID([FromRoute]long? messageID)
+        public virtual IActionResult GetMessageByID([FromRoute]int? messageID)
         {
             if (messageID == null)
             {
                 return BadRequest("A message id must be specified!");
             }
 
-            MessageModel message = messageManager.GetMessage((long)messageID);
+            MessageModel message = messageManager.GetMessage((int)messageID);
 
             if (message == null)
             {

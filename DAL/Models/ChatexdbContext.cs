@@ -27,7 +27,7 @@ namespace DAL.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-                //This is very good
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
                 optionsBuilder.UseSqlServer(@"Server=chatexdb.database.windows.net;Database=Chatexdb;Trusted_Connection=False;User ID=chatexusername;Password=Chatexpassword123");
             }
         }
@@ -125,8 +125,6 @@ namespace DAL.Models
                 entity.Property(e => e.CreationDate)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
-
-                entity.Property(e => e.IsDeleted).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.Name).IsRequired();
 

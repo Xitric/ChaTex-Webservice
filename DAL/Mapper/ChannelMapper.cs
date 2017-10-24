@@ -8,11 +8,10 @@ namespace DAL.Mapper
 {
     class ChannelMapper
     {
-        public static Channel MapChannelModelToEntity(ChannelModel ChannelModel)
+        public static Channel MapChannelModelToEntity(ChannelModel channelModel)
         {
             return new Channel()
             {
-
             };
         }
 
