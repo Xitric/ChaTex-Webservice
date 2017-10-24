@@ -21,13 +21,7 @@ namespace Business.Authentication
             return auth.Login(email);
         }
 
-        public long? Authenticate(string token)
-        {
-            //Forward to authenticator
-            return auth.AuthenticateGetId(token);
-        }
-
-        public List<GroupModel> GetGroupsForUser(long userId)
+        public List<GroupModel> GetGroupsForUser(int userId)
         {
             return users.GetGroupsForUser(userId);
         }

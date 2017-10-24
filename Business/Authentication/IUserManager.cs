@@ -7,8 +7,6 @@ namespace Business.Authentication
     {
         string Login(string email);
 
-        long? Authenticate(string token);
-
-        List<GroupModel> GetGroupsForUser(long userId);
+        List<GroupModel> GetGroupsForUser(int userId);
     }
 }

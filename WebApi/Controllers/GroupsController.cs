@@ -22,11 +22,10 @@
 
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using Business.Authentication;
 using WebAPI.Mappers;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Business.Groups;
 using System;
+using WebAPI.Authentication;
 
 namespace WebAPI.Controllers
 {
@@ -36,22 +35,14 @@ namespace WebAPI.Controllers
     public class GroupsController : Controller
     {
         private readonly IGroupManager groupManager;
-        private readonly IUserManager userManager;
         private readonly DTOMapper dtoMapper;
 
         private long? userId;
 
-        public GroupsController(IUserManager userManager, IGroupManager groupManager)
+        public GroupsController(IGroupManager groupManager)
         {
             this.groupManager = groupManager;
-            this.userManager = userManager;
             dtoMapper = new DTOMapper();
-        }
-
-        public override void OnActionExecuting(ActionExecutingContext context)
-        {
-            string token = HttpContext.Request.Headers["token"];
-            userId = userManager.Authenticate(token);
         }
 
         /// <summary>
@@ -64,16 +55,18 @@ namespace WebAPI.Controllers
         /// <param name="allowEmployeeBookmark">Whether employees are allowed to make bookmarks</param>
         /// <response code="204">The group was created, and the group administrator was successfully added</response>
         /// <response code="400">Bad input</response>
-        /// <response code="418">The user was not authorized to access this resource</response>
+        /// <response code="403">The user was not authorized to access this resource</response>
         [HttpPost]
         [Route("/1.0.0/groups")]
         [SwaggerOperation("CreateGroup")]
         public virtual StatusCodeResult CreateGroup([FromQuery]string groupName, [FromQuery]bool? allowEmployeeSticky, [FromQuery]bool? allowEmployeeAcknowledgeable, [FromQuery]bool? allowEmployeeBookmark)
         {
+            int? userId = (int?)HttpContext.Items[RequestAuthenticator.UserIdKey];
             if (userId == null)
             {
-                return StatusCode(418);
+                return StatusCode(403);
             }
+
             groupManager.CreateGroup(userId: (int)userId, groupName: groupName,
                                      allowEmployeeSticky: (bool)allowEmployeeSticky,
                                      allowEmployeeAcknowledgeable: (bool)allowEmployeeAcknowledgeable,
@@ -88,12 +81,18 @@ namespace WebAPI.Controllers
         /// <param name="groupId"></param>
         /// <response code="204">Group deleted successfully</response>
         /// <response code="404">No group with the specified id exists</response>
-        /// <response code="418">The user was not authorized to access this resource</response>
+        /// <response code="403">The user was not authorized to access this resource</response>
         [HttpDelete]
         [Route("/1.0.0/groups/{groupId}")]
         [SwaggerOperation("DeleteGroup")]
         public virtual StatusCodeResult DeleteGroup([FromRoute]int? groupId)
         {
+            int? userId = (int?)HttpContext.Items[RequestAuthenticator.UserIdKey];
+            if (userId == null)
+            {
+                return StatusCode(403);
+            }
+
             throw new NotImplementedException();
         }
     }

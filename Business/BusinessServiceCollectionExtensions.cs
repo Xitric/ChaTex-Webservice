@@ -11,6 +11,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IGroupManager, GroupManager>();
             services.AddSingleton<IMessageManager, MessageManager>();
             services.AddSingleton<IUserManager, UserManager>();
+            services.AddSingleton<IAuthenticator, Authenticator>();
             services.AddSingleton<Authenticator>();
             return services;
         }

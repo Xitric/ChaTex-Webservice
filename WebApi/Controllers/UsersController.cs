@@ -29,8 +29,8 @@ using WebAPI.Mappers;
 using System.Linq;
 using Business.Authentication;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Business.Models;
+using WebAPI.Authentication;
 
 namespace WebAPI.Controllers
 {
@@ -43,8 +43,6 @@ namespace WebAPI.Controllers
         private readonly IUserManager userManager;
         private readonly DTOMapper dtoMapper;
 
-        private long? userId;
-
         public UsersController(IMessageManager messageManager, IUserManager userManager)
         {
             this.messageManager = messageManager;
@@ -52,30 +50,25 @@ namespace WebAPI.Controllers
             dtoMapper = new DTOMapper();
         }
 
-        public override void OnActionExecuting(ActionExecutingContext context)
-        {
-            string token = HttpContext.Request.Headers["token"];
-            userId = userManager.Authenticate(token);
-        }
-
         /// <summary>
         /// Get the available groups to a user.
         /// </summary>
         /// <remarks>Get the available groups to the user with the specified ID.</remarks>
         /// <response code="200">Successfully retrieved the user&#39;s groups</response>
-        /// <response code="418">The user was not authorized to access this resource</response>
+        /// <response code="403">The user was not authorized to access this resource</response>
         [HttpGet]
         [Route("/1.0.0/users/me/groups")]
         [SwaggerOperation("GetGroupsForUser")]
         [SwaggerResponse(200, type: typeof(List<GroupDTO>))]
         public virtual IActionResult GetGroupsForUser()
         {
+            int? userId = (int?)HttpContext.Items[RequestAuthenticator.UserIdKey];
             if (userId == null)
             {
-                return StatusCode(418);
+                return StatusCode(403);
             }
 
-            List<GroupModel> groups = userManager.GetGroupsForUser((long)userId);
+            List<GroupModel> groups = userManager.GetGroupsForUser((int)userId);
             List<GroupDTO> dtoResponse = groups.Select(g => dtoMapper.ConvertGroup(g)).ToList();
 
             return new ObjectResult(dtoResponse);

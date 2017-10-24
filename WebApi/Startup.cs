@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.Swagger;
+using WebAPI.Authentication;
 
 namespace WebAPI
 {
@@ -41,6 +42,8 @@ namespace WebAPI
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseMiddleware<RequestAuthenticator>();
 
             app.UseMvc();
 

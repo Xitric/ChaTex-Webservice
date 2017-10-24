@@ -13,8 +13,8 @@ namespace Business
 
         void DeleteUserToken(string email);
 
-        long? GetUserIdFromToken(string token);
+        int? GetUserIdFromToken(string token);
 
-        List<GroupModel> GetGroupsForUser(long userId);
+        List<GroupModel> GetGroupsForUser(int userId);
     }
 }

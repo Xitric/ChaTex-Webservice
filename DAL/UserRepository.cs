@@ -85,7 +85,7 @@ namespace DAL
             }
         }
 
-        public long? GetUserIdFromToken(string token)
+        public int? GetUserIdFromToken(string token)
         {
             using (var context = new ChatexdbContext())
             {
@@ -103,7 +103,7 @@ namespace DAL
             }
         }
 
-        public List<GroupModel> GetGroupsForUser(long userId)
+        public List<GroupModel> GetGroupsForUser(int userId)
         {
             using (var context = new ChatexdbContext())
             {

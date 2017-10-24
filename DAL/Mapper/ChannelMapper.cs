@@ -12,6 +12,10 @@ namespace DAL.Mapper
         {
             return new Channel()
             {
+                ChannelId = channelModel.Id == null ? 0 : channelModel.Id.Value,
+                Name = channelModel.Name,
+                IsDeleted = false, //TODO
+                GroupId = 0 //TODO
             };
         }
 
@@ -19,7 +23,8 @@ namespace DAL.Mapper
         {
             return new ChannelModel()
             {
-
+                Id = channel.ChannelId,
+                Name = channel.Name
             };
         }
     }
