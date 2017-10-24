@@ -63,17 +63,6 @@ namespace Business.Authentication
         }
 
         /// <summary>
-        /// Authenticate the user bases on whether the token is valid and is linked to the specified user ID.
-        /// </summary>
-        /// <param name="token">The token to check</param>
-        /// <param name="userId">The ID of the user</param>
-        /// <returns>True if the authentication succeeds, false otherwise</returns>
-        public bool Authenticate(string token, long userId)
-        {
-            return AuthenticateGetId(token) == userId;
-        }
-
-        /// <summary>
         /// Generate a new token with the specified expiration date. Note that this token is not secure, and is only used for illustrational purposes.
         /// </summary>
         /// <param name="expiration">The expiraiton date of the token</param>

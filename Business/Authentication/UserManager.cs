@@ -20,15 +20,15 @@ namespace Business.Authentication
             return auth.Login(email);
         }
 
-        public List<IGroup> GetGroupsForUser(long userId, string token)
+        public long? Authenticate(string token)
         {
-            if (auth.Authenticate(token, userId))
-            {
-                return users.GetGroupsForUser(userId);
-            }
+            //Forward to authenticator
+            return auth.AuthenticateGetId(token);
+        }
 
-            //Not good, I know, but it will do for now
-            throw new AuthException("Authentication failed");
+        public List<IGroup> GetGroupsForUser(long userId)
+        {
+            return users.GetGroupsForUser(userId);
         }
     }
 }
