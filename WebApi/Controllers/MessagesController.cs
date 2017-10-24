@@ -25,9 +25,9 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Business.Messages;
-using Business.Models;
 using WebAPI.Models;
 using WebAPI.Mappers;
+using Models.Models;
 
 namespace WebAPI.Controllers
 {
@@ -52,8 +52,8 @@ namespace WebAPI.Controllers
         [HttpPost]
         [Route("/1.0.0/messages")]
         [SwaggerOperation("CreateMessage")]
-        [SwaggerResponse(200, type: typeof(GetMessage))]
-        public virtual IActionResult CreateMessage([FromBody]PostMessage message)
+        [SwaggerResponse(200, type: typeof(GetMessageDTO))]
+        public virtual IActionResult CreateMessage([FromBody]PostMessageDTO message)
         {
             if (message == null)
             {
@@ -67,7 +67,7 @@ namespace WebAPI.Controllers
             
             IMessage result = messageManager.PostMessage(message.Content, (long)message.Author);
 
-            GetMessage dtoResponse = dtoMapper.ConvertMessage(result);
+            GetMessageDTO dtoResponse = dtoMapper.ConvertMessage(result);
             return CreatedAtRoute("GetMessage", new { messageID = dtoResponse.Id }, dtoResponse);
         }
 
@@ -81,7 +81,7 @@ namespace WebAPI.Controllers
         [HttpGet]
         [Route("/1.0.0/messages/{messageID}", Name = "GetMessage")]
         [SwaggerOperation("GetMessageByID")]
-        [SwaggerResponse(200, type: typeof(GetMessage))]
+        [SwaggerResponse(200, type: typeof(GetMessageDTO))]
         public virtual IActionResult GetMessageByID([FromRoute]long? messageID)
         {
             if (messageID == null)
@@ -96,7 +96,7 @@ namespace WebAPI.Controllers
                 return NotFound($"No message with the id {messageID} was found.");
             }
 
-            GetMessage dtoResponse = dtoMapper.ConvertMessage(message);
+            GetMessageDTO dtoResponse = dtoMapper.ConvertMessage(message);
             return new ObjectResult(dtoResponse);
         }
 
@@ -109,7 +109,7 @@ namespace WebAPI.Controllers
         [HttpGet]
         [Route("/1.0.0/messages")]
         [SwaggerOperation("GetMessages")]
-        [SwaggerResponse(200, type: typeof(List<GetMessage>))]
+        [SwaggerResponse(200, type: typeof(List<GetMessageDTO>))]
         public virtual IActionResult GetMessages()
         {
             throw new NotSupportedException();
@@ -125,7 +125,7 @@ namespace WebAPI.Controllers
         [HttpGet]
         [Route("/1.0.0/messages/wait")]
         [SwaggerOperation("WaitMessage")]
-        [SwaggerResponse(200, type: typeof(List<GetMessage>))]
+        [SwaggerResponse(200, type: typeof(List<GetMessageDTO>))]
         public virtual IActionResult WaitMessage([FromQuery]DateTime? since)
         {
             throw new NotSupportedException();

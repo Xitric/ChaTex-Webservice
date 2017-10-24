@@ -27,7 +27,7 @@ namespace DAL.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+                //This is very good
                 optionsBuilder.UseSqlServer(@"Server=chatexdb.database.windows.net;Database=Chatexdb;Trusted_Connection=False;User ID=chatexusername;Password=Chatexpassword123");
             }
         }

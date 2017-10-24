@@ -1,4 +1,4 @@
-﻿using Business.Models;
+﻿using Models.Models;
 using System.Collections.Generic;
 
 namespace Business.Authentication

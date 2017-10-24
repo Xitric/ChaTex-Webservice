@@ -1,5 +1,4 @@
-﻿using Business.Models;
-using System;
+﻿using Models.Models;
 using System.Collections.Generic;
 using System.Linq;
 using WebAPI.Models;
@@ -8,28 +7,28 @@ namespace WebAPI.Mappers
 {
     class DTOMapper
     {
-        public GetMessage ConvertMessage(IMessage message)
+        public GetMessageDTO ConvertMessage(IMessage message)
         {
-            return new GetMessage(message.Id, message.CreationTime, message.Content, ConvertUser(message.Author));
+            return new GetMessageDTO(message.Id, message.CreationTime, message.Content, ConvertUser(message.Author));
         }
 
-        public User ConvertUser(IUser user)
+        public UserDTO ConvertUser(IUser user)
         {
-            return new User(user.Id, user.FirstName, user.MiddleInitial?.ToString(), user.LastName, user.Email);
+            return new UserDTO(user.Id, user.FirstName, user.MiddleInitial?.ToString(), user.LastName, user.Email);
         }
 
-        public Group ConvertGroup(IGroup group)
+        public GroupDTO ConvertGroup(IGroup group)
         {
-            List<Channel> channels = group.Channels
+            List<ChannelDTO> channels = group.Channels
                 .Select(c => ConvertChannel(c))
                 .ToList();
 
-            return new Group(group.Id, group.Name, channels);
+            return new GroupDTO(group.Id, group.Name, channels);
         }
 
-        public Channel ConvertChannel(IChannel channel)
+        public ChannelDTO ConvertChannel(IChannel channel)
         {
-            return new Channel(channel.Id, channel.Name);
+            return new ChannelDTO(channel.Id, channel.Name);
         }
     }
 }

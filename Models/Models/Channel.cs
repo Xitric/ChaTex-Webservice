@@ -1,6 +1,6 @@
-﻿namespace Business.Models
+﻿namespace Models.Models
 {
-    class Channel : IChannel
+    public class Channel : IChannel
     {
         public long? Id { get; }
 

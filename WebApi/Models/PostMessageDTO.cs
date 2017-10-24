@@ -32,14 +32,14 @@ namespace WebAPI.Models
     /// 
     /// </summary>
     [DataContract]
-    public partial class PostMessage :  IEquatable<PostMessage>
+    public partial class PostMessageDTO :  IEquatable<PostMessageDTO>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="PostMessage" /> class.
+        /// Initializes a new instance of the <see cref="PostMessageDTO" /> class.
         /// </summary>
         /// <param name="Content">Content (required).</param>
         /// <param name="Author">Author (required).</param>
-        public PostMessage(string Content = null, long? Author = null)
+        public PostMessageDTO(string Content = null, long? Author = null)
         {
             // to ensure "Content" is required (not null)
             if (Content == null)
@@ -108,7 +108,7 @@ namespace WebAPI.Models
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((PostMessage)obj);
+            return Equals((PostMessageDTO)obj);
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace WebAPI.Models
         /// </summary>
         /// <param name="other">Instance of PostMessage to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(PostMessage other)
+        public bool Equals(PostMessageDTO other)
         {
 
             if (ReferenceEquals(null, other)) return false;
@@ -156,12 +156,12 @@ namespace WebAPI.Models
 
         #region Operators
 
-        public static bool operator ==(PostMessage left, PostMessage right)
+        public static bool operator ==(PostMessageDTO left, PostMessageDTO right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(PostMessage left, PostMessage right)
+        public static bool operator !=(PostMessageDTO left, PostMessageDTO right)
         {
             return !Equals(left, right);
         }

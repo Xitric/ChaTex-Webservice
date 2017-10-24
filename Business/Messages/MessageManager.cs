@@ -1,6 +1,5 @@
-﻿using Business.Models;
-using System;
-using System.Collections.Generic;
+﻿using Models;
+using Models.Models;
 
 namespace Business.Messages
 {
@@ -20,8 +19,15 @@ namespace Business.Messages
 
         public IMessage PostMessage(string content, long authorId)
         {
-            User author = new User(authorId, null, null, null, null);
-            Message message = new Message(null, content, author, null);
+            User author = new User()
+            {
+                Id = authorId
+            };
+            Message message = new Message()
+            {
+                Content = content,
+                Author = author
+            };
 
             return messages.AddMessage(message);
         }

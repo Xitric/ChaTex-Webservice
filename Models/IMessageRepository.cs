@@ -1,8 +1,8 @@
-﻿using Business.Models;
+﻿using Models.Models;
 using System;
 using System.Collections.Generic;
 
-namespace Business
+namespace Models
 {
     public interface IMessageRepository
     {

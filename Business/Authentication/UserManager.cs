@@ -1,4 +1,5 @@
-﻿using Business.Models;
+﻿using Models;
+using Models.Models;
 using System.Collections.Generic;
 
 namespace Business.Authentication
@@ -30,5 +31,6 @@ namespace Business.Authentication
         {
             return users.GetGroupsForUser(userId);
         }
+        
     }
 }

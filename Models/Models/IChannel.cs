@@ -1,4 +1,4 @@
-﻿namespace Business.Models
+﻿namespace Models.Models
 {
     public interface IChannel
     {

@@ -1,5 +1,4 @@
-﻿using Business.Models;
-using System.Collections.Generic;
+﻿using Models.Models;
 
 namespace Business.Messages
 {

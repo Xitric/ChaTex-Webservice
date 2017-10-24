@@ -26,11 +26,11 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using WebAPI.Models;
 using Business.Messages;
 using WebAPI.Mappers;
-using Business.Models;
 using System.Linq;
 using Business.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Models.Models;
 
 namespace WebAPI.Controllers
 {
@@ -67,7 +67,7 @@ namespace WebAPI.Controllers
         [HttpGet]
         [Route("/1.0.0/users/me/groups")]
         [SwaggerOperation("GetGroupsForUser")]
-        [SwaggerResponse(200, type: typeof(List<Group>))]
+        [SwaggerResponse(200, type: typeof(List<GroupDTO>))]
         public virtual IActionResult GetGroupsForUser()
         {
             if (userId == null)
@@ -76,7 +76,7 @@ namespace WebAPI.Controllers
             }
 
             List<IGroup> groups = userManager.GetGroupsForUser((long)userId);
-            List<Group> dtoResponse = groups.Select(g => dtoMapper.ConvertGroup(g)).ToList();
+            List<GroupDTO> dtoResponse = groups.Select(g => dtoMapper.ConvertGroup(g)).ToList();
 
             return new ObjectResult(dtoResponse);
         }
