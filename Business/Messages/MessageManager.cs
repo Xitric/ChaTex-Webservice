@@ -20,7 +20,7 @@ namespace Business.Messages
 
         public IMessage PostMessage(string content, long authorId)
         {
-            User author = new User(authorId, null, null, null, null, null);
+            User author = new User(authorId, null, null, null, null);
             Message message = new Message(null, content, author, null);
 
             return messages.AddMessage(message);

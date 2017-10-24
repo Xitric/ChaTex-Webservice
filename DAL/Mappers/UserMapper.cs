@@ -21,7 +21,5 @@ namespace DAL.Mappers
         public string LastName => user.LastName;
 
         public string Email => user.Email;
-
-        public string Token => user.UserToken?.Token;
     }
 }

@@ -14,7 +14,7 @@ namespace Business.Authentication
             this.auth = auth;
         }
 
-        public IUser Login(string email)
+        public string Login(string email)
         {
             //Forward to authenticator
             return auth.Login(email);
