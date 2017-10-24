@@ -26,6 +26,7 @@ using Business.Authentication;
 using WebAPI.Mappers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Business.Groups;
+using System;
 
 namespace WebAPI.Controllers
 {
@@ -54,15 +55,15 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Create a group
+        /// Create a new group
         /// </summary>
-        /// <remarks>Create a group, and define group administrator</remarks>
-        /// <param name="groupName">Name of the group</param>
-        /// <param name="allowEmployeeSticky">Allow employee sticky</param>
-        /// <param name="allowEmployeeAcknowledgeable">Allow employee acknowledgeable</param>
-        /// <param name="allowEmployeeBookmark">Allow employee bookmark</param>
-        /// <response code="200">The group was created, and the group administrator was successfully added</response>
-        /// <response code="400">Something went wrong, and the group was not created</response>
+        /// <remarks>Creates a new group with the caller as the group administrator</remarks>
+        /// <param name="groupName">The name of the group</param>
+        /// <param name="allowEmployeeSticky">Whether employees are allowed to make sticky messages</param>
+        /// <param name="allowEmployeeAcknowledgeable">Whether employees are allowed to make acknowledgeable messages</param>
+        /// <param name="allowEmployeeBookmark">Whether employees are allowed to make bookmarks</param>
+        /// <response code="204">The group was created, and the group administrator was successfully added</response>
+        /// <response code="400">Bad input</response>
         /// <response code="418">The user was not authorized to access this resource</response>
         [HttpPost]
         [Route("/1.0.0/groups")]
@@ -77,8 +78,23 @@ namespace WebAPI.Controllers
                                      allowEmployeeSticky: (bool)allowEmployeeSticky,
                                      allowEmployeeAcknowledgeable: (bool)allowEmployeeAcknowledgeable,
                                      allowEmployeeBookmark: (bool)allowEmployeeBookmark);
-            return StatusCode(200);
+            return StatusCode(204);
+        }
 
+        /// <summary>
+        /// Delete a group
+        /// </summary>
+        /// <remarks>Deletes the group with the specified id</remarks>
+        /// <param name="groupId"></param>
+        /// <response code="204">Group deleted successfully</response>
+        /// <response code="404">No group with the specified id exists</response>
+        /// <response code="418">The user was not authorized to access this resource</response>
+        [HttpDelete]
+        [Route("/1.0.0/groups/{groupId}")]
+        [SwaggerOperation("DeleteGroup")]
+        public virtual StatusCodeResult DeleteGroup([FromRoute]int? groupId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

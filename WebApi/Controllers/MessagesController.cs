@@ -48,11 +48,10 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>Send a message to the server</remarks>
         /// <param name="message">The message object</param>
-        /// <response code="201">message created successfully</response>
+        /// <response code="204">message created successfully</response>
         [HttpPost]
         [Route("/1.0.0/messages")]
         [SwaggerOperation("CreateMessage")]
-        [SwaggerResponse(200, type: typeof(GetMessageDTO))]
         public virtual IActionResult CreateMessage([FromBody]PostMessageDTO message)
         {
             if (message == null)
@@ -67,7 +66,7 @@ namespace WebAPI.Controllers
             
             messageManager.PostMessage(message.Content, (int)message.Author);
             
-            return StatusCode(200);
+            return StatusCode(204);
         }
 
         /// <summary>

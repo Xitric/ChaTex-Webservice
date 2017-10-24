@@ -87,7 +87,7 @@ namespace WebAPI.Controllers
         /// <remarks>Login the user with the specified e-mail</remarks>
         /// <param name="userEmail">The user&#39;s email</param>
         /// <response code="200">The user was successfully logged in</response>
-        /// <response code="400">No user with the specified e-mail was found</response>
+        /// <response code="404">No user with the specified e-mail was found</response>
         [HttpGet]
         [Route("/1.0.0/users/login")]
         [SwaggerOperation("Login")]
