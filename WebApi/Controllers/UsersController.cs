@@ -29,7 +29,7 @@ using WebAPI.Mappers;
 using Business.Models;
 using System.Linq;
 using Business.Authentication;
-using Microsoft.AspNetCore.Http;
+using System;
 
 namespace WebAPI.Controllers
 {
@@ -87,11 +87,11 @@ namespace WebAPI.Controllers
         /// <remarks>Login the user with the specified e-mail</remarks>
         /// <param name="userEmail">The user&#39;s email</param>
         /// <response code="200">The user was successfully logged in</response>
-        /// <response code="404">No user with the specified e-mail was found</response>
+        /// <response code="400">No user with the specified e-mail was found</response>
         [HttpGet]
         [Route("/1.0.0/users/login")]
         [SwaggerOperation("Login")]
-        [SwaggerResponse(200, type: typeof(string))]
+        [SwaggerResponse(200, type: typeof(UserToken))]
         public virtual IActionResult Login([FromQuery]string userEmail)
         {
             if (userEmail == null)
@@ -99,14 +99,14 @@ namespace WebAPI.Controllers
                 return BadRequest("An email must be specified!");
             }
 
-            string token = userManager.Login(userEmail);
+            IUser user = userManager.Login(userEmail);
 
-            if (token == null)
+            if (user == null)
             {
                 return NotFound("No user with the specified email was found!");
             }
 
-            return new ObjectResult(token);
+            return new ObjectResult(new UserToken(user.Id, user.Token));
         }
     }
 }
