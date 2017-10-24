@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Business.Models;
+using System;
 using System.Linq;
 
 namespace Business.Authentication
@@ -17,8 +18,8 @@ namespace Business.Authentication
         /// expire after 1 hour.
         /// </summary>
         /// <param name="email">The email of the user to log in</param>
-        /// <returns>The generated token, or null if the user could not be authorized</returns>
-        public string Login(string email)
+        /// <returns>A user object containing the generated token and user id</returns>
+        public User Login(string email)
         {
             //Attempt to get existing token
             string token = users.GetSessionToken(email);
@@ -35,42 +36,39 @@ namespace Business.Authentication
             {
                 token = GenerateToken(DateTime.Now.AddHours(1));
 
-                if (users.SaveUserToken(email, token))
+                if (!users.SaveUserToken(email, token))
                 {
-                    return token;
+                    //For some reason the token could not be generated, and the login failed
+                    return null;
                 }
+            }
 
-                //For some reason the token could not be generated, and the login failed
+            //Login success
+            long? userId = users.GetUserIdFromToken(token);
+
+            if (userId == null)
+            {
+                //Not sure why this should ever happen
                 return null;
             }
 
-            return token;
+            return new User(userId, null, null, null, null, token);
         }
 
         /// <summary>
-        /// Get the id of the user with the specified token. If this method returns null, it means that the user could not be authenticated.
-        /// </summary>
-        /// <param name="token">The token to check</param>
-        /// <returns>The id of the user owning the token, or null if the token is invalid or expired.</returns>
-        public long? AuthenticateGetId(string token)
-        {
-            if (!IsTokenExpired(token))
-            {
-                return users.GetUserIdFromToken(token);
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Authenticate the user bases on whether the token is valid and is linked to the specified user ID.
+        /// Authenticate the user based on whether the token is valid and is linked to the specified user ID.
         /// </summary>
         /// <param name="token">The token to check</param>
         /// <param name="userId">The ID of the user</param>
         /// <returns>True if the authentication succeeds, false otherwise</returns>
         public bool Authenticate(string token, long userId)
         {
-            return AuthenticateGetId(token) == userId;
+            if (!IsTokenExpired(token))
+            {
+                return users.GetUserIdFromToken(token) == userId;
+            }
+
+            return false;
         }
 
         /// <summary>
