@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using WebApi.Models;
+using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.Swagger;
-using WebApi.Models.Threading;
 
-namespace WebApi
+namespace WebAPI
 {
     public class Startup
     {
@@ -26,7 +19,9 @@ namespace WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+            services.AddMvc()
+                .AddJsonOptions(
+                    opts => { opts.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver(); });
 
             //Register Swagger
             services.AddSwaggerGen(c =>
@@ -35,8 +30,8 @@ namespace WebApi
             });
 
             //Register application services
-            services.AddSingleton<IMailCenter, MailCenter>();
-            services.AddSingleton<MessageAwaitQueue>();
+            services.AddChaTexBusiness();
+            services.AddChaTexDAL();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

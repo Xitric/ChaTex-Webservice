@@ -5,7 +5,25 @@ namespace DAL.Models
 {
     public partial class Message
     {
-        public int Id { get; set; }
-        public string Message1 { get; set; }
+        public Message()
+        {
+            ChannelBookmark = new HashSet<ChannelBookmark>();
+            ChannelMessages = new HashSet<ChannelMessages>();
+            ChatMessage = new HashSet<ChatMessage>();
+            UserSavedMessage = new HashSet<UserSavedMessage>();
+        }
+
+        public int MessageId { get; set; }
+        public string Content { get; set; }
+        public DateTime? EditDate { get; set; }
+        public int UserId { get; set; }
+        public bool? IsDeleted { get; set; }
+        public DateTime CreationDate { get; set; }
+
+        public User User { get; set; }
+        public ICollection<ChannelBookmark> ChannelBookmark { get; set; }
+        public ICollection<ChannelMessages> ChannelMessages { get; set; }
+        public ICollection<ChatMessage> ChatMessage { get; set; }
+        public ICollection<UserSavedMessage> UserSavedMessage { get; set; }
     }
 }
