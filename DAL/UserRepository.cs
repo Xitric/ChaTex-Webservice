@@ -1,10 +1,11 @@
 ﻿using DAL.Models;
 using Microsoft.EntityFrameworkCore;
-using Models;
-using Models.Models;
+using Business;
+using Business.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DAL.Mapper;
 
 namespace DAL
 {
@@ -102,19 +103,18 @@ namespace DAL
             }
         }
 
-        public List<IGroup> GetGroupsForUser(long userId)
+        public List<GroupModel> GetGroupsForUser(long userId)
         {
-            //using (var context = new ChatexdbContext())
-            //{
-            //    List<Group> groups = context.GroupUser
-            //        .Where(gu => gu.UserId == userId)
-            //        .Select(gu => gu.Group)
-            //        .Include(g => g.Channel)
-            //        .ToList();
+            using (var context = new ChatexdbContext())
+            {
+                List<Group> groups = context.GroupUser
+                    .Where(gu => gu.UserId == userId)
+                    .Select(gu => gu.Group)
+                    .Include(g => g.Channel)
+                    .ToList();
 
-            //    return groups.Select(g => new GroupMapper(g)).ToList<IGroup>();
-            //}
-            return null;
+                return groups.Select(g => GroupMapper.MapGroupEntityToModel(g)).ToList();
+            }
         }
     }
 }

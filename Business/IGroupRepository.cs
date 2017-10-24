@@ -1,10 +1,10 @@
-﻿using Models.Models;
+﻿using Business.Models;
 
-namespace Models
+namespace Business
 {
     public interface IGroupRepository
     {
-        void CreateGroup(IGroup group);
+        void CreateGroup(GroupModel group);
 
         bool DeleteGroup(long groupId);
 

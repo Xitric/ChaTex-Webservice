@@ -27,7 +27,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using Business.Messages;
 using WebAPI.Models;
 using WebAPI.Mappers;
-using Models.Models;
+using Business.Models;
 
 namespace WebAPI.Controllers
 {
@@ -65,10 +65,9 @@ namespace WebAPI.Controllers
                 return BadRequest("Message badly formatted!");
             }
             
-            IMessage result = messageManager.PostMessage(message.Content, (long)message.Author);
-
-            GetMessageDTO dtoResponse = dtoMapper.ConvertMessage(result);
-            return CreatedAtRoute("GetMessage", new { messageID = dtoResponse.Id }, dtoResponse);
+            messageManager.PostMessage(message.Content, (long)message.Author);
+            
+            return StatusCode(200);
         }
 
         /// <summary>
@@ -89,7 +88,7 @@ namespace WebAPI.Controllers
                 return BadRequest("A message id must be specified!");
             }
 
-            IMessage message = messageManager.GetMessage((long)messageID);
+            MessageModel message = messageManager.GetMessage((long)messageID);
 
             if (message == null)
             {

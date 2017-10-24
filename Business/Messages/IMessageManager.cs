@@ -1,11 +1,11 @@
-﻿using Models.Models;
+﻿using Business.Models;
 
 namespace Business.Messages
 {
     public interface IMessageManager
     {
-        IMessage PostMessage(string content, long authorId);
+        void PostMessage(string content, long authorId);
 
-        IMessage GetMessage(long id);
+        MessageModel GetMessage(long id);
     }
 }

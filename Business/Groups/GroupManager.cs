@@ -1,4 +1,4 @@
-﻿using Models.Models;
+﻿using Business.Models;
 
 namespace Business.Groups
 {
@@ -6,9 +6,9 @@ namespace Business.Groups
     {
         public void CreateGroup(long userId, string groupName, bool allowEmployeeSticky = false, bool allowEmployeeAcknowledgeable = false, bool allowEmployeeBookmark = false)
         {
-            Group group = new Group()
+            GroupModel group = new GroupModel()
             {
-                Creator = new User()
+                Creator = new UserModel()
                 {
                     Id = userId
                 },

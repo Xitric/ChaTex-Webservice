@@ -1,5 +1,5 @@
-﻿using Models;
-using Models.Models;
+﻿using Business;
+using Business.Models;
 using System.Collections.Generic;
 
 namespace Business.Authentication
@@ -27,7 +27,7 @@ namespace Business.Authentication
             return auth.AuthenticateGetId(token);
         }
 
-        public List<IGroup> GetGroupsForUser(long userId)
+        public List<GroupModel> GetGroupsForUser(long userId)
         {
             return users.GetGroupsForUser(userId);
         }

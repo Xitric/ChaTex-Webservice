@@ -1,5 +1,5 @@
 ﻿using DAL;
-using Models;
+using Business;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

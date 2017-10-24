@@ -1,24 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Models.Models
+namespace Business.Models
 {
-    public class Group : IGroup
+    public class GroupModel
     {
-        public long? Id { get; set; }
+        public int? Id { get; set; }
 
         public string Name { get; set; }
 
-        public IUser Creator { get; set; }
+        public UserModel Creator { get; set; }
 
         public DateTime? CreationTime { get; set; }
 
-        public List<IChannel> Channels { get; set; }
+        public IEnumerable<ChannelModel> Channels { get; set; }
 
         public bool AllowEmployeeSticky { get; set; }
 
         public bool AllowEmployeeAcknowledgeable { get; set; }
 
         public bool AllowEmployeeBookmark { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

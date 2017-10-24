@@ -1,8 +1,8 @@
-﻿namespace Models.Models
+﻿namespace Business.Models
 {
-    public class User : IUser
+    public class UserModel
     {
-        public long? Id { get; set; }
+        public int? Id { get; set; }
 
         public string FirstName { get; set; }
 

@@ -1,4 +1,4 @@
-﻿using Models.Models;
+﻿using Business.Models;
 using System.Collections.Generic;
 
 namespace Business.Authentication
@@ -9,6 +9,6 @@ namespace Business.Authentication
 
         long? Authenticate(string token);
 
-        List<IGroup> GetGroupsForUser(long userId);
+        List<GroupModel> GetGroupsForUser(long userId);
     }
 }

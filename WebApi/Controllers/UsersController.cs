@@ -30,7 +30,7 @@ using System.Linq;
 using Business.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Models.Models;
+using Business.Models;
 
 namespace WebAPI.Controllers
 {
@@ -75,7 +75,7 @@ namespace WebAPI.Controllers
                 return StatusCode(418);
             }
 
-            List<IGroup> groups = userManager.GetGroupsForUser((long)userId);
+            List<GroupModel> groups = userManager.GetGroupsForUser((long)userId);
             List<GroupDTO> dtoResponse = groups.Select(g => dtoMapper.ConvertGroup(g)).ToList();
 
             return new ObjectResult(dtoResponse);

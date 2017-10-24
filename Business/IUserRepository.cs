@@ -1,9 +1,9 @@
-﻿using Models.Models;
+﻿using Business.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Models
+namespace Business
 {
     public interface IUserRepository
     {
@@ -15,6 +15,6 @@ namespace Models
 
         long? GetUserIdFromToken(string token);
 
-        List<IGroup> GetGroupsForUser(long userId);
+        List<GroupModel> GetGroupsForUser(long userId);
     }
 }

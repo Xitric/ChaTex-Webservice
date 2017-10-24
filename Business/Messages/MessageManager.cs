@@ -1,5 +1,5 @@
-﻿using Models;
-using Models.Models;
+﻿using Business;
+using Business.Models;
 
 namespace Business.Messages
 {
@@ -12,24 +12,24 @@ namespace Business.Messages
             this.messages = messages;
         }
 
-        public IMessage GetMessage(long id)
+        public MessageModel GetMessage(long id)
         {
             return messages.GetMessage(id);
         }
 
-        public IMessage PostMessage(string content, long authorId)
+        public void PostMessage(string content, long authorId)
         {
-            User author = new User()
+            UserModel author = new UserModel()
             {
                 Id = authorId
             };
-            Message message = new Message()
+            MessageModel message = new MessageModel()
             {
                 Content = content,
                 Author = author
             };
 
-            return messages.AddMessage(message);
+            messages.AddMessage(message);
         }
     }
 }

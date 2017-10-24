@@ -1,12 +1,13 @@
 ﻿using System;
-using Models;
-using Models.Models;
+using Business;
+using Business.Models;
+using DAL.Models;
 
 namespace DAL
 {
     class GroupRepository : IGroupRepository
     {
-        public void CreateGroup(IGroup group)
+        public void CreateGroup(GroupModel group)
         {
             throw new NotImplementedException();
         }
