@@ -5,7 +5,7 @@ namespace Business.Authentication
 {
     public interface IUserManager
     {
-        IUser Login(string email);
+        string Login(string email);
 
         List<IGroup> GetGroupsForUser(long userId, string token);
     }

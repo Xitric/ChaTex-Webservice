@@ -7,6 +7,5 @@
         char? MiddleInitial { get; }
         string LastName { get; }
         string Email { get; }
-        string Token { get; }
     }
 }

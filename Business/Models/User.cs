@@ -12,16 +12,13 @@
 
         public string Email { get; }
 
-        public string Token { get; }
-
-        public User(long? id, string firstName, char? middleInitial, string lastName, string email, string token)
+        public User(long? id, string firstName, char? middleInitial, string lastName, string email)
         {
             Id = id;
             FirstName = firstName;
             MiddleInitial = middleInitial;
             LastName = lastName;
             Email = email;
-            Token = token;
         }
     }
 }
