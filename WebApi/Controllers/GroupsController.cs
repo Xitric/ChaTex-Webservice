@@ -57,7 +57,7 @@ namespace WebAPI.Controllers
         /// <param name="allowEmployeeBookmark">Whether employees are allowed to make bookmarks</param>
         /// <response code="204">The group was created, and the group administrator was successfully added</response>
         /// <response code="400">Bad input</response>
-        /// <response code="403">The user was not authorized to access this resource</response>
+        /// <response code="401">The user was not authorized to access this resource</response>
         [HttpPost]
         [Route("/1.0.0/groups")]
         [SwaggerOperation("CreateGroup")]
@@ -80,7 +80,7 @@ namespace WebAPI.Controllers
         /// <param name="groupId"></param>
         /// <response code="204">Group deleted successfully</response>
         /// <response code="404">No group with the specified id exists</response>
-        /// <response code="403">The user was not authorized to access this resource</response>
+        /// <response code="401">The user was not authorized to access this resource</response>
         [HttpDelete]
         [Route("/1.0.0/groups/{groupId}")]
         [SwaggerOperation("DeleteGroup")]
@@ -112,7 +112,7 @@ namespace WebAPI.Controllers
         /// <param name="groupId">The Id of the group</param>
         /// <param name="userIds">The Ids of all the users</param>
         /// <response code="204">Users added to group successfully</response>
-        /// <response code="403">The user was not authorized to access this resource</response>
+        /// <response code="401">The user was not authorized to access this resource</response>
         /// <response code="404">No group or user with the specified ids exists</response>
         [HttpPost]
         [Route("/1.0.0/groups/users")]
@@ -145,7 +145,7 @@ namespace WebAPI.Controllers
         /// <param name="groupId">The Id of the group</param>
         /// <param name="userIds">The Ids of all the users</param>
         /// <response code="204">Users deleted from the group successfully</response>
-        /// <response code="403">The user was not authorized to access this resource</response>
+        /// <response code="401">The user was not authorized to access this resource</response>
         /// <response code="404">No group or user with the specified ids exists</response>
         [HttpDelete]
         [Route("/1.0.0/groups/users")]
@@ -168,6 +168,58 @@ namespace WebAPI.Controllers
             //Add user (also convert list of nullable ints, to list of ints)
             groupManager.RemoveUsersFromGroups(groupId: (int)groupId, userIds: userIds.Where(x => x != null).Select(x => x.Value).ToList());
             return StatusCode(204);
+        }
+
+        /// <summary>
+        /// Add access rights for roles to a group
+        /// </summary>
+        /// <remarks>This will add access rights for a list of roles to a specific group</remarks>
+        /// <param name="groupId">The Id of the group</param>
+        /// <param name="roleIds">The Ids of all the roles</param>
+        /// <response code="204">Roles added to group successfully</response>
+        /// <response code="401">The user was not authorized to access this resource</response>
+        /// <response code="404">No group or role with the specified ids exists</response>
+        [HttpPost]
+        [Route("/1.0.0/groups/roles")]
+        [SwaggerOperation("AddRolesToGroup")]
+        public virtual void AddRolesToGroup([FromQuery]int? groupId, [FromBody]List<int?> roleIds)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Remove access rights for roles from a group
+        /// </summary>
+        /// <remarks>This will remove access for a list of roles from a specific group</remarks>
+        /// <param name="groupId">The Id of the group</param>
+        /// <param name="roleIds">The Ids of all the roles</param>
+        /// <response code="204">Roles deleted from the group successfully</response>
+        /// <response code="401">The user was not authorized to access this resource</response>
+        /// <response code="404">No group or role with the specified ids exists</response>
+        [HttpDelete]
+        [Route("/1.0.0/groups/roles")]
+        [SwaggerOperation("DeleteRolesFromGroup")]
+        public virtual void DeleteRolesFromGroup([FromQuery]int? groupId, [FromBody]List<int?> roleIds)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Mark or unmark a user as administrator
+        /// </summary>
+        /// <remarks>Give a group member administrator rights or remove administrator rights from a group administrator</remarks>
+        /// <param name="groupId">The id of the group to affect</param>
+        /// <param name="userId">The id of the user to mark or unmark</param>
+        /// <param name="isAdministrator">true to mark the user as group administrator, false to unmark</param>
+        /// <response code="200">User marked or unmarked successfully</response>
+        /// <response code="401">The user was not authorized to access this resource</response>
+        /// <response code="404">No group or group user with the specified ids were found</response>
+        [HttpPut]
+        [Route("/1.0.0/groups/{groupId}/{userId}")]
+        [SwaggerOperation("MarkUserAsAdministrator")]
+        public virtual void MarkUserAsAdministrator([FromRoute]int? groupId, [FromRoute]int? userId, [FromQuery]bool? isAdministrator)
+        {
+            throw new NotImplementedException();
         }
     }
 }

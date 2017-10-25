@@ -11,5 +11,6 @@ namespace Business
         void AddMemberToGroup(GroupUserModel groupUserModel);
         void AddMembersToGroup(IEnumerable<GroupUserModel> groupUserModel);
         void RemoveUsersFromGroups(IEnumerable<GroupUserModel> groupUserModel);
+        void AddRolesToGroup(IEnumerable<GroupRoleModel> groupRoleModel);
     }
 }

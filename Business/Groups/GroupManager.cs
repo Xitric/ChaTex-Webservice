@@ -66,5 +66,20 @@ namespace Business.Groups
                 }
             }));
         }
+
+        public void AddRolesToGroup(int groupId, int callerId, IEnumerable<int> roleIds)
+        {
+
+        }
+
+        public void RemoveRolesFromGroup(int groupId, int callerId, IEnumerable<int> roleIds)
+        {
+
+        }
+
+        public void MarkUserAsAdministrator(int userId, int callerId, bool isAdministrator)
+        {
+
+        }
     }
 }

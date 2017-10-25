@@ -60,5 +60,20 @@ namespace DAL
                 db.SaveChanges();
             }
         }
+
+        public void AddRolesToGroup(IEnumerable<GroupRoleModel> groupRoleModels)
+        {
+
+        }
+
+        public void RemoveRolesFromGroup(IEnumerable<GroupRoleModel> groupRoleModels)
+        {
+
+        }
+
+        public void MarkUserAsAdministrator(GroupUserModel groupUserModel)
+        {
+
+        }
     }
 }
