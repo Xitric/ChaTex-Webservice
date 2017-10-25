@@ -94,7 +94,7 @@ namespace WebAPI.Controllers
                 return StatusCode(404);
             }
 
-           
+
             if (groupManager.DeleteGroup((int)groupId) == true)
             {
                 return StatusCode(204);
@@ -104,8 +104,8 @@ namespace WebAPI.Controllers
                 return StatusCode(404);
             }
         }
-		
-		        /// <summary>
+
+        /// <summary>
         /// Add users to a group
         /// </summary>
         /// <remarks>This will add a list of users to a specific group</remarks>
@@ -133,12 +133,21 @@ namespace WebAPI.Controllers
             }
 
             //Add user (also convert list of nullable ints, to list of ints)
-            groupManager.AddUsersToGroup(groupId: (int)groupId, userIds: userIds.Where(x => x != null).Select(x => x.Value).ToList());
+            try
+            {
+                groupManager.AddUsersToGroup(groupId: (int)groupId,
+                                             userIds: userIds.Where(x => x != null).Select(x => x.Value).ToList(),
+                                             loggedInUser: (int)userId);
+            }
+            catch (Exception)
+            {
+                return StatusCode(403);
+            }
             return StatusCode(204);
 
         }
-		
-		/// <summary>
+
+        /// <summary>
         /// Delete a list of users from a group
         /// </summary>
         /// <remarks>This will delete a list of users from the specific group</remarks>
