@@ -59,13 +59,10 @@ namespace WebAPI.Controllers
         [HttpPost]
         [Route("/1.0.0/groups")]
         [SwaggerOperation("CreateGroup")]
+        [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual StatusCodeResult CreateGroup([FromQuery]string groupName, [FromQuery]bool? allowEmployeeSticky, [FromQuery]bool? allowEmployeeAcknowledgeable, [FromQuery]bool? allowEmployeeBookmark)
         {
-            int? userId = (int?)HttpContext.Items[RequestAuthenticator.UserIdKey];
-            if (userId == null)
-            {
-                return StatusCode(403);
-            }
+            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
             groupManager.CreateGroup(userId: (int)userId, groupName: groupName,
                                      allowEmployeeSticky: (bool)allowEmployeeSticky,
@@ -85,13 +82,10 @@ namespace WebAPI.Controllers
         [HttpDelete]
         [Route("/1.0.0/groups/{groupId}")]
         [SwaggerOperation("DeleteGroup")]
+        [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual StatusCodeResult DeleteGroup([FromRoute]int? groupId)
         {
-            int? userId = (int?)HttpContext.Items[RequestAuthenticator.UserIdKey];
-            if (userId == null)
-            {
-                return StatusCode(403);
-            }
+            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
             throw new NotImplementedException();
         }

@@ -60,13 +60,10 @@ namespace WebAPI.Controllers
         [Route("/1.0.0/users/me/groups")]
         [SwaggerOperation("GetGroupsForUser")]
         [SwaggerResponse(200, type: typeof(List<GroupDTO>))]
-        public virtual IActionResult GetGroupsForUser([FromHeader] int? userId)
+        [ServiceFilter(typeof(ChaTexAuthorization))]
+        public virtual IActionResult GetGroupsForUser()
         {
-            //int? userId = (int?)HttpContext.Items[RequestAuthenticator.UserIdKey];
-            if (userId == null)
-            {
-                return StatusCode(403);
-            }
+            int? userId = (int?)HttpContext.Items[RequestAuthenticator.UserIdKey];
 
             List<GroupModel> groups = userManager.GetGroupsForUser((int)userId);
             List<GroupDTO> dtoResponse = groups.Select(g => dtoMapper.ConvertGroup(g)).ToList();

@@ -30,6 +30,9 @@ namespace WebAPI
                 c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
             });
 
+            //Register authorization
+            services.AddScoped<ChaTexAuthorization>();
+
             //Register application services
             services.AddChaTexBusiness();
             services.AddChaTexDAL();
@@ -42,8 +45,6 @@ namespace WebAPI
             {
                 app.UseDeveloperExceptionPage();
             }
-
-            app.UseMiddleware<RequestAuthenticator>();
 
             app.UseMvc();
 
