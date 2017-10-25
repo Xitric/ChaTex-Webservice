@@ -66,6 +66,11 @@ namespace WebAPI.Controllers
         {
             int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
+            if (string.IsNullOrEmpty(groupName))
+            {
+                return StatusCode(400);
+            }
+
             groupManager.CreateGroup(userId: (int)userId, groupName: groupName,
                                      allowEmployeeSticky: (bool)allowEmployeeSticky,
                                      allowEmployeeAcknowledgeable: (bool)allowEmployeeAcknowledgeable,

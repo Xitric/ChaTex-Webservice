@@ -5,8 +5,7 @@ namespace Business
 {
     public interface IGroupRepository
     {
-        void CreateGroup(GroupModel group);
-
+        int CreateGroup(GroupModel group);
         bool DeleteGroup(int groupId);
         void AddMemberToGroup(GroupUserModel groupUserModel);
         void AddMembersToGroup(IEnumerable<GroupUserModel> groupUserModel);

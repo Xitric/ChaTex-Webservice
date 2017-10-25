@@ -30,7 +30,7 @@ namespace DAL
             }
         }
 
-        public void CreateGroup(GroupModel group)
+        public int CreateGroup(GroupModel group)
         {
             var entity = GroupMapper.MapGroupModelToEntity(group);
             using (var db = new ChatexdbContext())
@@ -38,6 +38,7 @@ namespace DAL
                 db.Group.Add(entity);
                 db.SaveChanges();
             }
+            return entity.GroupId;
         }
 
         public bool DeleteGroup(int groupId)
