@@ -39,19 +39,31 @@ namespace Business.Groups
 
         public void CreateGroup(int userId, string groupName, bool allowEmployeeSticky = false, bool allowEmployeeAcknowledgeable = false, bool allowEmployeeBookmark = false)
         {
+            var user = new UserModel()
+            {
+                Id = userId
+            };
+
             GroupModel group = new GroupModel()
             {
-                Creator = new UserModel()
-                {
-                    Id = userId
-                },
+                Creator = user,
                 Name = groupName,
                 AllowEmployeeSticky = allowEmployeeSticky,
                 AllowEmployeeAcknowledgeable = allowEmployeeAcknowledgeable,
-                AllowEmployeeBookmark = allowEmployeeBookmark
+                AllowEmployeeBookmark = allowEmployeeBookmark,
             };
 
-            groupRepository.CreateGroup(group);
+            group.Id = groupRepository.CreateGroup(group);
+
+            //Add this user to GroupUser
+            var groupUserModel = new GroupUserModel
+            {
+                Group = group,
+                User = user,
+                IsAdministrator = true
+            };
+
+            groupRepository.AddMemberToGroup(groupUserModel);
 
         }
 
@@ -78,7 +90,17 @@ namespace Business.Groups
 
         public void AddRolesToGroup(int groupId, int callerId, IEnumerable<int> roleIds)
         {
-
+            groupRepository.AddRolesToGroup(groupRoleModel: roleIds.Select(roleId => new GroupRoleModel()
+            {
+                Group = new GroupModel()
+                {
+                    Id = groupId
+                },
+                Role = new RoleModel()
+                {
+                    RoleId = roleId,
+                }
+            }));
         }
 
         public void RemoveRolesFromGroup(int groupId, int callerId, IEnumerable<int> roleIds)
