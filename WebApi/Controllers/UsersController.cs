@@ -32,6 +32,7 @@ using Microsoft.AspNetCore.Http;
 using Business.Models;
 using WebAPI.Authentication;
 using Business.Users;
+using System.Net;
 
 namespace WebAPI.Controllers
 {
@@ -96,8 +97,8 @@ namespace WebAPI.Controllers
             {
                 return NotFound("No user with the specified email was found!");
             }
-
-            return new ObjectResult(token);
+            
+            return Content(token);
         }
     }
 }

@@ -63,17 +63,38 @@ namespace DAL
 
         public void AddRolesToGroup(IEnumerable<GroupRoleModel> groupRoleModels)
         {
-
+            using (var db = new ChatexdbContext())
+            {
+                var entities = groupRoleModels.Select(x => GroupRoleMapper.MapGroupRoleModelToEntity(x));
+                db.GroupRole.AddRange(entities);
+                db.SaveChanges();
+            }
         }
 
         public void RemoveRolesFromGroup(IEnumerable<GroupRoleModel> groupRoleModels)
         {
-
+            using (var db = new ChatexdbContext())
+            {
+                var entities = groupRoleModels.Select(x => GroupRoleMapper.MapGroupRoleModelToEntity(x));
+                db.GroupRole.RemoveRange(entities);
+                db.SaveChanges();
+            }
         }
 
-        public void MarkUserAsAdministrator(GroupUserModel groupUserModel)
+        public bool MarkUserAsAdministrator(GroupUserModel groupUserModel)
         {
+            using (var db = new ChatexdbContext())
+            {
+                var groupUser = GroupUserMapper.MapGroupUserModelToEntity(groupUserModel);
+                var existing = db.GroupUser.FirstOrDefault(gu => gu.GroupId == groupUser.GroupId && gu.UserId == groupUser.UserId);
+                if (existing == null) return false;
 
+                existing.IsAdministrator = groupUser.IsAdministrator;
+
+                db.SaveChanges();
+            }
+
+            return true;
         }
 
         public GroupUserModel GetGroupUser (int groupId, int loggedInUser)

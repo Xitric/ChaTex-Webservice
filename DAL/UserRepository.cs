@@ -107,13 +107,19 @@ namespace DAL
         {
             using (var context = new ChatexdbContext())
             {
-                List<Group> groups = context.GroupUser
+                IEnumerable<Group> groupsDirect = context.GroupUser
                     .Where(gu => gu.UserId == userId)
-                    .Select(gu => gu.Group).Where(g => g.IsDeleted == false)
-                    .Include(g => g.Channel)
-                    .ToList();
+                    .Select(gu => gu.Group)
+                    .Where(g => g.IsDeleted == false)
+                    .Include(g => g.Channel);
 
-                return groups.Select(g => GroupMapper.MapGroupEntityToModel(g)).ToList();
+                /*IEnumerable<Group> groupsIndirect = context.UserRole
+                    .Where(ur => ur.UserId == userId)
+                    .Select(ur => ur.Role)
+                    .Select(r => r.GroupRole.)
+                    .Select(gr => gr.)*/
+
+                return groupsDirect.Select(g => GroupMapper.MapGroupEntityToModel(g)).ToList();
             }
         }
     }
