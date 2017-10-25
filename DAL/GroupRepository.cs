@@ -62,6 +62,21 @@ namespace DAL
             }
         }
 
+        public void AddRolesToGroup(IEnumerable<GroupRoleModel> groupRoleModels)
+        {
+
+        }
+
+        public void RemoveRolesFromGroup(IEnumerable<GroupRoleModel> groupRoleModels)
+        {
+
+        }
+
+        public void MarkUserAsAdministrator(GroupUserModel groupUserModel)
+        {
+
+        }
+
         public GroupUserModel GetGroupUser (int groupId, int loggedInUser)
         {
             using (var db = new ChatexdbContext())

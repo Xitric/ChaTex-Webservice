@@ -56,7 +56,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>Get the available groups to the user with the specified ID.</remarks>
         /// <response code="200">Successfully retrieved the user&#39;s groups</response>
-        /// <response code="403">The user was not authorized to access this resource</response>
+        /// <response code="401">The user was not authorized to access this resource</response>
         [HttpGet]
         [Route("/1.0.0/users/me/groups")]
         [SwaggerOperation("GetGroupsForUser")]
@@ -78,7 +78,7 @@ namespace WebAPI.Controllers
         /// <remarks>Login the user with the specified e-mail</remarks>
         /// <param name="userEmail">The user&#39;s email</param>
         /// <response code="200">The user was successfully logged in</response>
-        /// <response code="404">No user with the specified e-mail was found</response>
+        /// <response code="401">No user with the specified e-mail was found</response>
         [HttpGet]
         [Route("/1.0.0/users/login")]
         [SwaggerOperation("Login")]
