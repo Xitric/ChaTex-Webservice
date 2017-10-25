@@ -9,6 +9,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.AddSingleton<IMessageRepository, MessageRepository>();
             services.AddSingleton<IUserRepository, UserRepository>();
+            services.AddSingleton<IGroupRepository, GroupRepository>();
             return services;
         }
     }

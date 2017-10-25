@@ -60,9 +60,9 @@ namespace WebAPI.Controllers
         [Route("/1.0.0/users/me/groups")]
         [SwaggerOperation("GetGroupsForUser")]
         [SwaggerResponse(200, type: typeof(List<GroupDTO>))]
-        public virtual IActionResult GetGroupsForUser()
+        public virtual IActionResult GetGroupsForUser([FromHeader] int? userId)
         {
-            int? userId = (int?)HttpContext.Items[RequestAuthenticator.UserIdKey];
+            //int? userId = (int?)HttpContext.Items[RequestAuthenticator.UserIdKey];
             if (userId == null)
             {
                 return StatusCode(403);

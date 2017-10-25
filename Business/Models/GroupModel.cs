@@ -13,7 +13,7 @@ namespace Business.Models
 
         public DateTime? CreationTime { get; set; }
 
-        public IEnumerable<ChannelModel> Channels { get; set; }
+        public IEnumerable<ChannelModel> Channels { get; set; } = new List<ChannelModel>();
 
         public bool AllowEmployeeSticky { get; set; }
 
