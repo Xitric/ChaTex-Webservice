@@ -119,6 +119,7 @@ namespace Business.Groups
             {
                 throw new Exception("The user was not authorized to add roles to the group");
             }
+              
         }
 
         public void RemoveRolesFromGroup(int groupId, int callerId, IEnumerable<int> roleIds)
