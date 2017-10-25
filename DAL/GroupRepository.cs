@@ -75,5 +75,14 @@ namespace DAL
         {
 
         }
+
+        public GroupUserModel GetGroupUser (int groupId, int loggedInUser)
+        {
+            using (var db = new ChatexdbContext())
+            {
+                return GroupUserMapper.MapGroupUserEntityToModel(
+                                       db.GroupUser.FirstOrDefault(x => x.GroupId == groupId && x.UserId == loggedInUser));
+            }
+        }
     }
 }

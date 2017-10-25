@@ -8,5 +8,6 @@ namespace Business.Models
     {
         public GroupModel Group { get; set; }
         public UserModel User { get; set; }
+        public bool IsAdministrator { get; set; }
     }
 }
