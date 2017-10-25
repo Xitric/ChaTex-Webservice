@@ -120,17 +120,13 @@ namespace WebAPI.Controllers
         [HttpPost]
         [Route("/1.0.0/groups/users")]
         [SwaggerOperation("AddUsersToGroup")]
+        [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult AddUsersToGroup([FromQuery]int? groupId, [FromBody]List<int?> userIds)
         {
             int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
-            if (groupId == null)
-            {
-                return StatusCode(404);
-            }
-
             //If our list of users is null, or if it contains any element that is null
-            if (userIds == null || userIds.Exists(x => x == null))
+            if (groupId == null || userIds == null || userIds.Exists(x => x == null))
             {
                 return StatusCode(404);
             }
@@ -162,23 +158,19 @@ namespace WebAPI.Controllers
         [HttpDelete]
         [Route("/1.0.0/groups/users")]
         [SwaggerOperation("DeleteUsersFromGroup")]
+        [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult DeleteUsersFromGroup([FromQuery]int? groupId, [FromBody]List<int?> userIds)
         {
             int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
-            if (groupId == null)
-            {
-                return StatusCode(404);
-            }
-
             //If our list of users is null, or if it contains any element that is null
-            if (userIds == null || userIds.Exists(x => x == null))
+            if (groupId == null || userIds == null || userIds.Exists(x => x == null))
             {
                 return StatusCode(404);
             }
 
             //Add user (also convert list of nullable ints, to list of ints)
-            groupManager.RemoveUsersFromGroups(groupId: (int)groupId, userIds: userIds.Where(x => x != null).Select(x => x.Value).ToList());
+            groupManager.RemoveUsersFromGroup(groupId: (int)groupId, userIds: userIds.Where(x => x != null).Select(x => x.Value).ToList(), loggedInUserId: (int) userId);
             return StatusCode(204);
         }
 
@@ -194,16 +186,24 @@ namespace WebAPI.Controllers
         [HttpPost]
         [Route("/1.0.0/groups/roles")]
         [SwaggerOperation("AddRolesToGroup")]
+        [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual StatusCodeResult AddRolesToGroup([FromQuery]int? groupId, [FromBody]List<int?> roleIds)
         {
+
             int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
             if (groupId == null || userId == null || roleIds == null || roleIds.Exists(x => x == null))
             {
                 return StatusCode(404);
             }
-            groupManager.AddRolesToGroup((int)groupId, (int)userId, roleIds.Where(x => x != null).Select(x => x.Value).ToList());
-
+            try
+            {
+                groupManager.AddRolesToGroup((int)groupId, (int)userId, roleIds.Where(x => x != null).Select(x => x.Value).ToList());
+            }
+            catch (Exception)
+            {
+                return StatusCode(401);
+            }
             return StatusCode(200);
         }
 
@@ -219,9 +219,24 @@ namespace WebAPI.Controllers
         [HttpDelete]
         [Route("/1.0.0/groups/roles")]
         [SwaggerOperation("DeleteRolesFromGroup")]
-        public virtual void DeleteRolesFromGroup([FromQuery]int? groupId, [FromBody]List<int?> roleIds)
+        [ServiceFilter(typeof(ChaTexAuthorization))]
+        public virtual StatusCodeResult DeleteRolesFromGroup([FromQuery]int? groupId, [FromBody]List<int?> roleIds)
         {
-            throw new NotImplementedException();
+            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+
+            if (groupId == null || userId == null || roleIds == null || roleIds.Exists(x => x == null))
+            {
+                return StatusCode(404);
+            }
+            try
+            {
+                groupManager.RemoveRolesFromGroup((int)groupId, (int)userId, roleIds.Where(x => x != null).Select(x => x.Value).ToList());
+            }
+            catch (Exception)
+            {
+                return StatusCode(401);
+            }
+            return StatusCode(200);
         }
 
         /// <summary>
@@ -237,9 +252,24 @@ namespace WebAPI.Controllers
         [HttpPut]
         [Route("/1.0.0/groups/{groupId}/{userId}")]
         [SwaggerOperation("MarkUserAsAdministrator")]
-        public virtual void MarkUserAsAdministrator([FromRoute]int? groupId, [FromRoute]int? userId, [FromQuery]bool? isAdministrator)
+        [ServiceFilter(typeof(ChaTexAuthorization))]
+        public virtual StatusCodeResult MarkUserAsAdministrator([FromRoute]int? groupId, [FromRoute]int? userId, [FromQuery]bool? isAdministrator)
         {
-            throw new NotImplementedException();
+            int? loggedInUserId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+
+            if (groupId == null || loggedInUserId == null || userId == null || isAdministrator == null)
+            {
+                return StatusCode(404);
+            }
+            try
+            {
+                groupManager.SetUserAdministratorOnGroup((int) groupId, (int)userId, (int)loggedInUserId, (bool)isAdministrator);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(401);
+            }
+            return StatusCode(200);
         }
     }
 }

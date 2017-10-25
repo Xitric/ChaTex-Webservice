@@ -52,7 +52,7 @@ namespace DAL
             return true;
         }
 
-        public void RemoveUsersFromGroups(IEnumerable<GroupUserModel> groupUserModels)
+        public void RemoveUsersFromGroup(IEnumerable<GroupUserModel> groupUserModels)
         {
             using (var db = new ChatexdbContext())
             {
@@ -82,7 +82,7 @@ namespace DAL
             }
         }
 
-        public bool MarkUserAsAdministrator(GroupUserModel groupUserModel)
+        public bool SetUserAdministratorOnGroup(GroupUserModel groupUserModel)
         {
             using (var db = new ChatexdbContext())
             {

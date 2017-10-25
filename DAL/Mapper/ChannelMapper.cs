@@ -10,6 +10,7 @@ namespace DAL.Mapper
     {
         public static Channel MapChannelModelToEntity(ChannelModel channelModel)
         {
+            if (channelModel == null) return null;
             return new Channel()
             {
                 ChannelId = channelModel.Id == null ? 0 : channelModel.Id.Value,
@@ -21,6 +22,7 @@ namespace DAL.Mapper
 
         public static ChannelModel MapChannelEntityToModel(Channel channel)
         {
+            if (channel == null) return null;
             return new ChannelModel()
             {
                 Id = channel.ChannelId,

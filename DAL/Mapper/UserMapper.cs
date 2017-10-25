@@ -10,6 +10,7 @@ namespace DAL.Mapper
     {
         public static User MapUserModelToEntity(UserModel userModel)
         {
+            if (userModel == null) return null;
             return new User()
             {
                 Email = userModel.Email,
@@ -18,12 +19,12 @@ namespace DAL.Mapper
                 LastName = userModel.LastName,
                 MiddleInitial = userModel.MiddleInitial?.ToString(),
                 UserId = userModel.Id == null ? 0 : (int)userModel.Id
-
             };
         }
 
         public static UserModel MapUserEntityToModel(User user)
         {
+            if (user == null) return null;
             return new UserModel()
             {
                 Email = user.Email,

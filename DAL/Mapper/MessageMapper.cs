@@ -10,6 +10,7 @@ namespace DAL.Mapper
     {
         public static Message MapMessageModelToEntity(MessageModel messageModel)
         {
+            if (messageModel == null) return null;
             return new Message()
             {
                 
@@ -18,6 +19,7 @@ namespace DAL.Mapper
 
         public static MessageModel MapMessageEntityToModel(Message message)
         {
+            if (message == null) return null;
             return new MessageModel()
             {
 

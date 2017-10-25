@@ -7,6 +7,7 @@ namespace DAL.Mapper
     {
         public static Role MapRoleModelToEntity(RoleModel roleModel)
         {
+            if (roleModel == null) return null;
             return new Role()
             {
                 RoleId = roleModel.Id == null ? 0 : roleModel.Id.Value,
@@ -17,6 +18,7 @@ namespace DAL.Mapper
 
         public static RoleModel MapRoleEntityToModel(Role role)
         {
+            if (role == null) return null;
             return new RoleModel()
             {
                 Id = role.RoleId,

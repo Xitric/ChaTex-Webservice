@@ -11,6 +11,7 @@ namespace DAL.Mapper
     {
         public static Group MapGroupModelToEntity(GroupModel groupModel)
         {
+            if (groupModel == null) return null;
             return new Group()
             {
                 AllowEmployeeAcknowledgeable = groupModel.AllowEmployeeAcknowledgeable,
@@ -28,6 +29,7 @@ namespace DAL.Mapper
 
         public static GroupModel MapGroupEntityToModel(Group group)
         {
+            if (group == null) return null;
             return new GroupModel()
             {
                 AllowEmployeeAcknowledgeable = group.AllowEmployeeAcknowledgeable,

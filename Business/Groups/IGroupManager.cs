@@ -10,12 +10,12 @@ namespace Business.Groups
 
         bool DeleteGroup(int groupId);
         void AddUsersToGroup(int groupId, List<int> userIds, int loggedInUser);
-        void RemoveUsersFromGroups(int groupId, List<int> userIds);
+        void RemoveUsersFromGroup(int groupId, List<int> userIds, int loggedInUserId);
 
         void AddRolesToGroup(int groupId, int callerId, IEnumerable<int> roleIds);
 
         void RemoveRolesFromGroup(int groupId, int callerId, IEnumerable<int> roleIds);
 
-        void MarkUserAsAdministrator(int userId, int callerId, bool isAdministrator);
+        void SetUserAdministratorOnGroup(int groupId, int userId, int callerId, bool isAdministrator);
     }
 }
