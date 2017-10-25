@@ -37,12 +37,10 @@ namespace WebAPI.Controllers
     public class GroupsController : Controller
     {
         private readonly IGroupManager groupManager;
-        private readonly DTOMapper dtoMapper;
 
         public GroupsController(IGroupManager groupManager)
         {
             this.groupManager = groupManager;
-            dtoMapper = new DTOMapper();
         }
 
         /// <summary>

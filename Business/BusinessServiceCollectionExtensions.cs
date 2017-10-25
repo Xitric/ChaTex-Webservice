@@ -1,4 +1,5 @@
 ﻿using Business.Authentication;
+using Business.Channels;
 using Business.Groups;
 using Business.Messages;
 using Business.Users;
@@ -12,6 +13,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IGroupManager, GroupManager>();
             services.AddSingleton<IMessageManager, MessageManager>();
             services.AddSingleton<IUserManager, UserManager>();
+            services.AddSingleton<IChannelManager, ChannelManager>();
             services.AddSingleton<IAuthenticator, Authenticator>();
             services.AddSingleton<Authenticator>();
             return services;
