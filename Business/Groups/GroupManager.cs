@@ -1,4 +1,6 @@
-﻿using Business.Models;
+﻿using System.Collections.Generic;
+using Business.Models;
+using System.Linq;
 
 namespace Business.Groups
 {
@@ -8,6 +10,22 @@ namespace Business.Groups
         public GroupManager(IGroupRepository groupRepository)
         {
             this.groupRepository = groupRepository;
+        }
+
+        public void AddUsersToGroup(int groupId, List<int> userIds)
+        {
+            //Iterates through all user ids, creates a GroupUserModel and sends that to our group repository
+            groupRepository.AddMembersToGroup(groupUserModel: userIds.Select(userId => new GroupUserModel()
+            {
+                Group = new GroupModel()
+                {
+                    Id = groupId
+                },
+                User = new UserModel()
+                {
+                    Id = userId
+                }
+            }));
         }
 
         public void CreateGroup(int userId, string groupName, bool allowEmployeeSticky = false, bool allowEmployeeAcknowledgeable = false, bool allowEmployeeBookmark = false)

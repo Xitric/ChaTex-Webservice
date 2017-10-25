@@ -22,10 +22,12 @@
 
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Linq;
 using WebAPI.Mappers;
 using Business.Groups;
 using System;
 using WebAPI.Authentication;
+using System.Collections.Generic;
 
 namespace WebAPI.Controllers
 {
@@ -87,6 +89,60 @@ namespace WebAPI.Controllers
         {
             int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
+            throw new NotImplementedException();
+        }
+		
+		        /// <summary>
+        /// Add users to a group
+        /// </summary>
+        /// <remarks>This will add a list of users to a specific group</remarks>
+        /// <param name="groupId">The Id of the group</param>
+        /// <param name="userIds">The Ids of all the users</param>
+        /// <response code="204">Users added to group successfully</response>
+        /// <response code="403">The user was not authorized to access this resource</response>
+        /// <response code="404">No group or user with the specified ids exists</response>
+        [HttpPost]
+        [Route("/1.0.0/groups/users")]
+        [SwaggerOperation("AddUsersToGroup")]
+        public virtual IActionResult AddUsersToGroup([FromQuery]int? groupId, [FromBody]List<int?> userIds)
+        {
+            int? userId = (int?)HttpContext.Items[RequestAuthenticator.UserIdKey];
+            if (userId == null)
+            {
+                return StatusCode(403);
+            }
+
+            if (groupId == null)
+            {
+                return StatusCode(404);
+            }
+
+            //If our list of users is null, or if it contains any element that is null
+            if (userIds == null || userIds.Exists(x => x == null))
+            {
+                return StatusCode(404);
+            }
+
+            //Add user (also convert list of nullable ints, to list of ints)
+            groupManager.AddUsersToGroup(groupId: (int)groupId, userIds: userIds.Where(x => x != null).Select(x => x.Value).ToList());
+            return StatusCode(204);
+
+        }
+		
+		/// <summary>
+        /// Delete a list of users from a group
+        /// </summary>
+        /// <remarks>This will delete a list of users from the specific group</remarks>
+        /// <param name="groupId">The Id of the group</param>
+        /// <param name="userIds">The Ids of all the users</param>
+        /// <response code="204">Users deleted from the group successfully</response>
+        /// <response code="403">The user was not authorized to access this resource</response>
+        /// <response code="404">No group or user with the specified ids exists</response>
+        [HttpDelete]
+        [Route("/1.0.0/groups/users")]
+        [SwaggerOperation("DeleteUsersFromGroup")]
+        public virtual void DeleteUsersFromGroup([FromQuery]int? groupId, [FromBody]List<int?> userIds)
+        { 
             throw new NotImplementedException();
         }
     }
