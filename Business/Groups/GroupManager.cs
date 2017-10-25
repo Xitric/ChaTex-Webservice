@@ -46,9 +46,25 @@ namespace Business.Groups
 
         }
 
-        public bool DeleteGroup(int userId, bool isDeleted)
+        public bool DeleteGroup(int groupId)
         {
-            return true;
+            return groupRepository.DeleteGroup(groupId); ;
+        }
+
+        public void RemoveUsersFromGroups(int groupId, List<int> userIds)
+        {
+            //Iterates through all user ids, creates a GroupUserModel and sends that to our group repository
+            groupRepository.RemoveUsersFromGroups(groupUserModel: userIds.Select(userId => new GroupUserModel()
+            {
+                Group = new GroupModel()
+                {
+                    Id = groupId
+                },
+                User = new UserModel()
+                {
+                    Id = userId
+                }
+            }));
         }
     }
 }

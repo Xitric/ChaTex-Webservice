@@ -109,7 +109,7 @@ namespace DAL
             {
                 List<Group> groups = context.GroupUser
                     .Where(gu => gu.UserId == userId)
-                    .Select(gu => gu.Group)
+                    .Select(gu => gu.Group).Where(g => g.IsDeleted == false)
                     .Include(g => g.Channel)
                     .ToList();
 

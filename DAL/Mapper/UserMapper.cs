@@ -12,6 +12,12 @@ namespace DAL.Mapper
         {
             return new User()
             {
+                Email = userModel.Email,
+                IsDeleted = userModel.IsDeleted,
+                FirstName = userModel.FirstName,
+                LastName = userModel.LastName,
+                MiddleInitial = userModel.MiddleInitial?.ToString(),
+                UserId = userModel.Id == null ? 0 : (int)userModel.Id
 
             };
         }
@@ -20,7 +26,12 @@ namespace DAL.Mapper
         {
             return new UserModel()
             {
-
+                Email = user.Email,
+                Id = user.UserId,
+                FirstName = user.FirstName,
+                IsDeleted = user.IsDeleted == null ? false : (bool)user.IsDeleted,
+                LastName = user.LastName,
+                MiddleInitial = user.MiddleInitial?[0]
             };
         }
     }

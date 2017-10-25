@@ -1,8 +1,9 @@
 ﻿using Business;
+using Business.Authentication;
 using Business.Models;
 using System.Collections.Generic;
 
-namespace Business.Authentication
+namespace Business.Users
 {
     class UserManager : IUserManager
     {

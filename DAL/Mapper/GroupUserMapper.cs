@@ -12,7 +12,8 @@ namespace DAL.Mapper
         {
             return new GroupUser()
             {
-
+                GroupId = groupUserModel.Group.Id == null ? 0 : (int)groupUserModel.Group.Id,
+                UserId = groupUserModel.User.Id == null ? 0 : (int)groupUserModel.User.Id
             };
         }
 
@@ -20,7 +21,8 @@ namespace DAL.Mapper
         {
             return new GroupUserModel()
             {
-
+                Group = GroupMapper.MapGroupEntityToModel(groupUser.Group),
+                User = UserMapper.MapUserEntityToModel(groupUser.User)
             };
         }
     }

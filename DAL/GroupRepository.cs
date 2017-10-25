@@ -40,9 +40,25 @@ namespace DAL
             }
         }
 
-        public bool DeleteGroup(long groupId)
+        public bool DeleteGroup(int groupId)
         {
-            throw new NotImplementedException();
+            using (var db = new ChatexdbContext())
+            {
+                var entity = db.Group.FirstOrDefault(x => x.GroupId == groupId);
+                entity.IsDeleted = true;
+                db.SaveChanges();
+            }
+            return true;
+        }
+
+        public void RemoveUsersFromGroups(IEnumerable<GroupUserModel> groupUserModels)
+        {
+            using (var db = new ChatexdbContext())
+            {
+                var entities = groupUserModels.Select(x => GroupUserMapper.MapGroupUserModelToEntity(x));
+                db.GroupUser.RemoveRange(entities);
+                db.SaveChanges();
+            }
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Business.Models;
 using System.Collections.Generic;
 
-namespace Business.Authentication
+namespace Business.Users
 {
     public interface IUserManager
     {

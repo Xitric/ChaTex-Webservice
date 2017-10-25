@@ -31,6 +31,7 @@ using Business.Authentication;
 using Microsoft.AspNetCore.Http;
 using Business.Models;
 using WebAPI.Authentication;
+using Business.Users;
 
 namespace WebAPI.Controllers
 {
@@ -63,7 +64,7 @@ namespace WebAPI.Controllers
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult GetGroupsForUser()
         {
-            int? userId = (int?)HttpContext.Items[RequestAuthenticator.UserIdKey];
+            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
             List<GroupModel> groups = userManager.GetGroupsForUser((int)userId);
             List<GroupDTO> dtoResponse = groups.Select(g => dtoMapper.ConvertGroup(g)).ToList();

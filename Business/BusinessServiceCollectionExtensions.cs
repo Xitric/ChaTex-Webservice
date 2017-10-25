@@ -1,6 +1,7 @@
 ﻿using Business.Authentication;
 using Business.Groups;
 using Business.Messages;
+using Business.Users;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

@@ -89,7 +89,20 @@ namespace WebAPI.Controllers
         {
             int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
-            throw new NotImplementedException();
+            if (groupId == null)
+            {
+                return StatusCode(404);
+            }
+
+           
+            if (groupManager.DeleteGroup((int)groupId) == true)
+            {
+                return StatusCode(204);
+            }
+            else
+            {
+                return StatusCode(404);
+            }
         }
 		
 		        /// <summary>
@@ -106,11 +119,7 @@ namespace WebAPI.Controllers
         [SwaggerOperation("AddUsersToGroup")]
         public virtual IActionResult AddUsersToGroup([FromQuery]int? groupId, [FromBody]List<int?> userIds)
         {
-            int? userId = (int?)HttpContext.Items[RequestAuthenticator.UserIdKey];
-            if (userId == null)
-            {
-                return StatusCode(403);
-            }
+            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
             if (groupId == null)
             {
@@ -141,9 +150,24 @@ namespace WebAPI.Controllers
         [HttpDelete]
         [Route("/1.0.0/groups/users")]
         [SwaggerOperation("DeleteUsersFromGroup")]
-        public virtual void DeleteUsersFromGroup([FromQuery]int? groupId, [FromBody]List<int?> userIds)
-        { 
-            throw new NotImplementedException();
+        public virtual IActionResult DeleteUsersFromGroup([FromQuery]int? groupId, [FromBody]List<int?> userIds)
+        {
+            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+
+            if (groupId == null)
+            {
+                return StatusCode(404);
+            }
+
+            //If our list of users is null, or if it contains any element that is null
+            if (userIds == null || userIds.Exists(x => x == null))
+            {
+                return StatusCode(404);
+            }
+
+            //Add user (also convert list of nullable ints, to list of ints)
+            groupManager.RemoveUsersFromGroups(groupId: (int)groupId, userIds: userIds.Where(x => x != null).Select(x => x.Value).ToList());
+            return StatusCode(204);
         }
     }
 }
