@@ -107,19 +107,23 @@ namespace DAL
         {
             using (var context = new ChatexdbContext())
             {
-                IEnumerable<Group> groupsDirect = context.GroupUser
+                IQueryable<Group> groupsUser = context.GroupUser
                     .Where(gu => gu.UserId == userId)
-                    .Select(gu => gu.Group)
+                    .Select(gu => gu.Group);
+
+                //Select Group from GroupRole where the role id is in the collection:
+                //  Select role id from UserRole where the user id is matched
+                IQueryable<Group> groupsRole = context.GroupRole
+                    .Where(gr => context.UserRole
+                        .Where(ur => ur.UserId == userId)
+                        .Select(ur => ur.Role.RoleId)
+                        .Contains(gr.RoleId))
+                    .Select(gr => gr.Group);
+
+                return groupsUser.Union(groupsRole)
                     .Where(g => g.IsDeleted == false)
-                    .Include(g => g.Channel);
-
-                /*IEnumerable<Group> groupsIndirect = context.UserRole
-                    .Where(ur => ur.UserId == userId)
-                    .Select(ur => ur.Role)
-                    .Select(r => r.GroupRole.)
-                    .Select(gr => gr.)*/
-
-                return groupsDirect.Select(g => GroupMapper.MapGroupEntityToModel(g)).ToList();
+                    .Include(g => g.Channel)
+                    .Select(g => GroupMapper.MapGroupEntityToModel(g)).ToList();
             }
         }
     }

@@ -98,7 +98,7 @@ namespace Business.Groups
                 },
                 Role = new RoleModel()
                 {
-                    RoleId = roleId,
+                    Id = roleId,
                 }
             }));
         }
