@@ -1,7 +1,9 @@
-﻿using Business.Models;
+﻿using Business;
+using Business.Authentication;
+using Business.Models;
 using System.Collections.Generic;
 
-namespace Business.Authentication
+namespace Business.Users
 {
     class UserManager : IUserManager
     {
@@ -20,15 +22,10 @@ namespace Business.Authentication
             return auth.Login(email);
         }
 
-        public long? Authenticate(string token)
-        {
-            //Forward to authenticator
-            return auth.AuthenticateGetId(token);
-        }
-
-        public List<IGroup> GetGroupsForUser(long userId)
+        public List<GroupModel> GetGroupsForUser(int userId)
         {
             return users.GetGroupsForUser(userId);
         }
+        
     }
 }

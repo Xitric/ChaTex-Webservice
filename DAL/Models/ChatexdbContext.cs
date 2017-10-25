@@ -126,8 +126,6 @@ namespace DAL.Models
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
 
-                entity.Property(e => e.IsDeleted).HasDefaultValueSql("((0))");
-
                 entity.Property(e => e.Name).IsRequired();
 
                 entity.HasOne(d => d.CreatedByNavigation)

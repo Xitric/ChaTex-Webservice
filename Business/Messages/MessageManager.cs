@@ -1,6 +1,5 @@
-﻿using Business.Models;
-using System;
-using System.Collections.Generic;
+﻿using Business;
+using Business.Models;
 
 namespace Business.Messages
 {
@@ -13,17 +12,24 @@ namespace Business.Messages
             this.messages = messages;
         }
 
-        public IMessage GetMessage(long id)
+        public MessageModel GetMessage(int id)
         {
             return messages.GetMessage(id);
         }
 
-        public IMessage PostMessage(string content, long authorId)
+        public void PostMessage(string content, int authorId)
         {
-            User author = new User(authorId, null, null, null, null);
-            Message message = new Message(null, content, author, null);
+            UserModel author = new UserModel()
+            {
+                Id = authorId
+            };
+            MessageModel message = new MessageModel()
+            {
+                Content = content,
+                Author = author
+            };
 
-            return messages.AddMessage(message);
+            messages.AddMessage(message);
         }
     }
 }

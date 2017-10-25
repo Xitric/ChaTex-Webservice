@@ -34,15 +34,15 @@ namespace WebAPI.Models
     /// 
     /// </summary>
     [DataContract]
-    public partial class Group :  IEquatable<Group>
+    public partial class GroupDTO :  IEquatable<GroupDTO>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="Group" /> class.
+        /// Initializes a new instance of the <see cref="GroupDTO" /> class.
         /// </summary>
         /// <param name="Id">Id (required).</param>
         /// <param name="Name">Name (required).</param>
         /// <param name="Channels">Channels.</param>
-        public Group(long? Id = null, string Name = null, List<Channel> Channels = null)
+        public GroupDTO(long? Id = null, string Name = null, List<ChannelDTO> Channels = null)
         {
             // to ensure "Id" is required (not null)
             if (Id == null)
@@ -82,7 +82,7 @@ namespace WebAPI.Models
         /// Gets or Sets Channels
         /// </summary>
         [DataMember(Name="Channels")]
-        public List<Channel> Channels { get; set; }
+        public List<ChannelDTO> Channels { get; set; }
 
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace WebAPI.Models
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((Group)obj);
+            return Equals((GroupDTO)obj);
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace WebAPI.Models
         /// </summary>
         /// <param name="other">Instance of Group to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(Group other)
+        public bool Equals(GroupDTO other)
         {
 
             if (ReferenceEquals(null, other)) return false;
@@ -174,12 +174,12 @@ namespace WebAPI.Models
 
         #region Operators
 
-        public static bool operator ==(Group left, Group right)
+        public static bool operator ==(GroupDTO left, GroupDTO right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(Group left, Group right)
+        public static bool operator !=(GroupDTO left, GroupDTO right)
         {
             return !Equals(left, right);
         }

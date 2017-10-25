@@ -32,32 +32,52 @@ namespace WebAPI.Models
     /// 
     /// </summary>
     [DataContract]
-    public partial class Channel :  IEquatable<Channel>
+    public partial class GetMessageDTO :  IEquatable<GetMessageDTO>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="Channel" /> class.
+        /// Initializes a new instance of the <see cref="GetMessageDTO" /> class.
         /// </summary>
         /// <param name="Id">Id (required).</param>
-        /// <param name="Name">Name (required).</param>
-        public Channel(long? Id = null, string Name = null)
+        /// <param name="CreationTime">CreationTime (required).</param>
+        /// <param name="Content">Content (required).</param>
+        /// <param name="Sender">Sender (required).</param>
+        public GetMessageDTO(long? Id = null, DateTime? CreationTime = null, string Content = null, UserDTO Sender = null)
         {
             // to ensure "Id" is required (not null)
             if (Id == null)
             {
-                throw new InvalidDataException("Id is a required property for Channel and cannot be null");
+                throw new InvalidDataException("Id is a required property for GetMessage and cannot be null");
             }
             else
             {
                 this.Id = Id;
             }
-            // to ensure "Name" is required (not null)
-            if (Name == null)
+            // to ensure "CreationTime" is required (not null)
+            if (CreationTime == null)
             {
-                throw new InvalidDataException("Name is a required property for Channel and cannot be null");
+                throw new InvalidDataException("CreationTime is a required property for GetMessage and cannot be null");
             }
             else
             {
-                this.Name = Name;
+                this.CreationTime = CreationTime;
+            }
+            // to ensure "Content" is required (not null)
+            if (Content == null)
+            {
+                throw new InvalidDataException("Content is a required property for GetMessage and cannot be null");
+            }
+            else
+            {
+                this.Content = Content;
+            }
+            // to ensure "Sender" is required (not null)
+            if (Sender == null)
+            {
+                throw new InvalidDataException("Sender is a required property for GetMessage and cannot be null");
+            }
+            else
+            {
+                this.Sender = Sender;
             }
             
         }
@@ -69,10 +89,22 @@ namespace WebAPI.Models
         public long? Id { get; set; }
 
         /// <summary>
-        /// Gets or Sets Name
+        /// Gets or Sets CreationTime
         /// </summary>
-        [DataMember(Name="Name")]
-        public string Name { get; set; }
+        [DataMember(Name="CreationTime")]
+        public DateTime? CreationTime { get; set; }
+
+        /// <summary>
+        /// Gets or Sets Content
+        /// </summary>
+        [DataMember(Name="Content")]
+        public string Content { get; set; }
+
+        /// <summary>
+        /// Gets or Sets Sender
+        /// </summary>
+        [DataMember(Name="Sender")]
+        public UserDTO Sender { get; set; }
 
 
         /// <summary>
@@ -82,9 +114,11 @@ namespace WebAPI.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class Channel {\n");
+            sb.Append("class GetMessage {\n");
             sb.Append("  Id: ").Append(Id).Append("\n");
-            sb.Append("  Name: ").Append(Name).Append("\n");
+            sb.Append("  CreationTime: ").Append(CreationTime).Append("\n");
+            sb.Append("  Content: ").Append(Content).Append("\n");
+            sb.Append("  Sender: ").Append(Sender).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -108,15 +142,15 @@ namespace WebAPI.Models
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((Channel)obj);
+            return Equals((GetMessageDTO)obj);
         }
 
         /// <summary>
-        /// Returns true if Channel instances are equal
+        /// Returns true if GetMessage instances are equal
         /// </summary>
-        /// <param name="other">Instance of Channel to be compared</param>
+        /// <param name="other">Instance of GetMessage to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(Channel other)
+        public bool Equals(GetMessageDTO other)
         {
 
             if (ReferenceEquals(null, other)) return false;
@@ -129,9 +163,19 @@ namespace WebAPI.Models
                     this.Id.Equals(other.Id)
                 ) && 
                 (
-                    this.Name == other.Name ||
-                    this.Name != null &&
-                    this.Name.Equals(other.Name)
+                    this.CreationTime == other.CreationTime ||
+                    this.CreationTime != null &&
+                    this.CreationTime.Equals(other.CreationTime)
+                ) && 
+                (
+                    this.Content == other.Content ||
+                    this.Content != null &&
+                    this.Content.Equals(other.Content)
+                ) && 
+                (
+                    this.Sender == other.Sender ||
+                    this.Sender != null &&
+                    this.Sender.Equals(other.Sender)
                 );
         }
 
@@ -148,20 +192,24 @@ namespace WebAPI.Models
                 // Suitable nullity checks etc, of course :)
                 if (this.Id != null)
                     hash = hash * 59 + this.Id.GetHashCode();
-                if (this.Name != null)
-                    hash = hash * 59 + this.Name.GetHashCode();
+                if (this.CreationTime != null)
+                    hash = hash * 59 + this.CreationTime.GetHashCode();
+                if (this.Content != null)
+                    hash = hash * 59 + this.Content.GetHashCode();
+                if (this.Sender != null)
+                    hash = hash * 59 + this.Sender.GetHashCode();
                 return hash;
             }
         }
 
         #region Operators
 
-        public static bool operator ==(Channel left, Channel right)
+        public static bool operator ==(GetMessageDTO left, GetMessageDTO right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(Channel left, Channel right)
+        public static bool operator !=(GetMessageDTO left, GetMessageDTO right)
         {
             return !Equals(left, right);
         }

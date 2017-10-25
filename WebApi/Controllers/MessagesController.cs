@@ -25,9 +25,9 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Business.Messages;
-using Business.Models;
 using WebAPI.Models;
 using WebAPI.Mappers;
+using Business.Models;
 
 namespace WebAPI.Controllers
 {
@@ -48,12 +48,11 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>Send a message to the server</remarks>
         /// <param name="message">The message object</param>
-        /// <response code="201">message created successfully</response>
+        /// <response code="204">message created successfully</response>
         [HttpPost]
         [Route("/1.0.0/messages")]
         [SwaggerOperation("CreateMessage")]
-        [SwaggerResponse(200, type: typeof(GetMessage))]
-        public virtual IActionResult CreateMessage([FromBody]PostMessage message)
+        public virtual IActionResult CreateMessage([FromBody]PostMessageDTO message)
         {
             if (message == null)
             {
@@ -65,10 +64,9 @@ namespace WebAPI.Controllers
                 return BadRequest("Message badly formatted!");
             }
             
-            IMessage result = messageManager.PostMessage(message.Content, (long)message.Author);
-
-            GetMessage dtoResponse = dtoMapper.ConvertMessage(result);
-            return CreatedAtRoute("GetMessage", new { messageID = dtoResponse.Id }, dtoResponse);
+            messageManager.PostMessage(message.Content, (int)message.Author);
+            
+            return StatusCode(204);
         }
 
         /// <summary>
@@ -81,22 +79,22 @@ namespace WebAPI.Controllers
         [HttpGet]
         [Route("/1.0.0/messages/{messageID}", Name = "GetMessage")]
         [SwaggerOperation("GetMessageByID")]
-        [SwaggerResponse(200, type: typeof(GetMessage))]
-        public virtual IActionResult GetMessageByID([FromRoute]long? messageID)
+        [SwaggerResponse(200, type: typeof(GetMessageDTO))]
+        public virtual IActionResult GetMessageByID([FromRoute]int? messageID)
         {
             if (messageID == null)
             {
                 return BadRequest("A message id must be specified!");
             }
 
-            IMessage message = messageManager.GetMessage((long)messageID);
+            MessageModel message = messageManager.GetMessage((int)messageID);
 
             if (message == null)
             {
                 return NotFound($"No message with the id {messageID} was found.");
             }
 
-            GetMessage dtoResponse = dtoMapper.ConvertMessage(message);
+            GetMessageDTO dtoResponse = dtoMapper.ConvertMessage(message);
             return new ObjectResult(dtoResponse);
         }
 
@@ -109,7 +107,7 @@ namespace WebAPI.Controllers
         [HttpGet]
         [Route("/1.0.0/messages")]
         [SwaggerOperation("GetMessages")]
-        [SwaggerResponse(200, type: typeof(List<GetMessage>))]
+        [SwaggerResponse(200, type: typeof(List<GetMessageDTO>))]
         public virtual IActionResult GetMessages()
         {
             throw new NotSupportedException();
@@ -125,7 +123,7 @@ namespace WebAPI.Controllers
         [HttpGet]
         [Route("/1.0.0/messages/wait")]
         [SwaggerOperation("WaitMessage")]
-        [SwaggerResponse(200, type: typeof(List<GetMessage>))]
+        [SwaggerResponse(200, type: typeof(List<GetMessageDTO>))]
         public virtual IActionResult WaitMessage([FromQuery]DateTime? since)
         {
             throw new NotSupportedException();

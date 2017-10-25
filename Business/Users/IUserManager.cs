@@ -1,14 +1,12 @@
 ﻿using Business.Models;
 using System.Collections.Generic;
 
-namespace Business.Authentication
+namespace Business.Users
 {
     public interface IUserManager
     {
         string Login(string email);
 
-        long? Authenticate(string token);
-
-        List<IGroup> GetGroupsForUser(long userId);
+        List<GroupModel> GetGroupsForUser(int userId);
     }
 }

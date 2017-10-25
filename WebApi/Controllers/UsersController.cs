@@ -26,11 +26,13 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using WebAPI.Models;
 using Business.Messages;
 using WebAPI.Mappers;
-using Business.Models;
 using System.Linq;
 using Business.Authentication;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Filters;
+using Business.Models;
+using WebAPI.Authentication;
+using Business.Users;
+using System.Net;
 
 namespace WebAPI.Controllers
 {
@@ -43,8 +45,6 @@ namespace WebAPI.Controllers
         private readonly IUserManager userManager;
         private readonly DTOMapper dtoMapper;
 
-        private long? userId;
-
         public UsersController(IMessageManager messageManager, IUserManager userManager)
         {
             this.messageManager = messageManager;
@@ -52,31 +52,23 @@ namespace WebAPI.Controllers
             dtoMapper = new DTOMapper();
         }
 
-        public override void OnActionExecuting(ActionExecutingContext context)
-        {
-            string token = HttpContext.Request.Headers["token"];
-            userId = userManager.Authenticate(token);
-        }
-
         /// <summary>
         /// Get the available groups to a user.
         /// </summary>
         /// <remarks>Get the available groups to the user with the specified ID.</remarks>
         /// <response code="200">Successfully retrieved the user&#39;s groups</response>
-        /// <response code="418">The user was not authorized to access this resource</response>
+        /// <response code="401">The user was not authorized to access this resource</response>
         [HttpGet]
         [Route("/1.0.0/users/me/groups")]
         [SwaggerOperation("GetGroupsForUser")]
-        [SwaggerResponse(200, type: typeof(List<Group>))]
+        [SwaggerResponse(200, type: typeof(List<GroupDTO>))]
+        [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult GetGroupsForUser()
         {
-            if (userId == null)
-            {
-                return StatusCode(418);
-            }
+            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
-            List<IGroup> groups = userManager.GetGroupsForUser((long)userId);
-            List<Group> dtoResponse = groups.Select(g => dtoMapper.ConvertGroup(g)).ToList();
+            List<GroupModel> groups = userManager.GetGroupsForUser((int)userId);
+            List<GroupDTO> dtoResponse = groups.Select(g => dtoMapper.ConvertGroup(g)).ToList();
 
             return new ObjectResult(dtoResponse);
         }
@@ -87,7 +79,7 @@ namespace WebAPI.Controllers
         /// <remarks>Login the user with the specified e-mail</remarks>
         /// <param name="userEmail">The user&#39;s email</param>
         /// <response code="200">The user was successfully logged in</response>
-        /// <response code="400">No user with the specified e-mail was found</response>
+        /// <response code="401">No user with the specified e-mail was found</response>
         [HttpGet]
         [Route("/1.0.0/users/login")]
         [SwaggerOperation("Login")]
@@ -105,8 +97,8 @@ namespace WebAPI.Controllers
             {
                 return NotFound("No user with the specified email was found!");
             }
-
-            return new ObjectResult(token);
+            
+            return Content(token);
         }
     }
 }

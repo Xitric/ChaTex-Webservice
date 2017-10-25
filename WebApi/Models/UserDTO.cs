@@ -32,52 +32,62 @@ namespace WebAPI.Models
     /// 
     /// </summary>
     [DataContract]
-    public partial class GetMessage :  IEquatable<GetMessage>
+    public partial class UserDTO :  IEquatable<UserDTO>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="GetMessage" /> class.
+        /// Initializes a new instance of the <see cref="UserDTO" /> class.
         /// </summary>
         /// <param name="Id">Id (required).</param>
-        /// <param name="CreationTime">CreationTime (required).</param>
-        /// <param name="Content">Content (required).</param>
-        /// <param name="Sender">Sender (required).</param>
-        public GetMessage(long? Id = null, DateTime? CreationTime = null, string Content = null, User Sender = null)
+        /// <param name="FirstName">FirstName (required).</param>
+        /// <param name="MiddleInitial">MiddleInitial (required).</param>
+        /// <param name="LastName">LastName (required).</param>
+        /// <param name="Email">Email (required).</param>
+        public UserDTO(long? Id = null, string FirstName = null, string MiddleInitial = null, string LastName = null, string Email = null)
         {
             // to ensure "Id" is required (not null)
             if (Id == null)
             {
-                throw new InvalidDataException("Id is a required property for GetMessage and cannot be null");
+                throw new InvalidDataException("Id is a required property for User and cannot be null");
             }
             else
             {
                 this.Id = Id;
             }
-            // to ensure "CreationTime" is required (not null)
-            if (CreationTime == null)
+            // to ensure "FirstName" is required (not null)
+            if (FirstName == null)
             {
-                throw new InvalidDataException("CreationTime is a required property for GetMessage and cannot be null");
+                throw new InvalidDataException("FirstName is a required property for User and cannot be null");
             }
             else
             {
-                this.CreationTime = CreationTime;
+                this.FirstName = FirstName;
             }
-            // to ensure "Content" is required (not null)
-            if (Content == null)
+            // to ensure "MiddleInitial" is required (not null)
+            if (MiddleInitial == null)
             {
-                throw new InvalidDataException("Content is a required property for GetMessage and cannot be null");
-            }
-            else
-            {
-                this.Content = Content;
-            }
-            // to ensure "Sender" is required (not null)
-            if (Sender == null)
-            {
-                throw new InvalidDataException("Sender is a required property for GetMessage and cannot be null");
+                throw new InvalidDataException("MiddleInitial is a required property for User and cannot be null");
             }
             else
             {
-                this.Sender = Sender;
+                this.MiddleInitial = MiddleInitial;
+            }
+            // to ensure "LastName" is required (not null)
+            if (LastName == null)
+            {
+                throw new InvalidDataException("LastName is a required property for User and cannot be null");
+            }
+            else
+            {
+                this.LastName = LastName;
+            }
+            // to ensure "Email" is required (not null)
+            if (Email == null)
+            {
+                throw new InvalidDataException("Email is a required property for User and cannot be null");
+            }
+            else
+            {
+                this.Email = Email;
             }
             
         }
@@ -89,22 +99,28 @@ namespace WebAPI.Models
         public long? Id { get; set; }
 
         /// <summary>
-        /// Gets or Sets CreationTime
+        /// Gets or Sets FirstName
         /// </summary>
-        [DataMember(Name="CreationTime")]
-        public DateTime? CreationTime { get; set; }
+        [DataMember(Name="FirstName")]
+        public string FirstName { get; set; }
 
         /// <summary>
-        /// Gets or Sets Content
+        /// Gets or Sets MiddleInitial
         /// </summary>
-        [DataMember(Name="Content")]
-        public string Content { get; set; }
+        [DataMember(Name="MiddleInitial")]
+        public string MiddleInitial { get; set; }
 
         /// <summary>
-        /// Gets or Sets Sender
+        /// Gets or Sets LastName
         /// </summary>
-        [DataMember(Name="Sender")]
-        public User Sender { get; set; }
+        [DataMember(Name="LastName")]
+        public string LastName { get; set; }
+
+        /// <summary>
+        /// Gets or Sets Email
+        /// </summary>
+        [DataMember(Name="Email")]
+        public string Email { get; set; }
 
 
         /// <summary>
@@ -114,11 +130,12 @@ namespace WebAPI.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class GetMessage {\n");
+            sb.Append("class User {\n");
             sb.Append("  Id: ").Append(Id).Append("\n");
-            sb.Append("  CreationTime: ").Append(CreationTime).Append("\n");
-            sb.Append("  Content: ").Append(Content).Append("\n");
-            sb.Append("  Sender: ").Append(Sender).Append("\n");
+            sb.Append("  FirstName: ").Append(FirstName).Append("\n");
+            sb.Append("  MiddleInitial: ").Append(MiddleInitial).Append("\n");
+            sb.Append("  LastName: ").Append(LastName).Append("\n");
+            sb.Append("  Email: ").Append(Email).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -142,15 +159,15 @@ namespace WebAPI.Models
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((GetMessage)obj);
+            return Equals((UserDTO)obj);
         }
 
         /// <summary>
-        /// Returns true if GetMessage instances are equal
+        /// Returns true if User instances are equal
         /// </summary>
-        /// <param name="other">Instance of GetMessage to be compared</param>
+        /// <param name="other">Instance of User to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(GetMessage other)
+        public bool Equals(UserDTO other)
         {
 
             if (ReferenceEquals(null, other)) return false;
@@ -163,19 +180,24 @@ namespace WebAPI.Models
                     this.Id.Equals(other.Id)
                 ) && 
                 (
-                    this.CreationTime == other.CreationTime ||
-                    this.CreationTime != null &&
-                    this.CreationTime.Equals(other.CreationTime)
+                    this.FirstName == other.FirstName ||
+                    this.FirstName != null &&
+                    this.FirstName.Equals(other.FirstName)
                 ) && 
                 (
-                    this.Content == other.Content ||
-                    this.Content != null &&
-                    this.Content.Equals(other.Content)
+                    this.MiddleInitial == other.MiddleInitial ||
+                    this.MiddleInitial != null &&
+                    this.MiddleInitial.Equals(other.MiddleInitial)
                 ) && 
                 (
-                    this.Sender == other.Sender ||
-                    this.Sender != null &&
-                    this.Sender.Equals(other.Sender)
+                    this.LastName == other.LastName ||
+                    this.LastName != null &&
+                    this.LastName.Equals(other.LastName)
+                ) && 
+                (
+                    this.Email == other.Email ||
+                    this.Email != null &&
+                    this.Email.Equals(other.Email)
                 );
         }
 
@@ -192,24 +214,26 @@ namespace WebAPI.Models
                 // Suitable nullity checks etc, of course :)
                 if (this.Id != null)
                     hash = hash * 59 + this.Id.GetHashCode();
-                if (this.CreationTime != null)
-                    hash = hash * 59 + this.CreationTime.GetHashCode();
-                if (this.Content != null)
-                    hash = hash * 59 + this.Content.GetHashCode();
-                if (this.Sender != null)
-                    hash = hash * 59 + this.Sender.GetHashCode();
+                if (this.FirstName != null)
+                    hash = hash * 59 + this.FirstName.GetHashCode();
+                if (this.MiddleInitial != null)
+                    hash = hash * 59 + this.MiddleInitial.GetHashCode();
+                if (this.LastName != null)
+                    hash = hash * 59 + this.LastName.GetHashCode();
+                if (this.Email != null)
+                    hash = hash * 59 + this.Email.GetHashCode();
                 return hash;
             }
         }
 
         #region Operators
 
-        public static bool operator ==(GetMessage left, GetMessage right)
+        public static bool operator ==(UserDTO left, UserDTO right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(GetMessage left, GetMessage right)
+        public static bool operator !=(UserDTO left, UserDTO right)
         {
             return !Equals(left, right);
         }
