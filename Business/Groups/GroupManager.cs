@@ -90,7 +90,17 @@ namespace Business.Groups
 
         public void AddRolesToGroup(int groupId, int callerId, IEnumerable<int> roleIds)
         {
-
+            groupRepository.AddRolesToGroup(groupRoleModel: roleIds.Select(roleId => new GroupRoleModel()
+            {
+                Group = new GroupModel()
+                {
+                    Id = groupId
+                },
+                Role = new RoleModel()
+                {
+                    RoleId = roleId,
+                }
+            }));
         }
 
         public void RemoveRolesFromGroup(int groupId, int callerId, IEnumerable<int> roleIds)

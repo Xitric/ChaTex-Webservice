@@ -64,7 +64,12 @@ namespace DAL
 
         public void AddRolesToGroup(IEnumerable<GroupRoleModel> groupRoleModels)
         {
-
+            using (var db = new ChatexdbContext())
+            {
+                //var entities = groupRoleModels.Select(x => GroupRoleMapper.MapGroupUserModelToEntity(x));
+                //db.GroupUser.RemoveRange(entities);
+                //db.SaveChanges();
+            }
         }
 
         public void RemoveRolesFromGroup(IEnumerable<GroupRoleModel> groupRoleModels)

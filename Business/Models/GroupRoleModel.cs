@@ -7,6 +7,6 @@ namespace Business.Models
     public class GroupRoleModel
     {
         public GroupModel Group { get; set; }
-        public RoleModel User { get; set; }
+        public RoleModel Role { get; set; }
     }
 }

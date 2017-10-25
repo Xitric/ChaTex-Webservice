@@ -39,8 +39,6 @@ namespace WebAPI.Controllers
         private readonly IGroupManager groupManager;
         private readonly DTOMapper dtoMapper;
 
-        private long? userId;
-
         public GroupsController(IGroupManager groupManager)
         {
             this.groupManager = groupManager;
@@ -196,9 +194,17 @@ namespace WebAPI.Controllers
         [HttpPost]
         [Route("/1.0.0/groups/roles")]
         [SwaggerOperation("AddRolesToGroup")]
-        public virtual void AddRolesToGroup([FromQuery]int? groupId, [FromBody]List<int?> roleIds)
+        public virtual StatusCodeResult AddRolesToGroup([FromQuery]int? groupId, [FromBody]List<int?> roleIds)
         {
-            throw new NotImplementedException();
+            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+
+            if (groupId == null || userId == null || roleIds == null || roleIds.Exists(x => x == null))
+            {
+                return StatusCode(404);
+            }
+            groupManager.AddRolesToGroup((int)groupId, (int)userId, roleIds.Where(x => x != null).Select(x => x.Value).ToList());
+
+            return StatusCode(200);
         }
 
         /// <summary>
