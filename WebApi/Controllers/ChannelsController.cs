@@ -91,9 +91,18 @@ namespace IO.Swagger.Controllers
         [Route("/1.0.0/groups/{groupId}/channels/{channelId}")]
         [SwaggerOperation("DeleteChannel")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual void DeleteChannel([FromRoute]int? groupId, [FromRoute]int? channelId)
+        public virtual StatusCodeResult DeleteChannel([FromRoute]int? groupId, [FromRoute]int? channelId)
         {
-            throw new NotImplementedException();
+            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+
+            if (groupId == null || channelId == null)
+            {
+                return StatusCode(404);
+            }
+
+            channelManager.DeleteChannel((int)groupId, (int)userId, (int)channelId);
+
+            return StatusCode(204);
         }
     }
 }

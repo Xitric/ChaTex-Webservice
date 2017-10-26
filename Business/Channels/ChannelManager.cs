@@ -25,5 +25,10 @@ namespace Business.Channels
 
             return false;
         }
+
+        public bool DeleteChannel(int groupId, int callerId, int channelId)
+        {
+
+        }
     }
 }
