@@ -15,7 +15,17 @@ namespace DAL
         {
             using (var db = new ChatexdbContext())
             {
-                var messages = db.ChannelMessages
+                //var messages = db.ChannelMessages
+                //    .Where(cm => cm.ChannelId == channelId)
+                //    .Include(cm => cm.Message)
+                //    .ThenInclude(m => m.User)
+                //    .ToList()
+                //    .Select(cm => cm.Message)
+                //    .Select(cm => MessageMapper.MapMessageEntityToModel(cm))
+                //    .ToList();
+
+
+                /*var messages = db.ChannelMessages
                     .Where(cm => cm.ChannelId == channelId)
                     .Include(cm => cm.Message)
                     .ThenInclude(m => m.User)
@@ -23,28 +33,29 @@ namespace DAL
                     .ToList()
                     .Select(cm => MessageMapper.MapMessageEntityToModel(cm))
                     .ToList();
+                    */
+                //return messages;
 
-                return messages;
 
-
-                //return db.ChannelMessages
-                //    .Where(cm => cm.ChannelId == channelId)
-                //    .Include(cm => cm.Message)
-                //    .Select(cm => cm.Message)
-                //    .Where(m => m.IsDeleted == false)
-                //    .Include(m => m.User)
-                //    .OrderBy(m => m.CreationDate)
-                //    .Skip(from)
-                //    .Take(count)
-                //    .ToList()
-                //    .Select(m => MessageMapper.MapMessageEntityToModel(m))
-                //    .ToList();
+                return db.ChannelMessages
+                    .Where(cm => cm.ChannelId == channelId)
+                    .Include(cm => cm.Message)
+                        .ThenInclude(m => m.User)
+                    .ToList()
+                    .Select(cm => cm.Message)
+                    .Where(m => m.IsDeleted == false)
+                    .OrderBy(m => m.CreationDate)
+                    .Skip(from)
+                    .Take(count)
+                    .ToList()
+                    .Select(m => MessageMapper.MapMessageEntityToModel(m))
+                    .ToList();
             }
         }
-   
+
         public void CreateMessage(MessageModel message, int channelId)
         {
-            if(message != null)
+            if (message != null)
             {
                 using (var context = new ChatexdbContext())
                 {
@@ -64,6 +75,6 @@ namespace DAL
                 }
             }
         }
-        
+
     }
 }

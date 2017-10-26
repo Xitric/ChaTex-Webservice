@@ -21,12 +21,8 @@
  */
 
 using System;
-using System.Linq;
 using System.IO;
 using System.Text;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
@@ -43,7 +39,7 @@ namespace WebAPI.Models
         /// </summary>
         /// <param name="Id">Id (required).</param>
         /// <param name="FirstName">FirstName (required).</param>
-        /// <param name="MiddleInitial">MiddleInitial (required).</param>
+        /// <param name="MiddleInitial">MiddleInitial.</param>
         /// <param name="LastName">LastName (required).</param>
         /// <param name="Email">Email (required).</param>
         /// <param name="Me">Me (required).</param>
@@ -66,15 +62,6 @@ namespace WebAPI.Models
             else
             {
                 this.FirstName = FirstName;
-            }
-            // to ensure "MiddleInitial" is required (not null)
-            if (MiddleInitial == null)
-            {
-                throw new InvalidDataException("MiddleInitial is a required property for UserDTO and cannot be null");
-            }
-            else
-            {
-                this.MiddleInitial = MiddleInitial;
             }
             // to ensure "LastName" is required (not null)
             if (LastName == null)
@@ -103,6 +90,7 @@ namespace WebAPI.Models
             {
                 this.Me = Me;
             }
+            this.MiddleInitial = MiddleInitial;
             
         }
 
