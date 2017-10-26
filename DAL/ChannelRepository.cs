@@ -1,4 +1,5 @@
 ﻿using Business;
+using Business.Models;
 using DAL.Models;
 using System.Linq;
 
@@ -32,6 +33,19 @@ namespace DAL
                     db.SaveChanges();
                 }
             }
+        }
+
+        public void UpdateChannel(ChannelModel channelModel)
+        {
+            using (var db = new ChatexdbContext())
+            {
+                var channel = db.Channel.FirstOrDefault(c => c.ChannelId == channelModel.Id);
+                if(channel != null)
+                {
+                    channel.Name = channelModel.Name;
+                    db.SaveChanges();
+                }
+            }            
         }
     }
 }
