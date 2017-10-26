@@ -103,7 +103,7 @@ namespace DAL
             }
         }
 
-        public List<GroupModel> GetGroupsForUser(int userId)
+        public IEnumerable<GroupModel> GetGroupsForUser(int userId)
         {
             using (var context = new ChatexdbContext())
             {
@@ -123,7 +123,8 @@ namespace DAL
                 return groupsUser.Union(groupsRole)
                     .Where(g => g.IsDeleted == false)
                     .Include(g => g.Channel)
-                    .Select(g => GroupMapper.MapGroupEntityToModel(g)).ToList();
+                    .Select(g => GroupMapper.MapGroupEntityToModel(g))
+                    .ToList();
             }
         }
     }

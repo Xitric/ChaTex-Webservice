@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.Swagger;
 using WebAPI.Authentication;
@@ -21,8 +22,8 @@ namespace WebAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-                /*.AddJsonOptions(
-                    opts => { opts.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver(); });*/
+            /*.AddJsonOptions(
+                opts => { opts.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver(); });*/
 
             //Register Swagger
             services.AddSwaggerGen(c =>

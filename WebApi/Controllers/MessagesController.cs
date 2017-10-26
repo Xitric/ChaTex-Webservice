@@ -20,15 +20,16 @@
  * limitations under the License.
  */
 
-using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Business.Messages;
 using WebAPI.Models;
-using WebAPI.Mappers;
-using Business.Models;
 using WebAPI.Authentication;
+using System.Linq;
+using WebAPI.Models.Mappers;
+using System;
+using Business.Models;
 
 namespace WebAPI.Controllers
 {
@@ -36,12 +37,41 @@ namespace WebAPI.Controllers
     public class MessagesController : Controller
     {
         private readonly IMessageManager messageManager;
-        private readonly DTOMapper dtoMapper;
 
         public MessagesController(IMessageManager messageManager)
         {
             this.messageManager = messageManager;
-            dtoMapper = new DTOMapper();
+        }
+
+        /// <summary>
+        /// Get the messages from a specific channel
+        /// </summary>
+        /// <remarks>Get a number of messages from the specified channel</remarks>
+        /// <param name="channelId">The id of the channel to delete</param>
+        /// <param name="fromIndex">The index of the first message to get, beginning from the most recently posted message. This defaults to 0, meaning the most recent message</param>
+        /// <param name="count">The amount of messages to get. This defaults to 25</param>
+        /// <response code="200">Messages fetched successfully</response>
+        [HttpGet]
+        [Route("/1.0.0/channels/{channelId}/messages")]
+        [SwaggerOperation("GetMessages")]
+        [SwaggerResponse(200, type: typeof(GetMessageDTO))]
+        [ServiceFilter(typeof(ChaTexAuthorization))]
+        public virtual IActionResult GetMessages([FromRoute]int? channelId, [FromQuery]int? fromIndex, [FromQuery]int? count)
+        {
+            int userId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+
+            if (fromIndex == null) fromIndex = 0;
+            if (count == null) count = 25;
+
+            if (channelId == null)
+            {
+                return StatusCode(404);
+            }
+
+            IEnumerable<GetMessageDTO> messages = messageManager.GetMessages((int)channelId, userId, (int)fromIndex, (int)count)
+                .Select(m => MessageMapper.MapMessageToGetMessageDTO(m, userId));
+
+            return new ObjectResult(messages);
         }
 
         /// <summary>
