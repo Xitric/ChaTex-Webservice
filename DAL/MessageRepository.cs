@@ -11,53 +11,18 @@ namespace DAL
 {
     class MessageRepository : IMessageRepository
     {
-        public void AddMessage(MessageModel message)
+        public IEnumerable<MessageModel> getMessages(int channelId, int from, int count)
         {
-            if (message != null)
+            using (var db = new ChatexdbContext())
             {
-                using (var context = new ChatexdbContext())
-                {
-                    Message dalMessage = MessageMapper.MapMessageModelToEntity(message);
-
-                    //Overwrite the CreationDate property when adding new messages
-                    dalMessage.CreationDate = DateTime.Now;
-
-                    context.Message.Add(dalMessage);
-                    context.SaveChanges();
-
-                    //Load author information for returning the newly created message
-                    context.Entry(dalMessage).Reference(msg => msg.User).Load();
-                }
-            }
-        }
-
-        public MessageModel GetMessage(long id)
-        {
-            using (var context = new ChatexdbContext())
-            {
-                Message dalMessage = context.Message
-                    .Where(msg => msg.MessageId == (int)id)
-                    .Include(msg => msg.User)
-                    .FirstOrDefault();
-
-                if (dalMessage != null)
-                {
-                    return MessageMapper.MapMessageEntityToModel(dalMessage);
-                }
-            }
-
-            return null;
-        }
-
-        public List<MessageModel> GetMessagesSince(DateTime since)
-        {
-            using (var context = new ChatexdbContext())
-            {
-                return context.Message
-                    .Where(msg => msg.CreationDate > since.ToUniversalTime())
-                    .Include(msg => msg.User)
-                    .Select(msg => MessageMapper.MapMessageEntityToModel(msg))
-                    .ToList();
+                return db.ChannelMessages
+                    .Where(cm => cm.ChannelId == channelId)
+                    .Select(cm => cm.Message)
+                    .Where(m => m.IsDeleted == false)
+                    .OrderBy(m => m.CreationDate)
+                    .Skip(from)
+                    .Take(count)
+                    .Select(m => MessageMapper.MapMessageEntityToModel(m));
             }
         }
     }

@@ -30,7 +30,7 @@ using System.Collections.ObjectModel;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
-namespace IO.Swagger.Models
+namespace WebAPI.Models
 {
     /// <summary>
     /// 

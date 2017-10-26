@@ -1,35 +1,33 @@
 ﻿using Business;
 using Business.Models;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Business.Messages
 {
     class MessageManager : IMessageManager
     {
         private readonly IMessageRepository messages;
+        private readonly IUserRepository users;
 
-        public MessageManager(IMessageRepository messages)
+        public MessageManager(IMessageRepository messages, IUserRepository users)
         {
             this.messages = messages;
+            this.users = users;
         }
 
-        public MessageModel GetMessage(int id)
+        public IEnumerable<MessageModel> GetMessages(int channelId, int callerId, int from, int count)
         {
-            return messages.GetMessage(id);
-        }
-
-        public void PostMessage(string content, int authorId)
-        {
-            UserModel author = new UserModel()
+            bool hasChannelAccess = users.GetGroupsForUser(callerId)
+                .Select(g => g.Channels.Any(c => c.Id == channelId))
+                .Any();
+            
+            if (hasChannelAccess)
             {
-                Id = authorId
-            };
-            MessageModel message = new MessageModel()
-            {
-                Content = content,
-                Author = author
-            };
+                messages.getMessages(channelId, from, count);
+            }
 
-            messages.AddMessage(message);
+            return new List<MessageModel>();
         }
     }
 }

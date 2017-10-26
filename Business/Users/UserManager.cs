@@ -22,7 +22,7 @@ namespace Business.Users
             return auth.Login(email);
         }
 
-        public List<GroupModel> GetGroupsForUser(int userId)
+        public IEnumerable<GroupModel> GetGroupsForUser(int userId)
         {
             return users.GetGroupsForUser(userId);
         }

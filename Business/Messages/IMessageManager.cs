@@ -5,6 +5,6 @@ namespace Business.Messages
 {
     public interface IMessageManager
     {
-        IEnumerable<MessageModel> GetMessages(int groupId, int channelId, int callerId, int from, int count);
+        IEnumerable<MessageModel> GetMessages(int channelId, int callerId, int from, int count);
     }
 }

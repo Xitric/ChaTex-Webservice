@@ -67,7 +67,7 @@ namespace WebAPI.Controllers
         {
             int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
-            List<GroupModel> groups = userManager.GetGroupsForUser((int)userId);
+            IEnumerable<GroupModel> groups = userManager.GetGroupsForUser((int)userId);
             List<GroupDTO> dtoResponse = groups.Select(g => dtoMapper.ConvertGroup(g)).ToList();
 
             return new ObjectResult(dtoResponse);
