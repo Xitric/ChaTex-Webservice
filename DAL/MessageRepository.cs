@@ -30,6 +30,7 @@ namespace DAL
                         MessageId = dalmessage.MessageId,
                     };
                     context.ChannelMessages.Add(channelMessage);
+                    context.SaveChanges();
 
 
                 }
