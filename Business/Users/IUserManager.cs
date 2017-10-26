@@ -7,6 +7,6 @@ namespace Business.Users
     {
         string Login(string email);
 
-        List<GroupModel> GetGroupsForUser(int userId);
+        IEnumerable<GroupModel> GetGroupsForUser(int userId);
     }
 }

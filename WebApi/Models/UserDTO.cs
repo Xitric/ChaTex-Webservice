@@ -39,15 +39,16 @@ namespace WebAPI.Models
         /// </summary>
         /// <param name="Id">Id (required).</param>
         /// <param name="FirstName">FirstName (required).</param>
-        /// <param name="MiddleInitial">MiddleInitial (required).</param>
+        /// <param name="MiddleInitial">MiddleInitial.</param>
         /// <param name="LastName">LastName (required).</param>
         /// <param name="Email">Email (required).</param>
-        public UserDTO(long? Id = null, string FirstName = null, string MiddleInitial = null, string LastName = null, string Email = null)
+        /// <param name="Me">Me (required).</param>
+        public UserDTO(int? Id = null, string FirstName = null, string MiddleInitial = null, string LastName = null, string Email = null, bool? Me = null)
         {
             // to ensure "Id" is required (not null)
             if (Id == null)
             {
-                throw new InvalidDataException("Id is a required property for User and cannot be null");
+                throw new InvalidDataException("Id is a required property for UserDTO and cannot be null");
             }
             else
             {
@@ -56,25 +57,16 @@ namespace WebAPI.Models
             // to ensure "FirstName" is required (not null)
             if (FirstName == null)
             {
-                throw new InvalidDataException("FirstName is a required property for User and cannot be null");
+                throw new InvalidDataException("FirstName is a required property for UserDTO and cannot be null");
             }
             else
             {
                 this.FirstName = FirstName;
             }
-            // to ensure "MiddleInitial" is required (not null)
-            if (MiddleInitial == null)
-            {
-                throw new InvalidDataException("MiddleInitial is a required property for User and cannot be null");
-            }
-            else
-            {
-                this.MiddleInitial = MiddleInitial;
-            }
             // to ensure "LastName" is required (not null)
             if (LastName == null)
             {
-                throw new InvalidDataException("LastName is a required property for User and cannot be null");
+                throw new InvalidDataException("LastName is a required property for UserDTO and cannot be null");
             }
             else
             {
@@ -83,12 +75,22 @@ namespace WebAPI.Models
             // to ensure "Email" is required (not null)
             if (Email == null)
             {
-                throw new InvalidDataException("Email is a required property for User and cannot be null");
+                throw new InvalidDataException("Email is a required property for UserDTO and cannot be null");
             }
             else
             {
                 this.Email = Email;
             }
+            // to ensure "Me" is required (not null)
+            if (Me == null)
+            {
+                throw new InvalidDataException("Me is a required property for UserDTO and cannot be null");
+            }
+            else
+            {
+                this.Me = Me;
+            }
+            this.MiddleInitial = MiddleInitial;
             
         }
 
@@ -96,7 +98,7 @@ namespace WebAPI.Models
         /// Gets or Sets Id
         /// </summary>
         [DataMember(Name="Id")]
-        public long? Id { get; set; }
+        public int? Id { get; set; }
 
         /// <summary>
         /// Gets or Sets FirstName
@@ -122,6 +124,12 @@ namespace WebAPI.Models
         [DataMember(Name="Email")]
         public string Email { get; set; }
 
+        /// <summary>
+        /// Gets or Sets Me
+        /// </summary>
+        [DataMember(Name="Me")]
+        public bool? Me { get; set; }
+
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -130,12 +138,13 @@ namespace WebAPI.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class User {\n");
+            sb.Append("class UserDTO {\n");
             sb.Append("  Id: ").Append(Id).Append("\n");
             sb.Append("  FirstName: ").Append(FirstName).Append("\n");
             sb.Append("  MiddleInitial: ").Append(MiddleInitial).Append("\n");
             sb.Append("  LastName: ").Append(LastName).Append("\n");
             sb.Append("  Email: ").Append(Email).Append("\n");
+            sb.Append("  Me: ").Append(Me).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -163,9 +172,9 @@ namespace WebAPI.Models
         }
 
         /// <summary>
-        /// Returns true if User instances are equal
+        /// Returns true if UserDTO instances are equal
         /// </summary>
-        /// <param name="other">Instance of User to be compared</param>
+        /// <param name="other">Instance of UserDTO to be compared</param>
         /// <returns>Boolean</returns>
         public bool Equals(UserDTO other)
         {
@@ -198,6 +207,11 @@ namespace WebAPI.Models
                     this.Email == other.Email ||
                     this.Email != null &&
                     this.Email.Equals(other.Email)
+                ) && 
+                (
+                    this.Me == other.Me ||
+                    this.Me != null &&
+                    this.Me.Equals(other.Me)
                 );
         }
 
@@ -222,6 +236,8 @@ namespace WebAPI.Models
                     hash = hash * 59 + this.LastName.GetHashCode();
                 if (this.Email != null)
                     hash = hash * 59 + this.Email.GetHashCode();
+                if (this.Me != null)
+                    hash = hash * 59 + this.Me.GetHashCode();
                 return hash;
             }
         }
