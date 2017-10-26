@@ -20,17 +20,15 @@
  * limitations under the License.
  */
 
-using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Business.Messages;
 using WebAPI.Models;
-using WebAPI.Mappers;
-using Business.Models;
 using WebAPI.Authentication;
 using System.Linq;
 using WebAPI.Models.Mappers;
+using System;
 
 namespace WebAPI.Controllers
 {
@@ -38,7 +36,7 @@ namespace WebAPI.Controllers
     public class MessagesController : Controller
     {
         private readonly IMessageManager messageManager;
-        
+
         public MessagesController(IMessageManager messageManager)
         {
             this.messageManager = messageManager;
@@ -73,6 +71,40 @@ namespace WebAPI.Controllers
                 .Select(m => MessageMapper.MapMessageToGetMessageDTO(m, userId));
 
             return new ObjectResult(messages);
+        }
+
+        /// <summary>
+        /// Create a new message
+        /// </summary>
+        /// <remarks>Create a new message in a specific channel</remarks>
+        /// <param name="groupId">The id of the group the messeage will be posted in</param>
+        /// <param name="channelId">The id of the channel to delete</param>
+        /// <param name="messageContent">Content of the message</param>
+        /// <response code="204">Messages was successfully posted.</response>
+        /// <response code="401">The user was not authorized to access this resource</response>
+        /// <response code="404">No group or channel with the specified ids were found</response>
+        [HttpPost]
+        [Route("/1.0.0/groups/{groupId}/channels/{channelId}/messages")]
+        [SwaggerOperation("CreateMessage")]
+        [ServiceFilter(typeof(ChaTexAuthorization))]
+        public virtual StatusCodeResult CreateMessage([FromRoute]int? groupId, [FromRoute]int? channelId, [FromQuery]string messageContent)
+        {
+            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+
+            if (groupId == null | channelId == null || String.IsNullOrEmpty(messageContent))
+            {
+                return StatusCode(404);
+            }
+
+            try
+            {
+                messageManager.CreateMessage((int)groupId, (int)userId, (int)channelId, messageContent);
+            }
+            catch (Exception)
+            {
+                return StatusCode(401);
+            }
+            return StatusCode(204);
         }
     }
 }

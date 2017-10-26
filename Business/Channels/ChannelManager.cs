@@ -37,5 +37,22 @@ namespace Business.Channels
             }
             return false;
         }
+
+        public bool UpdateChannel(int groupId, int callerId, int channelId, string channelName)
+        {
+            GroupUserModel user = groupRepository.GetGroupUser(groupId, callerId);
+
+            if (user.IsAdministrator) {
+                channelRepository.UpdateChannel(new ChannelModel()
+                {
+                    Id = channelId,
+                    Name = channelName
+                });
+                return true;
+            }
+
+            return false;
+        }
+        
     }
 }

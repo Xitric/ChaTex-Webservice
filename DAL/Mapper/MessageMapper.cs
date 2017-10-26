@@ -13,7 +13,10 @@ namespace DAL.Mapper
             if (messageModel == null) return null;
             return new Message()
             {
-                
+                Content = messageModel.Content,
+                UserId = (int)messageModel.Author.Id,
+                IsDeleted = messageModel.isDeleted,
+                MessageId = messageModel.Id == null ? 0 : messageModel.Id.Value
             };
         }
 
@@ -22,6 +25,11 @@ namespace DAL.Mapper
             if (message == null) return null;
             return new MessageModel()
             {
+                Author = new UserModel() { Id = message.UserId },
+                Content = message.Content,
+                CreationTime = message.CreationDate,
+                Id = message.MessageId,
+                isDeleted = (bool)message.IsDeleted
 
             };
         }
