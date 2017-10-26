@@ -1,11 +1,10 @@
 ﻿using Business.Models;
+using System.Collections.Generic;
 
 namespace Business.Messages
 {
     public interface IMessageManager
     {
-        void PostMessage(string content, int authorId);
-
-        MessageModel GetMessage(int id);
+        IEnumerable<MessageModel> GetMessages(int groupId, int channelId, int callerId, int from, int count);
     }
 }

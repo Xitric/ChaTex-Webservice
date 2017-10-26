@@ -28,6 +28,7 @@ using Business.Messages;
 using WebAPI.Models;
 using WebAPI.Mappers;
 using Business.Models;
+using WebAPI.Authentication;
 
 namespace WebAPI.Controllers
 {
@@ -35,98 +36,30 @@ namespace WebAPI.Controllers
     public class MessagesController : Controller
     {
         private readonly IMessageManager messageManager;
-        private readonly DTOMapper dtoMapper;
-
+        
         public MessagesController(IMessageManager messageManager)
         {
             this.messageManager = messageManager;
-            dtoMapper = new DTOMapper();
         }
 
         /// <summary>
-        /// Send a message
+        /// Get the messages from a specific channel
         /// </summary>
-        /// <remarks>Send a message to the server</remarks>
-        /// <param name="message">The message object</param>
-        /// <response code="204">message created successfully</response>
-        [HttpPost]
-        [Route("/1.0.0/messages")]
-        [SwaggerOperation("CreateMessage")]
-        public virtual IActionResult CreateMessage([FromBody]PostMessageDTO message)
-        {
-            if (message == null)
-            {
-                return BadRequest("No message specified!");
-            }
-
-            if (message.Content == null || message.Author == null)
-            {
-                return BadRequest("Message badly formatted!");
-            }
-            
-            messageManager.PostMessage(message.Content, (int)message.Author);
-            
-            return StatusCode(204);
-        }
-
-        /// <summary>
-        /// Find message by ID
-        /// </summary>
-        /// <remarks>Returns a message with the specified ID</remarks>
-        /// <param name="messageID">ID of the message to fetch</param>
-        /// <response code="200">Successful operation</response>
-        /// <response code="404">Message not found</response>
+        /// <remarks>Get a number of messages from the specified channel</remarks>
+        /// <param name="groupId">The id of the group to delete the channel from</param>
+        /// <param name="channelId">The id of the channel to delete</param>
+        /// <param name="fromIndex">The index of the first message to get, beginning from the most recently posted message. This defaults to 0, meaning the most recent message</param>
+        /// <param name="count">The amount of messages to get. This defaults to 25</param>
+        /// <response code="200">Messages fetched successfully</response>
         [HttpGet]
-        [Route("/1.0.0/messages/{messageID}", Name = "GetMessage")]
-        [SwaggerOperation("GetMessageByID")]
-        [SwaggerResponse(200, type: typeof(GetMessageDTO))]
-        public virtual IActionResult GetMessageByID([FromRoute]int? messageID)
-        {
-            if (messageID == null)
-            {
-                return BadRequest("A message id must be specified!");
-            }
-
-            MessageModel message = messageManager.GetMessage((int)messageID);
-
-            if (message == null)
-            {
-                return NotFound($"No message with the id {messageID} was found.");
-            }
-
-            GetMessageDTO dtoResponse = dtoMapper.ConvertMessage(message);
-            return new ObjectResult(dtoResponse);
-        }
-
-
-        /// <summary>
-        /// Get all messages
-        /// </summary>
-        /// <remarks>Returns all messages in the database</remarks>
-        /// <response code="200">Successful operation</response>
-        [HttpGet]
-        [Route("/1.0.0/messages")]
+        [Route("/1.0.0/groups/{groupId}/channels/{channelId}/messages")]
         [SwaggerOperation("GetMessages")]
-        [SwaggerResponse(200, type: typeof(List<GetMessageDTO>))]
-        public virtual IActionResult GetMessages()
+        [SwaggerResponse(200, type: typeof(GetMessageDTO))]
+        [ServiceFilter(typeof(ChaTexAuthorization))]
+        public virtual IActionResult GetMessages([FromRoute]int? groupId, [FromRoute]int? channelId, [FromQuery]int? fromIndex, [FromQuery]int? count)
         {
-            throw new NotSupportedException();
-        }
+            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
-
-        /// <summary>
-        /// Wait for and get the next message
-        /// </summary>
-        /// <remarks>Blocking call that will wait for the next message to be sent to the server. Once a message arrives, it will be returned.</remarks>
-        /// <param name="since"></param>
-        /// <response code="200">Successful operation</response>
-        [HttpGet]
-        [Route("/1.0.0/messages/wait")]
-        [SwaggerOperation("WaitMessage")]
-        [SwaggerResponse(200, type: typeof(List<GetMessageDTO>))]
-        public virtual IActionResult WaitMessage([FromQuery]DateTime? since)
-        {
-            throw new NotSupportedException();
         }
     }
 }
