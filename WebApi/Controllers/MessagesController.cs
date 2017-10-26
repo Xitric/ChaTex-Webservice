@@ -29,6 +29,7 @@ using WebAPI.Authentication;
 using System.Linq;
 using WebAPI.Models.Mappers;
 using System;
+using Business.Models;
 
 namespace WebAPI.Controllers
 {

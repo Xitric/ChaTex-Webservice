@@ -25,7 +25,7 @@ namespace DAL.Mapper
             if (message == null) return null;
             return new MessageModel()
             {
-                Author = new UserModel() { Id = message.UserId },
+                Author = UserMapper.MapUserEntityToModel(message.User),
                 Content = message.Content,
                 CreationTime = message.CreationDate,
                 Id = message.MessageId,

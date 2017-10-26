@@ -123,7 +123,8 @@ namespace DAL
                 return groupsUser.Union(groupsRole)
                     .Where(g => g.IsDeleted == false)
                     .Include(g => g.Channel)
-                    .Select(g => GroupMapper.MapGroupEntityToModel(g));
+                    .Select(g => GroupMapper.MapGroupEntityToModel(g))
+                    .ToList();
             }
         }
     }

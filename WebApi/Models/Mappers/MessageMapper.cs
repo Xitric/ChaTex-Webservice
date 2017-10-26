@@ -6,13 +6,7 @@ namespace WebAPI.Models.Mappers
     {
         public static GetMessageDTO MapMessageToGetMessageDTO(MessageModel messageModel, int callerId)
         {
-            return new GetMessageDTO()
-            {
-                Id = messageModel.Id,
-                Content = messageModel.Content,
-                CreationTime = messageModel.CreationTime,
-                Sender = UserMapper.MapUserToUserDTO(messageModel.Author, callerId)
-            };
+            return new GetMessageDTO(messageModel.Id, messageModel.CreationTime, messageModel.Content, UserMapper.MapUserToUserDTO(messageModel.Author, callerId));
         }
     }
 }

@@ -27,7 +27,7 @@ namespace Business.Messages
         {
             if (IsUserInChannel(callerId, channelId))
             {
-                messages.getMessages(channelId, from, count);
+                return messages.getMessages(channelId, from, count);
             }
 
             return new List<MessageModel>();

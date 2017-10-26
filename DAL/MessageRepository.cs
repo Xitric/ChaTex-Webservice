@@ -15,14 +15,30 @@ namespace DAL
         {
             using (var db = new ChatexdbContext())
             {
-                return db.ChannelMessages
+                var messages = db.ChannelMessages
                     .Where(cm => cm.ChannelId == channelId)
+                    .Include(cm => cm.Message)
+                    .ThenInclude(m => m.User)
                     .Select(cm => cm.Message)
-                    .Where(m => m.IsDeleted == false)
-                    .OrderBy(m => m.CreationDate)
-                    .Skip(from)
-                    .Take(count)
-                    .Select(m => MessageMapper.MapMessageEntityToModel(m));
+                    .ToList()
+                    .Select(cm => MessageMapper.MapMessageEntityToModel(cm))
+                    .ToList();
+
+                return messages;
+
+
+                //return db.ChannelMessages
+                //    .Where(cm => cm.ChannelId == channelId)
+                //    .Include(cm => cm.Message)
+                //    .Select(cm => cm.Message)
+                //    .Where(m => m.IsDeleted == false)
+                //    .Include(m => m.User)
+                //    .OrderBy(m => m.CreationDate)
+                //    .Skip(from)
+                //    .Take(count)
+                //    .ToList()
+                //    .Select(m => MessageMapper.MapMessageEntityToModel(m))
+                //    .ToList();
             }
         }
    
@@ -45,8 +61,6 @@ namespace DAL
                     };
                     context.ChannelMessages.Add(channelMessage);
                     context.SaveChanges();
-
-
                 }
             }
         }
