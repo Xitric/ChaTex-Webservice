@@ -1,35 +1,36 @@
 ﻿using Business;
 using Business.Models;
+using System;
 
 namespace Business.Messages
 {
     class MessageManager : IMessageManager
     {
-        private readonly IMessageRepository messages;
+        private readonly IMessageRepository messageRepository;
+        private readonly IGroupRepository groupRepository;
 
-        public MessageManager(IMessageRepository messages)
+        public MessageManager(IMessageRepository messageRepositry, IGroupRepository groupRepository)
         {
-            this.messages = messages;
+            this.messageRepository = messageRepositry;
+            this.groupRepository = groupRepository;
         }
 
-        public MessageModel GetMessage(int id)
+        public void CreateMessage(int groupId, int callerId, int channelId, string messageContent)
         {
-            return messages.GetMessage(id);
-        }
+            GroupUserModel user = groupRepository.GetGroupUser(groupId, callerId);
 
-        public void PostMessage(string content, int authorId)
-        {
-            UserModel author = new UserModel()
+            if (user != null)
             {
-                Id = authorId
-            };
-            MessageModel message = new MessageModel()
+                messageRepository.CreateMessage(new MessageModel()
+                {
+                    Author = new UserModel { Id = callerId },
+                    Content = messageContent,
+                }, channelId);
+            } else
             {
-                Content = content,
-                Author = author
-            };
+                throw new Exception("Message couldnt be created, user isnt in the channel group");
+            }
 
-            messages.AddMessage(message);
         }
     }
 }

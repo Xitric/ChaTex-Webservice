@@ -11,54 +11,31 @@ namespace DAL
 {
     class MessageRepository : IMessageRepository
     {
-        public void AddMessage(MessageModel message)
+   
+        public void CreateMessage(MessageModel message, int channelId)
         {
-            if (message != null)
+            if(message != null)
             {
                 using (var context = new ChatexdbContext())
                 {
-                    Message dalMessage = MessageMapper.MapMessageModelToEntity(message);
+                    Message dalmessage = MessageMapper.MapMessageModelToEntity(message);
+                    dalmessage.CreationDate = DateTime.Now;
 
-                    //Overwrite the CreationDate property when adding new messages
-                    dalMessage.CreationDate = DateTime.Now;
-
-                    context.Message.Add(dalMessage);
+                    context.Message.Add(dalmessage);
                     context.SaveChanges();
 
-                    //Load author information for returning the newly created message
-                    context.Entry(dalMessage).Reference(msg => msg.User).Load();
+                    ChannelMessages channelMessage = new ChannelMessages()
+                    {
+                        ChannelId = channelId,
+                        MessageId = dalmessage.MessageId,
+                    };
+                    context.ChannelMessages.Add(channelMessage);
+
+
                 }
             }
+            
         }
-
-        public MessageModel GetMessage(long id)
-        {
-            using (var context = new ChatexdbContext())
-            {
-                Message dalMessage = context.Message
-                    .Where(msg => msg.MessageId == (int)id)
-                    .Include(msg => msg.User)
-                    .FirstOrDefault();
-
-                if (dalMessage != null)
-                {
-                    return MessageMapper.MapMessageEntityToModel(dalMessage);
-                }
-            }
-
-            return null;
-        }
-
-        public List<MessageModel> GetMessagesSince(DateTime since)
-        {
-            using (var context = new ChatexdbContext())
-            {
-                return context.Message
-                    .Where(msg => msg.CreationDate > since.ToUniversalTime())
-                    .Include(msg => msg.User)
-                    .Select(msg => MessageMapper.MapMessageEntityToModel(msg))
-                    .ToList();
-            }
-        }
+        
     }
 }

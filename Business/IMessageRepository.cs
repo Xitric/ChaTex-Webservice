@@ -6,10 +6,6 @@ namespace Business
 {
     public interface IMessageRepository
     {
-        void AddMessage(MessageModel message);
-
-        MessageModel GetMessage(long id);
-
-        List<MessageModel> GetMessagesSince(DateTime since);
+        void CreateMessage(MessageModel message, int channelId);
     }
 }

@@ -4,8 +4,6 @@ namespace Business.Messages
 {
     public interface IMessageManager
     {
-        void PostMessage(string content, int authorId);
-
-        MessageModel GetMessage(int id);
+        void CreateMessage(int groupId, int callerId, int channelId, string messageContent);
     }
 }
