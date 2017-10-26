@@ -20,11 +20,11 @@
  * limitations under the License.
  */
 
-using System;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using WebAPI.Authentication;
 using Business.Channels;
+using WebAPI.Models;
 
 namespace IO.Swagger.Controllers
 {
@@ -54,7 +54,7 @@ namespace IO.Swagger.Controllers
         [Route("/1.0.0/groups/{groupId}/channels")]
         [SwaggerOperation("CreateChannel")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual StatusCodeResult CreateChannel([FromRoute]int? groupId, [FromQuery]string name)
+        public virtual StatusCodeResult CreateChannel([FromRoute]int? groupId, [FromBody]CreateChannelDTO createChannelDTO)
         {
             int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
@@ -63,12 +63,12 @@ namespace IO.Swagger.Controllers
                 return StatusCode(404);
             }
 
-            if (name == null)
+            if (createChannelDTO.ChannelName == null)
             {
                 return StatusCode(400);
             }
 
-            bool success = channelManager.CreateChannel((int)groupId, (int)userId, name);
+            bool success = channelManager.CreateChannel((int)groupId, (int)userId, createChannelDTO.ChannelName);
 
             if (!success)
             {

@@ -52,19 +52,19 @@ namespace WebAPI.Controllers
         [HttpPost]
         [Route("/1.0.0/messages")]
         [SwaggerOperation("CreateMessage")]
-        public virtual IActionResult CreateMessage([FromBody]PostMessageDTO message)
+        public virtual IActionResult CreateMessage([FromRoute]int? groupId, [FromRoute]int? channelId, [FromBody]MessageContentDTO messageContentDTO)
         {
-            if (message == null)
+            if (messageContentDTO == null)
             {
                 return BadRequest("No message specified!");
             }
 
-            if (message.Content == null || message.Author == null)
+            if (messageContentDTO.MessageContent == null)
             {
                 return BadRequest("Message badly formatted!");
             }
             
-            messageManager.PostMessage(message.Content, (int)message.Author);
+            //messageManager.PostMessage(messageContentDTO.MessageContent, (int)message.Author);
             
             return StatusCode(204);
         }

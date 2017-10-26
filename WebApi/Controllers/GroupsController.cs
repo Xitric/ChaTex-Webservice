@@ -28,6 +28,7 @@ using Business.Groups;
 using System;
 using WebAPI.Authentication;
 using System.Collections.Generic;
+using WebAPI.Models;
 
 namespace WebAPI.Controllers
 {
@@ -58,19 +59,19 @@ namespace WebAPI.Controllers
         [Route("/1.0.0/groups")]
         [SwaggerOperation("CreateGroup")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual StatusCodeResult CreateGroup([FromQuery]string groupName, [FromQuery]bool? allowEmployeeSticky, [FromQuery]bool? allowEmployeeAcknowledgeable, [FromQuery]bool? allowEmployeeBookmark)
+        public virtual StatusCodeResult CreateGroup([FromBody]CreateGroupDTO createGroupDTO)
         {
             int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
-            if (string.IsNullOrEmpty(groupName))
+            if (string.IsNullOrEmpty(createGroupDTO.GroupName))
             {
                 return StatusCode(400);
             }
 
-            groupManager.CreateGroup(userId: (int)userId, groupName: groupName,
-                                     allowEmployeeSticky: (bool)allowEmployeeSticky,
-                                     allowEmployeeAcknowledgeable: (bool)allowEmployeeAcknowledgeable,
-                                     allowEmployeeBookmark: (bool)allowEmployeeBookmark);
+            groupManager.CreateGroup(userId: (int)userId, groupName: createGroupDTO.GroupName,
+                                     allowEmployeeSticky: (bool)createGroupDTO.AllowEmployeeSticky,
+                                     allowEmployeeAcknowledgeable: (bool)createGroupDTO.AllowEmployeeAcknowledgeable,
+                                     allowEmployeeBookmark: (bool)createGroupDTO.AllowEmployeeBookmark);
             return StatusCode(204);
         }
 
@@ -119,12 +120,12 @@ namespace WebAPI.Controllers
         [Route("/1.0.0/groups/users")]
         [SwaggerOperation("AddUsersToGroup")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual IActionResult AddUsersToGroup([FromQuery]int? groupId, [FromBody]List<int?> userIds)
+        public virtual IActionResult AddUsersToGroup([FromBody]AddUsersToGroupDTO addUsersToGroupDTO)
         {
             int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
             //If our list of users is null, or if it contains any element that is null
-            if (groupId == null || userIds == null || userIds.Exists(x => x == null))
+            if (addUsersToGroupDTO.GroupId == null || addUsersToGroupDTO.UserIds == null || addUsersToGroupDTO.UserIds.Exists(x => x == null))
             {
                 return StatusCode(404);
             }
@@ -132,8 +133,8 @@ namespace WebAPI.Controllers
             //Add user (also convert list of nullable ints, to list of ints)
             try
             {
-                groupManager.AddUsersToGroup(groupId: (int)groupId,
-                                             userIds: userIds.Where(x => x != null).Select(x => x.Value).ToList(),
+                groupManager.AddUsersToGroup(groupId: (int)addUsersToGroupDTO.GroupId,
+                                             userIds: addUsersToGroupDTO.UserIds.Where(x => x != null).Select(x => x.Value).ToList(),
                                              loggedInUser: (int)userId);
             }
             catch (Exception)
@@ -185,18 +186,17 @@ namespace WebAPI.Controllers
         [Route("/1.0.0/groups/roles")]
         [SwaggerOperation("AddRolesToGroup")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual StatusCodeResult AddRolesToGroup([FromQuery]int? groupId, [FromBody]List<int?> roleIds)
+        public virtual StatusCodeResult AddRolesToGroup([FromBody]AddRolesToGroupDTO addRolesToGroupDTO)
         {
-
             int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
-            if (groupId == null || userId == null || roleIds == null || roleIds.Exists(x => x == null))
+            if (addRolesToGroupDTO.GroupId == null || userId == null || addRolesToGroupDTO.RoleIds == null || addRolesToGroupDTO.RoleIds.Exists(x => x == null))
             {
                 return StatusCode(404);
             }
             try
             {
-                groupManager.AddRolesToGroup((int)groupId, (int)userId, roleIds.Where(x => x != null).Select(x => x.Value).ToList());
+                groupManager.AddRolesToGroup((int)addRolesToGroupDTO.GroupId, (int)userId, addRolesToGroupDTO.RoleIds.Where(x => x != null).Select(x => x.Value).ToList());
             }
             catch (Exception)
             {
