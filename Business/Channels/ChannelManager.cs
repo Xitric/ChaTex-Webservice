@@ -28,7 +28,14 @@ namespace Business.Channels
 
         public bool DeleteChannel(int groupId, int callerId, int channelId)
         {
+            GroupUserModel user = groupRepository.GetGroupUser(groupId, callerId);
 
+            if (user.IsAdministrator)
+            {
+                channelRepository.DeleteChannel(groupId, channelId);
+                return true;
+            }
+            return false;
         }
     }
 }
