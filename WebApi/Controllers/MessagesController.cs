@@ -58,6 +58,7 @@ namespace WebAPI.Controllers
         [Route("/1.0.0/channels/{channelId}/messages")]
         [SwaggerOperation("GetMessages")]
         [SwaggerResponse(200, type: typeof(GetMessageDTO))]
+        [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult GetMessages([FromRoute]int? channelId, [FromQuery]int? fromIndex, [FromQuery]int? count)
         {
             int userId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
