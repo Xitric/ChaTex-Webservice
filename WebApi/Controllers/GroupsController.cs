@@ -95,15 +95,13 @@ namespace WebAPI.Controllers
             {
                 return StatusCode(404);
             }
-
-
-            if (groupManager.DeleteGroup((int)groupId) == true)
+            try
             {
+                groupManager.DeleteGroup((int)groupId, (int)userId);
                 return StatusCode(204);
-            }
-            else
+            } catch(Exception e)
             {
-                return StatusCode(404);
+                return StatusCode(401);
             }
         }
 
@@ -169,7 +167,7 @@ namespace WebAPI.Controllers
             }
 
             //Add user (also convert list of nullable ints, to list of ints)
-            groupManager.RemoveUsersFromGroup(groupId: (int)groupId, userIds: userIds.Where(x => x != null).Select(x => x.Value).ToList(), loggedInUserId: (int) userId);
+            groupManager.RemoveUsersFromGroup(groupId: (int)groupId, userIds: userIds.Where(x => x != null).Select(x => x.Value).ToList(), loggedInUserId: (int)userId);
             return StatusCode(204);
         }
 
@@ -261,7 +259,7 @@ namespace WebAPI.Controllers
             }
             try
             {
-                groupManager.SetUserAdministratorOnGroup((int) groupId, (int)userId, (int)loggedInUserId, (bool)isAdministrator);
+                groupManager.SetUserAdministratorOnGroup((int)groupId, (int)userId, (int)loggedInUserId, (bool)isAdministrator);
             }
             catch (Exception e)
             {
