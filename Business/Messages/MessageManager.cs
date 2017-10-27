@@ -62,9 +62,6 @@ namespace Business.Messages
 
         public IEnumerable<MessageModel> GetMessagesSince(int channelId, int callerId, DateTime since, CancellationToken cancellation)
         {
-            //Apparently the date time is automatically converted behind our backs!
-            since = since.ToUniversalTime();
-
             if (IsUserInChannel(callerId, channelId))
             {
                 IEnumerable<MessageModel> newMessages;
