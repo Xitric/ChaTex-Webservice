@@ -7,6 +7,10 @@ namespace Business.Users
     {
         string Login(string email);
 
+        IEnumerable<UserModel> GetAllUsers();
+
         IEnumerable<GroupModel> GetGroupsForUser(int userId);
+
+
     }
 }

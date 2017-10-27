@@ -30,6 +30,14 @@ namespace DAL
             }
         }
 
+        public IEnumerable<UserModel> GetAllUsers()
+        {
+            using (var context = new ChatexdbContext())
+            {
+                return context.User.Select(u => UserMapper.MapUserEntityToModel(u)).ToList();
+            }
+        }
+
         public bool SaveUserToken(string email, string token)
         {
             using (var context = new ChatexdbContext())
@@ -127,5 +135,7 @@ namespace DAL
                     .ToList();
             }
         }
+
+
     }
 }

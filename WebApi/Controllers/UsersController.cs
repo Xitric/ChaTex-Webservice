@@ -33,6 +33,8 @@ using Business.Models;
 using WebAPI.Authentication;
 using Business.Users;
 using System.Net;
+using Newtonsoft.Json;
+using WebAPI.Models.Mappers;
 
 namespace WebAPI.Controllers
 {
@@ -50,6 +52,27 @@ namespace WebAPI.Controllers
             this.messageManager = messageManager;
             this.userManager = userManager;
             dtoMapper = new DTOMapper();
+        }
+
+        /// <summary>
+        /// Get all users
+        /// </summary>
+        /// <remarks>Get the available users in the system</remarks>
+        /// <response code="200">Successfully retrieved all the user's</response>
+        /// <response code="401">The user was not authorized to access this resource</response>
+        [HttpGet]
+        [Route("/1.0.0/users")]
+        [SwaggerOperation("GetAllUsers")]
+        [SwaggerResponse(200, type: typeof(List<UserDTO>))]
+        [ServiceFilter(typeof(ChaTexAuthorization))]
+        public virtual IActionResult GetAllUsers()
+        {
+            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+
+            IEnumerable<UserModel> users = userManager.GetAllUsers();
+            IEnumerable<UserDTO> dtoResponse = users.Select(u => UserMapper.MapUserToUserDTO(u, (int)userId));
+           
+            return new ObjectResult(dtoResponse);
         }
 
         /// <summary>

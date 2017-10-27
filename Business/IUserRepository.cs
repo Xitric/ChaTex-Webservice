@@ -16,5 +16,7 @@ namespace Business
         int? GetUserIdFromToken(string token);
 
         IEnumerable<GroupModel> GetGroupsForUser(int userId);
+
+        IEnumerable<UserModel> GetAllUsers();
     }
 }

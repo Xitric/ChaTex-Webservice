@@ -26,6 +26,10 @@ namespace Business.Users
         {
             return users.GetGroupsForUser(userId);
         }
-        
+
+        public IEnumerable<UserModel> GetAllUsers()
+        {
+            return users.GetAllUsers();
+        }
     }
 }
