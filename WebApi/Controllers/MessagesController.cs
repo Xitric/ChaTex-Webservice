@@ -30,6 +30,7 @@ using System.Linq;
 using WebAPI.Models.Mappers;
 using System;
 using Business.Models;
+using System.Threading;
 
 namespace WebAPI.Controllers
 {
@@ -51,11 +52,12 @@ namespace WebAPI.Controllers
         /// <param name="fromIndex">The index of the first message to get, beginning from the most recently posted message. This defaults to 0, meaning the most recent message</param>
         /// <param name="count">The amount of messages to get. This defaults to 25</param>
         /// <response code="200">Messages fetched successfully</response>
+        /// <response code="401">The user was not authorized to access this resource</response>
+        /// <response code="404">Could not find the channel with the specified id</response>
         [HttpGet]
         [Route("/1.0.0/channels/{channelId}/messages")]
         [SwaggerOperation("GetMessages")]
         [SwaggerResponse(200, type: typeof(GetMessageDTO))]
-        [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult GetMessages([FromRoute]int? channelId, [FromQuery]int? fromIndex, [FromQuery]int? count)
         {
             int userId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
@@ -75,31 +77,59 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
+        /// Wait for and get new messages sent to a channel
+        /// </summary>
+        /// <remarks>This request will not return from the service until at least one new message has been posted</remarks>
+        /// <param name="channelId">The id of the channel to delete</param>
+        /// <param name="since">The time to get messages since. This defaults to the current time</param>
+        /// <response code="200">Messages fetched successfully</response>
+        /// <response code="401">The user was not authorized to access this resource</response>
+        /// <response code="404">Could not find the channel with the specified id</response>
+        [HttpGet]
+        [Route("/1.0.0/channels/{channelId}/messages/live")]
+        [SwaggerOperation("GetMessagesSince")]
+        [SwaggerResponse(200, type: typeof(GetMessageDTO))]
+        [ServiceFilter(typeof(ChaTexAuthorization))]
+        public virtual IActionResult GetMessagesSince([FromRoute]int? channelId, [FromQuery]DateTime? since, CancellationToken cancellation)
+        {
+            int userId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+
+            if (channelId == null || since == null)
+            {
+                return StatusCode(404);
+            }
+
+            IEnumerable<GetMessageDTO> messages = messageManager.GetMessagesSince((int)channelId, userId, (DateTime)since, cancellation)
+                .Select(m => MessageMapper.MapMessageToGetMessageDTO(m, userId));
+
+            return new ObjectResult(messages);
+        }
+
+        /// <summary>
         /// Create a new message
         /// </summary>
         /// <remarks>Create a new message in a specific channel</remarks>
-        /// <param name="groupId">The id of the group the messeage will be posted in</param>
         /// <param name="channelId">The id of the channel to delete</param>
         /// <param name="messageContent">Content of the message</param>
         /// <response code="204">Messages was successfully posted.</response>
         /// <response code="401">The user was not authorized to access this resource</response>
         /// <response code="404">No group or channel with the specified ids were found</response>
         [HttpPost]
-        [Route("/1.0.0/groups/{groupId}/channels/{channelId}/messages")]
+        [Route("/1.0.0/channels/{channelId}/messages")]
         [SwaggerOperation("CreateMessage")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual StatusCodeResult CreateMessage([FromRoute]int? groupId, [FromRoute]int? channelId, [FromBody]MessageContentDTO messageContentDTO)
+        public virtual StatusCodeResult CreateMessage([FromRoute]int? channelId, [FromBody]MessageContentDTO messageContentDTO)
         {
             int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
-            if (groupId == null | channelId == null || String.IsNullOrEmpty(messageContentDTO.MessageContent))
+            if (channelId == null || String.IsNullOrEmpty(messageContentDTO.MessageContent))
             {
                 return StatusCode(404);
             }
 
             try
             {
-                messageManager.CreateMessage((int)groupId, (int)userId, (int)channelId, messageContentDTO.MessageContent);
+                messageManager.CreateMessage((int)userId, (int)channelId, messageContentDTO.MessageContent);
             }
             catch (Exception)
             {
