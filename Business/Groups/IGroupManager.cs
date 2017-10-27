@@ -8,8 +8,10 @@ namespace Business.Groups
     {
         void CreateGroup(int userId, string groupName, bool allowEmployeeSticky = false, bool allowEmployeeAcknowledgeable = false, bool allowEmployeeBookmark = false);
 
-        bool DeleteGroup(int groupId);
+        void DeleteGroup(int groupId, int callerId);
+
         void AddUsersToGroup(int groupId, List<int> userIds, int loggedInUser);
+
         void RemoveUsersFromGroup(int groupId, List<int> userIds, int loggedInUserId);
 
         void AddRolesToGroup(int groupId, int callerId, IEnumerable<int> roleIds);
