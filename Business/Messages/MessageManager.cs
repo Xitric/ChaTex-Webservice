@@ -32,7 +32,7 @@ namespace Business.Messages
 
             return new List<MessageModel>();
         }
-        public void CreateMessage(int groupId, int callerId, int channelId, string messageContent)
+        public void CreateMessage(int callerId, int channelId, string messageContent)
         {
             if (IsUserInChannel(callerId, channelId))
             {

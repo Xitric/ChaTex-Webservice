@@ -55,7 +55,6 @@ namespace WebAPI.Controllers
         [Route("/1.0.0/channels/{channelId}/messages")]
         [SwaggerOperation("GetMessages")]
         [SwaggerResponse(200, type: typeof(GetMessageDTO))]
-        [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult GetMessages([FromRoute]int? channelId, [FromQuery]int? fromIndex, [FromQuery]int? count)
         {
             int userId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
@@ -78,7 +77,6 @@ namespace WebAPI.Controllers
         /// Create a new message
         /// </summary>
         /// <remarks>Create a new message in a specific channel</remarks>
-        /// <param name="groupId">The id of the group the messeage will be posted in</param>
         /// <param name="channelId">The id of the channel to delete</param>
         /// <param name="messageContent">Content of the message</param>
         /// <response code="204">Messages was successfully posted.</response>
@@ -88,18 +86,18 @@ namespace WebAPI.Controllers
         [Route("/1.0.0/groups/{groupId}/channels/{channelId}/messages")]
         [SwaggerOperation("CreateMessage")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual StatusCodeResult CreateMessage([FromRoute]int? groupId, [FromRoute]int? channelId, [FromBody]MessageContentDTO messageContentDTO)
+        public virtual StatusCodeResult CreateMessage([FromRoute]int? channelId, [FromBody]MessageContentDTO messageContentDTO)
         {
             int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
-            if (groupId == null | channelId == null || String.IsNullOrEmpty(messageContentDTO.MessageContent))
+            if (channelId == null || String.IsNullOrEmpty(messageContentDTO.MessageContent))
             {
                 return StatusCode(404);
             }
 
             try
             {
-                messageManager.CreateMessage((int)groupId, (int)userId, (int)channelId, messageContentDTO.MessageContent);
+                messageManager.CreateMessage((int)userId, (int)channelId, messageContentDTO.MessageContent);
             }
             catch (Exception)
             {
