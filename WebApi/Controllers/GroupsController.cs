@@ -23,7 +23,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Linq;
-using WebAPI.Mappers;
 using Business.Groups;
 using System;
 using WebAPI.Authentication;

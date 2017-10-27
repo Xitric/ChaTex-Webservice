@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace WebAPI.Models.Mappers
 {
-    public class UserMapper
+    class UserMapper
     {
         public static UserDTO MapUserToUserDTO(UserModel userModel, int callerId)
         {

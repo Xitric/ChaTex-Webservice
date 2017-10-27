@@ -2,7 +2,7 @@
 
 namespace WebAPI.Models.Mappers
 {
-    public class MessageMapper
+    class MessageMapper
     {
         public static GetMessageDTO MapMessageToGetMessageDTO(MessageModel messageModel, int callerId)
         {

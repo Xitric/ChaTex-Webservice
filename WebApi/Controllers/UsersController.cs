@@ -25,7 +25,6 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using WebAPI.Models;
 using Business.Messages;
-using WebAPI.Mappers;
 using System.Linq;
 using Business.Authentication;
 using Microsoft.AspNetCore.Http;
@@ -45,13 +44,11 @@ namespace WebAPI.Controllers
     {
         private readonly IMessageManager messageManager;
         private readonly IUserManager userManager;
-        private readonly DTOMapper dtoMapper;
 
         public UsersController(IMessageManager messageManager, IUserManager userManager)
         {
             this.messageManager = messageManager;
             this.userManager = userManager;
-            dtoMapper = new DTOMapper();
         }
 
         /// <summary>
@@ -91,7 +88,7 @@ namespace WebAPI.Controllers
             int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
             IEnumerable<GroupModel> groups = userManager.GetGroupsForUser((int)userId);
-            List<GroupDTO> dtoResponse = groups.Select(g => dtoMapper.ConvertGroup(g)).ToList();
+            List<GroupDTO> dtoResponse = groups.Select(g => GroupMapper.MapGroupToGroupDTO(g)).ToList();
 
             return new ObjectResult(dtoResponse);
         }

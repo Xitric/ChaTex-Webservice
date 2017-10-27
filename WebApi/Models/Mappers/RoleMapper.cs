@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace WebAPI.Models.Mappers
 {
-    public class RoleMapper
+    class RoleMapper
     {
         public static RoleDTO MapRoleToRoleDTO(RoleModel roleModel)
         {
