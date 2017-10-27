@@ -15,28 +15,6 @@ namespace DAL
         {
             using (var db = new ChatexdbContext())
             {
-                //var messages = db.ChannelMessages
-                //    .Where(cm => cm.ChannelId == channelId)
-                //    .Include(cm => cm.Message)
-                //    .ThenInclude(m => m.User)
-                //    .ToList()
-                //    .Select(cm => cm.Message)
-                //    .Select(cm => MessageMapper.MapMessageEntityToModel(cm))
-                //    .ToList();
-
-
-                /*var messages = db.ChannelMessages
-                    .Where(cm => cm.ChannelId == channelId)
-                    .Include(cm => cm.Message)
-                    .ThenInclude(m => m.User)
-                    .Select(cm => cm.Message)
-                    .ToList()
-                    .Select(cm => MessageMapper.MapMessageEntityToModel(cm))
-                    .ToList();
-                    */
-                //return messages;
-
-
                 return db.ChannelMessages
                     .Where(cm => cm.ChannelId == channelId)
                     .Include(cm => cm.Message)
@@ -48,6 +26,25 @@ namespace DAL
                     .Skip(from)
                     .Take(count)
                     .ToList()
+                    .Select(m => MessageMapper.MapMessageEntityToModel(m))
+                    .ToList();
+            }
+        }
+
+        public IEnumerable<MessageModel> getMessagesSince(int channelId, DateTime since)
+        {
+            using (var db = new ChatexdbContext())
+            {
+                Console.WriteLine(since);
+                return db.ChannelMessages
+                    .Where(cm => cm.ChannelId == channelId)
+                    .Include(cm => cm.Message)
+                        .ThenInclude(m => m.User)
+                    .ToList()
+                    .Select(cm => cm.Message)
+                    .Where(m => m.IsDeleted == false)
+                    .Where(m => m.CreationDate > since)
+                    .OrderBy(m => m.CreationDate)
                     .Select(m => MessageMapper.MapMessageEntityToModel(m))
                     .ToList();
             }
@@ -75,6 +72,5 @@ namespace DAL
                 }
             }
         }
-
     }
 }
