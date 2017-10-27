@@ -11,6 +11,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IUserRepository, UserRepository>();
             services.AddSingleton<IGroupRepository, GroupRepository>();
             services.AddSingleton<IChannelRepository, ChannelRepository>();
+            services.AddSingleton<IRoleRepository, RoleRepository>();
+
             return services;
         }
     }

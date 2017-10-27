@@ -99,7 +99,7 @@ namespace WebAPI.Controllers
             {
                 groupManager.DeleteGroup((int)groupId, (int)userId);
                 return StatusCode(204);
-            } catch(Exception e)
+            } catch(Exception)
             {
                 return StatusCode(401);
             }
@@ -261,7 +261,7 @@ namespace WebAPI.Controllers
             {
                 groupManager.SetUserAdministratorOnGroup((int)groupId, (int)userId, (int)loggedInUserId, (bool)isAdministrator);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return StatusCode(401);
             }
