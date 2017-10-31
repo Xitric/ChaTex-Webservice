@@ -16,8 +16,7 @@ namespace DAL.Mapper
                 ChannelId = channelModel.Id == null ? 0 : channelModel.Id.Value,
                 Name = channelModel.Name,
                 IsDeleted = false, //TODO
-                GroupId = 0 //TODO
-            };
+                GroupId = channelModel.GroupId            };
         }
 
         public static ChannelModel MapChannelEntityToModel(Channel channel)
@@ -26,7 +25,8 @@ namespace DAL.Mapper
             return new ChannelModel()
             {
                 Id = channel.ChannelId,
-                Name = channel.Name
+                Name = channel.Name,
+                GroupId = channel.GroupId
             };
         }
     }

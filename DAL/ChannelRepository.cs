@@ -1,5 +1,6 @@
 ﻿using Business;
 using Business.Models;
+using DAL.Mapper;
 using DAL.Models;
 using System.Linq;
 
@@ -32,6 +33,14 @@ namespace DAL
                     channel.IsDeleted = true;
                     db.SaveChanges();
                 }
+            }
+        }
+
+        public ChannelModel GetChannel(int channelId)
+        {
+            using (var db = new ChatexdbContext())
+            {
+                return ChannelMapper.MapChannelEntityToModel(db.Channel.Where(i => i.ChannelId == channelId).FirstOrDefault());
             }
         }
 

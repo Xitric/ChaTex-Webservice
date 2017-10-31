@@ -13,5 +13,7 @@ namespace Business.Models
         public DateTime? CreationTime { get; set; }
 
         public bool isDeleted { get; set; }
+
+        public int ChannelId { get; set; }
     }
 }

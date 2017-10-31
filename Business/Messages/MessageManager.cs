@@ -10,6 +10,8 @@ namespace Business.Messages
     {
         private readonly IMessageRepository messages;
         private readonly IUserRepository users;
+        private readonly IGroupRepository groups;
+        private readonly IChannelRepository channels;
 
         //These locks are used to ensure that two threads to not read and write messages simultaneously
         private readonly Dictionary<int, object> messageLocks;
@@ -25,7 +27,7 @@ namespace Business.Messages
                 msgLock = new object();
                 bool success = messageLocks.TryAdd(channelId, msgLock);
 
-                if (! success)
+                if (!success)
                 {
                     //This indicates that another thread was faster, so use the existing lock
                     msgLock = messageLocks[channelId];
@@ -35,10 +37,12 @@ namespace Business.Messages
             return msgLock;
         }
 
-        public MessageManager(IMessageRepository messages, IUserRepository users)
+        public MessageManager(IMessageRepository messages, IUserRepository users, IGroupRepository groups, IChannelRepository channels)
         {
             this.messages = messages;
             this.users = users;
+            this.groups = groups;
+            this.channels = channels;
             messageLocks = new Dictionary<int, object>();
         }
 
@@ -54,7 +58,7 @@ namespace Business.Messages
             if (IsUserInChannel(callerId, channelId))
             {
                 //This should be threadsafe
-                return messages.getMessages(channelId, from, count);
+                return messages.GetMessages(channelId, from, count);
             }
 
             return new List<MessageModel>();
@@ -70,7 +74,7 @@ namespace Business.Messages
                 object msgLock;
                 lock (msgLock = GetLockForChannel(channelId))
                 {
-                    while(! (newMessages = messages.getMessagesSince(channelId, since)).Any())
+                    while (!(newMessages = messages.getMessagesSince(channelId, since)).Any())
                     {
                         Console.WriteLine($"No new messages in channel {channelId}, waiting...");
                         Monitor.Wait(msgLock, sleepInterval);
@@ -113,6 +117,42 @@ namespace Business.Messages
             else
             {
                 throw new Exception("Message couldnt be created, user isnt in the channel group");
+            }
+        }
+
+        public void DeleteMessage(int callerId, int messageId)
+        {
+            MessageModel message = messages.GetMessage(messageId);
+            var channel = channels.GetChannel(message.ChannelId);
+            var loggedInUser = groups.GetGroupUser(channel.GroupId, callerId);
+            if (loggedInUser.IsAdministrator)
+            {
+                messages.DeleteMessage(messageId);
+            }
+            else if(message.Author.Id == callerId)
+            {
+                messages.DeleteMessage(messageId);
+            } else
+            {
+                throw new Exception("You dosent have the rights to delete this message!");
+            }
+
+        }
+
+        public MessageModel GetMessage(int callerId, int messageId)
+        {
+            MessageModel message = messages.GetMessage(messageId);
+            if(message == null)
+            {
+                throw new Exception("Message does not exist in the database");
+            }
+            if (IsUserInChannel(callerId, message.ChannelId))
+            {
+                return message;
+            }
+            else
+            {
+                throw new Exception("Message couldnt be retrived because the user isnt in the channel group");
             }
         }
     }

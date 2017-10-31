@@ -10,6 +10,7 @@ namespace WebAPI.Models.Mappers
     {
         public static UserDTO MapUserToUserDTO(UserModel userModel, int callerId)
         {
+            if (userModel == null) return null;
             return new UserDTO(userModel.Id, userModel.FirstName, userModel.MiddleInitial?.ToString(), userModel.LastName, userModel.Email, userModel.Id == callerId);
         }
     }

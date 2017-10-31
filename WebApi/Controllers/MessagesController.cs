@@ -78,6 +78,31 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
+        /// Get a message
+        /// </summary>
+        /// <remarks>Get a message with the specified id</remarks>
+        /// <param name="messageId">The id of the message to get</param>
+        /// <response code="200">Message was returned successfully</response>
+        /// <response code="401">The user was not authorized to access this resource</response>
+        /// <response code="404">Could not find the message with the specified id</response>
+        [HttpGet]
+        [Route("/1.0.0/messages/{messageId}")]
+        [SwaggerOperation("GetMessage")]
+        [SwaggerResponse(200, type: typeof(GetMessageDTO))]
+        [ServiceFilter(typeof(ChaTexAuthorization))]
+        public virtual IActionResult GetMessage([FromRoute]int? messageId)
+        {
+            int userId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            if(messageId == null)
+            {
+                return StatusCode(404);
+            }
+            GetMessageDTO message = MessageMapper.MapMessageToGetMessageDTO(messageManager.GetMessage(userId, (int)messageId), userId);
+
+            return new ObjectResult(message);
+        }
+
+        /// <summary>
         /// Wait for and get new messages sent to a channel
         /// </summary>
         /// <remarks>This request will not return from the service until at least one new message has been posted</remarks>
@@ -138,5 +163,38 @@ namespace WebAPI.Controllers
             }
             return StatusCode(204);
         }
+
+
+        /// <summary>
+        /// Delete a message
+        /// </summary>
+        /// <remarks>Delete the message with the specified id</remarks>
+        /// <param name="messageId">The id of the message to delete</param>
+        /// <response code="204">Message deleted successfully</response>
+        /// <response code="401">The user was not authorized to access this resource</response>
+        /// <response code="404">Could not find the message with the specified id</response>
+        [HttpDelete]
+        [Route("/1.0.0/messages/{messageId}")]
+        [SwaggerOperation("DeleteMessage")]
+        [ServiceFilter(typeof(ChaTexAuthorization))]
+        public virtual StatusCodeResult DeleteMessage([FromRoute]int? messageId)
+        {
+            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            if (messageId == null)
+            {
+                return StatusCode(401);
+            }
+
+            try
+            {
+                messageManager.DeleteMessage((int)userId, (int)messageId);
+                return StatusCode(201);
+            }
+            catch (Exception)
+            {
+                return StatusCode(401);
+            }
+        }
+
     }
 }
