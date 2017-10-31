@@ -93,13 +93,21 @@ namespace WebAPI.Controllers
         public virtual IActionResult GetMessage([FromRoute]int? messageId)
         {
             int userId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
-            if(messageId == null)
+            if (messageId == null)
             {
                 return StatusCode(404);
             }
-            GetMessageDTO message = MessageMapper.MapMessageToGetMessageDTO(messageManager.GetMessage(userId, (int)messageId), userId);
+            try
+            {
+                GetMessageDTO message = MessageMapper.MapMessageToGetMessageDTO(messageManager.GetMessage(userId, (int)messageId), userId);
+                return new ObjectResult(message);
+            }
 
-            return new ObjectResult(message);
+            catch (Exception)
+            {
+                return StatusCode(404);
+            }
+
         }
 
         /// <summary>
