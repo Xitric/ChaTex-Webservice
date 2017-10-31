@@ -30,9 +30,10 @@ namespace DAL
                     .ToList()
                     .Select(cm => cm.Message)
                     .Where(m => m.IsDeleted == false)
-                    .OrderBy(m => m.CreationDate)
+                    .OrderByDescending(m => m.CreationDate)
                     .Skip(from)
                     .Take(count)
+                    .Reverse()
                     .ToList()
                     .Select(m => MessageMapper.MapMessageEntityToModel(m))
                     .ToList();
