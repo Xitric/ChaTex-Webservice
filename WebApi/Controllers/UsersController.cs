@@ -34,6 +34,8 @@ using Business.Users;
 using System.Net;
 using Newtonsoft.Json;
 using WebAPI.Models.Mappers;
+using System;
+using IO.Swagger.Models;
 
 namespace WebAPI.Controllers
 {
@@ -119,6 +121,47 @@ namespace WebAPI.Controllers
             }
             
             return Content(token);
+        }
+
+        /// <summary>
+        /// Update a user
+        /// </summary>
+        /// <remarks>Update an existing user in the database</remarks>
+        /// <param name="userId">User id of user to update</param>
+        /// <param name="updateUserDTO">The name of the user</param>
+        /// <response code="200">The user was successfully updated</response>
+        /// <response code="404">No user with the specified id was found</response>
+        [HttpPut]
+        [Route("/1.0.0/users/{userId}")]
+        [SwaggerOperation("UpdateUser")]
+        [ServiceFilter(typeof(ChaTexAuthorization))]
+        public virtual IActionResult UpdateUser([FromRoute]int? userId, [FromBody]UpdateUserDTO updateUserDTO)
+        {
+            int? callerId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            
+            if(userId == null || updateUserDTO == null)
+            {
+                return StatusCode(404);
+            }
+            try
+            {
+                userManager.UpdateUser((int)callerId, new UserModel()
+                {
+                    Id = userId,
+                    FirstName = updateUserDTO.FirstName,
+                    MiddleInitial = updateUserDTO.MiddleInitial[0],
+                    LastName = updateUserDTO.LastName,
+                    Email = updateUserDTO.Email,
+                    IsDeleted = (bool)updateUserDTO.IsDeleted
+                });
+                return StatusCode(202);
+            }
+            catch (Exception)
+            {
+                return StatusCode(404);
+            }
+
+            return null;
         }
     }
 }

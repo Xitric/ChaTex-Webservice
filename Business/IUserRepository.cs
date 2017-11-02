@@ -18,5 +18,12 @@ namespace Business
         IEnumerable<GroupModel> GetGroupsForUser(int userId);
 
         IEnumerable<UserModel> GetAllUsers();
+
+        UserModel GetUser(int userId);
+ 
+        bool IsUserAdmin(int userId);
+
+        void UpdateUser(UserModel userModel);
+
     }
 }

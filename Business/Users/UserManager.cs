@@ -31,5 +31,14 @@ namespace Business.Users
         {
             return users.GetAllUsers();
         }
+        
+
+        public void UpdateUser(int callerId, UserModel userModel)
+        {
+            if (users.IsUserAdmin(callerId))
+            {
+                users.UpdateUser(userModel);
+            }
+        }
     }
 }

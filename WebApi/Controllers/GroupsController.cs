@@ -104,7 +104,7 @@ namespace WebAPI.Controllers
                 IEnumerable<UserModel> users = groupManager.GetAllGroupUsers((int)groupId,(int)userId);
                 IEnumerable<UserDTO> dtoResponse = users.Select(x => UserMapper.MapUserToUserDTO(x, (int)userId));
                 return new ObjectResult(dtoResponse);
-            } catch(Exception e)
+            } catch(Exception)
             {
                 return StatusCode(401);
             }

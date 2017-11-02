@@ -136,6 +136,42 @@ namespace DAL
             }
         }
 
+        public void UpdateUser(UserModel userModel)
+        {
+            using (var db = new ChatexdbContext())
+            {
+                User userEntity = db.User.Where(id => id.UserId == userModel.Id).FirstOrDefault();
+                userEntity.FirstName = userModel.FirstName;
+                //userEntity.MiddleInitial = userModel.MiddleInitial;
+                userEntity.LastName = userModel.LastName;
+                userEntity.Email = userModel.Email;
+                userEntity.IsDeleted = userModel.IsDeleted;
+                db.SaveChanges();
+            }
+        }
 
+        public UserModel GetUser(int userId)
+        {
+            using(var db = new ChatexdbContext())
+            {
+                var user = db.User.Where(i => i.UserId == userId).FirstOrDefault();
+                return UserMapper.MapUserEntityToModel(user);
+            }
+        }
+
+        public bool IsUserAdmin(int userId)
+        {
+            using (var db = new ChatexdbContext())
+            {
+                var isAdmin = db.SystemAdministrator.Where(x => x.UserId == userId).Any();
+                if(isAdmin == true)
+                {
+                    return true;
+                } else
+                {
+                    return false;
+                }
+            }
+        }
     }
 }
