@@ -175,5 +175,19 @@ namespace Business.Groups
                 throw new Exception("The user was not authorized to change administrator");
             }
         }
+
+        public IEnumerable<UserModel> GetAllGroupUsers(int groupId, int callerId) { 
+        
+            var loggedInUserInGroupUser = groupRepository.GetGroupUser(groupId, callerId);
+
+            if (loggedInUserInGroupUser != null)
+            {
+               return groupRepository.GetAllGroupUsers(groupId);
+            }
+            else
+            {
+                throw new Exception("Failed to get all group users");
+            }
+        }
     }
 }

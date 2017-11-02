@@ -28,6 +28,8 @@ using System;
 using WebAPI.Authentication;
 using System.Collections.Generic;
 using WebAPI.Models;
+using WebAPI.Models.Mappers;
+using Business.Models;
 
 namespace WebAPI.Controllers
 {
@@ -77,6 +79,38 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
+        /// Get users for a group
+        /// </summary>
+        /// <remarks>Get users, taking into account members and roles on the group</remarks>
+        /// <param name="groupId"></param>
+        /// <response code="200">Successfully retrieved all the groupuser&#39;s</response>
+        /// <response code="401">The user was not authorized to access this resource</response>
+        /// <response code="404">No group with the specified id was found</response>
+        [HttpGet]
+        [Route("/1.0.0/groups/{groupId}/users")]
+        [SwaggerOperation("GetAllGroupUsers")]
+        [SwaggerResponse(200, type: typeof(List<UserDTO>))]
+        [ServiceFilter(typeof(ChaTexAuthorization))]
+        public virtual IActionResult GetAllGroupUsers([FromRoute]int? groupId)
+        {
+            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+
+            if (groupId == null)
+            {
+                return StatusCode(404);
+            }
+            try
+            {
+                IEnumerable<UserModel> users = groupManager.GetAllGroupUsers((int)groupId,(int)userId);
+                IEnumerable<UserDTO> dtoResponse = users.Select(x => UserMapper.MapUserToUserDTO(x, (int)userId));
+                return new ObjectResult(dtoResponse);
+            } catch(Exception e)
+            {
+                return StatusCode(401);
+            }
+        }
+
+        /// <summary>
         /// Delete a group
         /// </summary>
         /// <remarks>Deletes the group with the specified id</remarks>
@@ -91,7 +125,7 @@ namespace WebAPI.Controllers
         public virtual StatusCodeResult DeleteGroup([FromRoute]int? groupId)
         {
             int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
-
+            
             if (groupId == null)
             {
                 return StatusCode(404);
