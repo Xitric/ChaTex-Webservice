@@ -187,6 +187,20 @@ namespace Business.Groups
             }
         }
 
+        public IEnumerable<UserModel> GetAllGroupUsers(int groupId, int callerId) { 
+        
+            var loggedInUserInGroupUser = groupRepository.GetGroupUser(groupId, callerId);
+
+            if (loggedInUserInGroupUser != null)
+            {
+               return groupRepository.GetAllGroupUsers(groupId);
+            }
+            else
+            {
+                throw new Exception("Failed to get all group users");
+            }
+        }
+
         public void UpdateGroup(int groupId, string groupName)
         {
             throw new NotImplementedException();

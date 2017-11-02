@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Business.Models;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -19,6 +20,8 @@ namespace Business.Groups
         void RemoveRolesFromGroup(int groupId, int callerId, IEnumerable<int> roleIds);
 
         void SetUserAdministratorOnGroup(int groupId, int userId, int callerId, bool isAdministrator);
+
+        IEnumerable<UserModel> GetAllGroupUsers(int groupId, int callerId);
 
         void UpdateGroup(int groupId, string groupName);
     }

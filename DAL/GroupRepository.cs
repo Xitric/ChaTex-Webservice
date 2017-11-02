@@ -107,6 +107,31 @@ namespace DAL
             }
         }
 
+        public IEnumerable<UserModel> GetAllGroupUsers(int groupId)
+        {
+            using (var db = new ChatexdbContext())
+            {
+                IQueryable<User> groupUsers = db.GroupUser
+                    .Where(gu => gu.GroupId == groupId)
+                    .Select(gu => gu.User);
+
+
+                //Select User from UserRole where the role id is in the collection:
+                //  Select role id from GroupRole where the group id is matched
+                IQueryable<User> userMatchingGroupRole = db.UserRole
+                    .Where(ur => db.GroupRole
+                        .Where(gr => gr.GroupId == groupId)
+                        .Select(gr => gr.Role.RoleId)
+                        .Contains(ur.RoleId))
+                    .Select(ur => ur.User);
+
+                return groupUsers.Union(userMatchingGroupRole)
+                    .Where(u => u.IsDeleted == false)
+                    .Select(u => UserMapper.MapUserEntityToModel(u))
+                    .ToList();
+            }
+        }
+
         /// <summary>
         /// changing the group name of a spcific group
         /// </summary>
