@@ -119,18 +119,18 @@ namespace WebAPI.Controllers
         [Route("/1.0.0/channels/{channelId}/messages")]
         [SwaggerOperation("CreateMessage")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual StatusCodeResult CreateMessage([FromRoute]int? channelId, [FromBody]string messageContent)
+        public virtual StatusCodeResult CreateMessage([FromRoute]int? channelId, [FromBody]MessageContentDTO messageContentDTO)
         {
             int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
-            if (channelId == null || String.IsNullOrEmpty(messageContent))
+            if (channelId == null || String.IsNullOrEmpty(messageContentDTO.Message))
             {
                 return StatusCode(404);
             }
 
             try
             {
-                messageManager.CreateMessage((int)userId, (int)channelId, messageContent);
+                messageManager.CreateMessage((int)userId, (int)channelId, messageContentDTO.Message);
             }
             catch (Exception)
             {

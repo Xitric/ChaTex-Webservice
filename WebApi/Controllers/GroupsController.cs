@@ -58,7 +58,8 @@ namespace WebAPI.Controllers
         [Route("/1.0.0/groups")]
         [SwaggerOperation("CreateGroup")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual StatusCodeResult CreateGroup([FromBody]CreateGroupDTO createGroupDTO)
+        [SwaggerResponse(200, type: typeof(GroupDTO))]
+        public virtual IActionResult CreateGroup([FromBody]CreateGroupDTO createGroupDTO)
         {
             int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
@@ -67,11 +68,12 @@ namespace WebAPI.Controllers
                 return StatusCode(400);
             }
 
-            groupManager.CreateGroup(userId: (int)userId, groupName: createGroupDTO.GroupName,
+            int? groupId = groupManager.CreateGroup(userId: (int)userId, groupName: createGroupDTO.GroupName,
                                      allowEmployeeSticky: (bool)createGroupDTO.AllowEmployeeSticky,
                                      allowEmployeeAcknowledgeable: (bool)createGroupDTO.AllowEmployeeAcknowledgeable,
                                      allowEmployeeBookmark: (bool)createGroupDTO.AllowEmployeeBookmark);
-            return StatusCode(204);
+            return new ObjectResult(new GroupDTO(groupId, createGroupDTO.GroupName, new List<ChannelDTO>()));
+
         }
 
         /// <summary>

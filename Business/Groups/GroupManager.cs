@@ -13,9 +13,9 @@ namespace Business.Groups
             this.groupRepository = groupRepository;
         }
 
-        public void AddUsersToGroup(int groupId, List<int> userIds, int callerId)
+        public void AddUsersToGroup(int groupId, List<int> userIds, int loggedInUserId)
         {
-            var loggedInUser = groupRepository.GetGroupUser(groupId, callerId);
+            var loggedInUser = groupRepository.GetGroupUser(groupId, loggedInUserId);
             //Iterates through all user ids, creates a GroupUserModel and sends that to our group repository
             if (loggedInUser.IsAdministrator)
             {
@@ -37,7 +37,7 @@ namespace Business.Groups
             }
         }
 
-        public void CreateGroup(int userId, string groupName, bool allowEmployeeSticky = false, bool allowEmployeeAcknowledgeable = false, bool allowEmployeeBookmark = false)
+        public int? CreateGroup(int userId, string groupName, bool allowEmployeeSticky = false, bool allowEmployeeAcknowledgeable = false, bool allowEmployeeBookmark = false)
         {
             var user = new UserModel()
             {
@@ -64,29 +64,21 @@ namespace Business.Groups
             };
 
             groupRepository.AddMemberToGroup(groupUserModel);
-
+            return group.Id;
         }
 
-        public void DeleteGroup(int groupId, int callerId)
+        public bool DeleteGroup(int groupId, int callerId)
         {
-            var loggedInUser = groupRepository.GetGroupUser(groupId, callerId);
-            if (loggedInUser.IsAdministrator)
+            if (callerId==0 /*callerId=admin of the group*/)
             {
-                if (!groupRepository.DeleteGroup(groupId))
-                {
-                    throw new Exception("Group could not be deleted, something went wrong in the database");
-                }
-            }
-            else
-            {
-                throw new Exception("Group could not be delete, user is not administrator");
-            }
 
+            }
+            return groupRepository.DeleteGroup(groupId); ;
         }
 
-        public void RemoveUsersFromGroup(int groupId, List<int> userIds, int callerId)
+        public void RemoveUsersFromGroup(int groupId, List<int> userIds, int loggedInUserId)
         {
-            var loggedInUser = groupRepository.GetGroupUser(groupId, callerId);
+            var loggedInUser = groupRepository.GetGroupUser(groupId, loggedInUserId);
             //Iterates through all user ids, creates a GroupUserModel and sends that to our group repository
             if (loggedInUser.IsAdministrator)
             {
@@ -131,7 +123,7 @@ namespace Business.Groups
             {
                 throw new Exception("The user was not authorized to add roles to the group");
             }
-
+              
         }
 
         public void RemoveRolesFromGroup(int groupId, int callerId, IEnumerable<int> roleIds)
@@ -160,9 +152,9 @@ namespace Business.Groups
 
         public void SetUserAdministratorOnGroup(int groupId, int userId, int callerId, bool isAdministrator)
         {
-            var loggedInUser = groupRepository.GetGroupUser(groupId, callerId);
+            var loggedInUserInGroupUser = groupRepository.GetGroupUser(groupId, callerId);
 
-            if (loggedInUser.IsAdministrator)
+            if (loggedInUserInGroupUser.IsAdministrator)
             {
                 groupRepository.SetUserAdministratorOnGroup(new GroupUserModel()
                 {
@@ -183,6 +175,5 @@ namespace Business.Groups
                 throw new Exception("The user was not authorized to change administrator");
             }
         }
-
     }
 }

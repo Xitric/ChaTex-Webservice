@@ -6,9 +6,9 @@ namespace Business.Groups
 {
     public interface IGroupManager
     {
-        void CreateGroup(int userId, string groupName, bool allowEmployeeSticky = false, bool allowEmployeeAcknowledgeable = false, bool allowEmployeeBookmark = false);
+        int? CreateGroup(int userId, string groupName, bool allowEmployeeSticky = false, bool allowEmployeeAcknowledgeable = false, bool allowEmployeeBookmark = false);
 
-        void DeleteGroup(int groupId, int callerId);
+        bool DeleteGroup(int groupId, int callerId);
 
         void AddUsersToGroup(int groupId, List<int> userIds, int loggedInUser);
 
