@@ -23,6 +23,8 @@ namespace Business
          
         GroupUserModel GetGroupUser(int groupId, int loggedInUser);
 
+        void UpdateGroup(int groupId, string groupName, int callerId);
+
     }
 }
  

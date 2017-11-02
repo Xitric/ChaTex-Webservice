@@ -69,11 +69,22 @@ namespace Business.Groups
 
         public bool DeleteGroup(int groupId, int callerId)
         {
-            if (callerId==0 /*callerId=admin of the group*/)
+            var loggedInUser = groupRepository.GetGroupUser(groupId, callerId);
+            if (loggedInUser.IsAdministrator)
             {
-
+             return groupRepository.DeleteGroup(groupId);
             }
-            return groupRepository.DeleteGroup(groupId); ;
+            return false;
+        }
+
+        public void UpdateGroup(int groupId, string groupName, int callerId)
+        {
+            var loggedInUser = groupRepository.GetGroupUser(groupId, callerId);
+            if(loggedInUser.IsAdministrator)
+            {
+                groupRepository.UpdateGroup(groupId, groupName, callerId);
+            }
+            
         }
 
         public void RemoveUsersFromGroup(int groupId, List<int> userIds, int loggedInUserId)
@@ -123,7 +134,7 @@ namespace Business.Groups
             {
                 throw new Exception("The user was not authorized to add roles to the group");
             }
-              
+
         }
 
         public void RemoveRolesFromGroup(int groupId, int callerId, IEnumerable<int> roleIds)
@@ -174,6 +185,11 @@ namespace Business.Groups
             {
                 throw new Exception("The user was not authorized to change administrator");
             }
+        }
+
+        public void UpdateGroup(int groupId, string groupName)
+        {
+            throw new NotImplementedException();
         }
     }
 }

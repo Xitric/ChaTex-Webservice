@@ -97,7 +97,7 @@ namespace DAL
 
             return true;
         }
-
+       
         public GroupUserModel GetGroupUser (int groupId, int loggedInUser)
         {
             using (var db = new ChatexdbContext())
@@ -105,6 +105,28 @@ namespace DAL
                 return GroupUserMapper.MapGroupUserEntityToModel(
                                        db.GroupUser.FirstOrDefault(x => x.GroupId == groupId && x.UserId == loggedInUser));
             }
+        }
+
+        /// <summary>
+        /// changing the group name of a spcific group
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="groupName"></param>
+
+        public void UpdateGroup(int groupId, string groupName)
+        {
+            using (var db = new ChatexdbContext())
+            {
+                var entity = db.Group.FirstOrDefault(x => x.GroupId == groupId);
+                entity.Name = groupName; 
+                db.SaveChanges();             
+            }
+
+        }
+
+        public void UpdateGroup(int groupId, string groupName, int callerId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

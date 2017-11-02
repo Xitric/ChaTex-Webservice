@@ -268,5 +268,37 @@ namespace WebAPI.Controllers
             }
             return StatusCode(200);
         }
+
+        /// <summary>
+        /// Update group name
+        /// </summary>
+        /// <remarks>update the group name with the specified id</remarks>
+        /// <param name="groupId"></param>
+        /// <param name="groupName"></param>
+        /// <response code="204">Group name successfully updated</response>
+        /// <response code="401">The user was not authorized to access this resource</response>
+        /// <response code="404">No group with the specified id exists</response>
+        [HttpPut]
+        [Route("/1.0.0/groups/{groupId}")]
+        [SwaggerOperation("UpdateGroup")]
+        [ServiceFilter(typeof(ChaTexAuthorization))]
+        public virtual StatusCodeResult UpdateGroup([FromRoute]int? groupId, [FromQuery]string groupName)
+         {
+            int? loggedInUserId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+
+            if(groupId == null || loggedInUserId == null || groupName == null )
+            {
+                return StatusCode(404);
+            }
+            try
+            {
+                groupManager.UpdateGroup((int)groupId, (string)groupName);
+            }
+            catch (Exception)
+            {
+                return StatusCode(401);
+            }
+            return StatusCode(200);
+        }
     }
 }
