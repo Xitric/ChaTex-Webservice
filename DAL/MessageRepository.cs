@@ -11,7 +11,15 @@ namespace DAL
 {
     class MessageRepository : IMessageRepository
     {
-        public IEnumerable<MessageModel> getMessages(int channelId, int from, int count)
+        public MessageModel GetMessage(int messageId)
+        {
+            using(var db = new ChatexdbContext())
+            {
+                return MessageMapper.MapMessageEntityToModel(db.Message.Where(i => i.MessageId == messageId).Include(x => x.ChannelMessages).Include(x => x.User).ToList().FirstOrDefault());
+            }
+        }
+
+        public IEnumerable<MessageModel> GetMessages(int channelId, int from, int count)
         {
             using (var db = new ChatexdbContext())
             {
@@ -22,9 +30,10 @@ namespace DAL
                     .ToList()
                     .Select(cm => cm.Message)
                     .Where(m => m.IsDeleted == false)
-                    .OrderBy(m => m.CreationDate)
+                    .OrderByDescending(m => m.CreationDate)
                     .Skip(from)
                     .Take(count)
+                    .Reverse()
                     .ToList()
                     .Select(m => MessageMapper.MapMessageEntityToModel(m))
                     .ToList();
@@ -72,5 +81,16 @@ namespace DAL
                 }
             }
         }
+
+        public void DeleteMessage(int messageId)
+        {
+            using (var context = new ChatexdbContext())
+            {
+                Message dalmessage = context.Message.Where(i => i.MessageId == messageId).FirstOrDefault();
+                dalmessage.IsDeleted = true;
+                context.SaveChanges();
+            }
+        }
+
     }
 }

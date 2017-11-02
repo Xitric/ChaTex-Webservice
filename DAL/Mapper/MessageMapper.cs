@@ -2,6 +2,7 @@
 using DAL.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace DAL.Mapper
@@ -23,16 +24,19 @@ namespace DAL.Mapper
         public static MessageModel MapMessageEntityToModel(Message message)
         {
             if (message == null) return null;
+            var channelMessage = message.ChannelMessages.FirstOrDefault(x => x.MessageId == message.MessageId);
             return new MessageModel()
             {
                 Author = UserMapper.MapUserEntityToModel(message.User),
                 Content = message.Content,
                 CreationTime = message.CreationDate,
                 Id = message.MessageId,
-                isDeleted = (bool)message.IsDeleted
-
+                isDeleted = (bool)message.IsDeleted,
+                ChannelId = channelMessage == null ? 0 : channelMessage.ChannelId
             };
+
         }
+        
 
 
     }

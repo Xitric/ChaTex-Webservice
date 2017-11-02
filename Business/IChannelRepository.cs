@@ -9,5 +9,7 @@ namespace Business
         void DeleteChannel(int groupId, int channelId);
 
         void UpdateChannel(ChannelModel channelModel);
+
+        ChannelModel GetChannel(int channelId);
     }
 }
