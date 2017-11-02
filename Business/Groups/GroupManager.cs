@@ -69,11 +69,12 @@ namespace Business.Groups
 
         public bool DeleteGroup(int groupId, int callerId)
         {
-            if (callerId == 0 /*callerId=admin of the group*/)
+            var loggedInUser = groupRepository.GetGroupUser(groupId, callerId);
+            if (loggedInUser.IsAdministrator)
             {
-
+             return groupRepository.DeleteGroup(groupId);
             }
-            return groupRepository.DeleteGroup(groupId); ;
+            return false;
         }
 
         public void UpdateGroup(int groupId, string groupName, int callerId)

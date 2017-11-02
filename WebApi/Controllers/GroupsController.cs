@@ -283,7 +283,7 @@ namespace WebAPI.Controllers
         [SwaggerOperation("UpdateGroup")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual StatusCodeResult UpdateGroup([FromRoute]int? groupId, [FromQuery]string groupName)
-        {
+         {
             int? loggedInUserId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
             if(groupId == null || loggedInUserId == null || groupName == null )
