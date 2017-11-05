@@ -13,7 +13,7 @@ namespace DAL
     {
         public MessageModel GetMessage(int messageId)
         {
-            using(var db = new ChatexdbContext())
+            using (var db = new ChatexdbContext())
             {
                 return MessageMapper.MapMessageEntityToModel(db.Message.Where(i => i.MessageId == messageId).Include(x => x.ChannelMessages).Include(x => x.User).ToList().FirstOrDefault());
             }
@@ -39,19 +39,48 @@ namespace DAL
             }
         }
 
-        public IEnumerable<MessageModel> getMessagesSince(int channelId, DateTime since)
+        private IEnumerable<Message> getMessageInChannel(int channelId)
         {
             using (var db = new ChatexdbContext())
             {
-                Console.WriteLine(since);
                 return db.ChannelMessages
                     .Where(cm => cm.ChannelId == channelId)
                     .Include(cm => cm.Message)
                         .ThenInclude(m => m.User)
                     .ToList()
-                    .Select(cm => cm.Message)
+                    .Select(cm => cm.Message);
+            }
+        }
+
+        public IEnumerable<MessageModel> GetMessagesSince(int channelId, DateTime since)
+        {
+            using (var db = new ChatexdbContext())
+            {
+                return getMessageInChannel(channelId)
                     .Where(m => m.CreationDate > since)
                     .OrderBy(m => m.CreationDate)
+                    .Select(m => MessageMapper.MapMessageEntityToModel(m))
+                    .ToList();
+            }
+        }
+
+        public IEnumerable<MessageModel> GetDeletedMessagesSince(int channelId, DateTime since)
+        {
+            using (var db = new ChatexdbContext())
+            {
+                return getMessageInChannel(channelId)
+                    .Where(m => m.DeletionDate > since)
+                    .Select(m => MessageMapper.MapMessageEntityToModel(m))
+                    .ToList();
+            }
+        }
+
+        public IEnumerable<MessageModel> GetEditedMessagesSince(int channelId, DateTime since)
+        {
+            using (var db = new ChatexdbContext())
+            {
+                return getMessageInChannel(channelId)
+                    .Where(m => m.LastEditDate > since)
                     .Select(m => MessageMapper.MapMessageEntityToModel(m))
                     .ToList();
             }
@@ -89,6 +118,5 @@ namespace DAL
                 context.SaveChanges();
             }
         }
-
     }
 }

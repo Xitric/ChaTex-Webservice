@@ -34,10 +34,6 @@ namespace DAL.Mapper
                 Id = message.MessageId,
                 ChannelId = owningChannel == null ? 0 : owningChannel.ChannelId
             };
-
         }
-        
-
-
     }
 }

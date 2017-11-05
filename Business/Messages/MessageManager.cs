@@ -72,7 +72,7 @@ namespace Business.Messages
                     Content = messageContent,
                 };
 
-                //Waith until we are allowed to add new messages
+                //Wait until we are allowed to add new messages
                 object msgLock;
                 lock (msgLock = GetLockForChannel(channelId))
                 {
@@ -96,10 +96,11 @@ namespace Business.Messages
             {
                 messages.DeleteMessage(messageId);
             }
-            else if(message.Author.Id == callerId)
+            else if (message.Author.Id == callerId)
             {
                 messages.DeleteMessage(messageId);
-            } else
+            }
+            else
             {
                 throw new Exception("You dosent have the rights to delete this message!");
             }
@@ -109,7 +110,7 @@ namespace Business.Messages
         public MessageModel GetMessage(int callerId, int messageId)
         {
             MessageModel message = messages.GetMessage(messageId);
-            if(message == null)
+            if (message == null)
             {
                 throw new Exception("Message does not exist in the database");
             }
@@ -130,11 +131,79 @@ namespace Business.Messages
         /// <param name="callerId">The id of the client making this request</param>
         /// <param name="since">The timestamp from which to get events</param>
         /// <param name="cancellation">Token specifying if this blocking method should be cancelled</param>
-        /// <returns></returns>
+        /// <returns>A collection of message events, or null if the method was cancelled</returns>
         /// <exception cref="ArgumentException">The channel with the specified id does not exist, or the caller does not have access to the specified channel</exception>
         public IEnumerable<MessageEventModel> GetMessageEvents(int channelId, int callerId, DateTime since, CancellationToken cancellation)
         {
-            return null;
+            bool hasAccess = IsUserInChannel(callerId, channelId);
+
+            if (!hasAccess)
+            {
+                throw new ArgumentException("User does not have access to the specified channel", "callerId");
+            }
+
+            //We should ensure that we are not looking for changes while they are being made
+            //This logic is dependent on the fact that a message event does not occur after looking for changes and before calling wait()
+            object msgLock;
+            lock (msgLock = GetLockForChannel(channelId))
+            {
+                IEnumerable<MessageModel> newMessages;
+                IEnumerable<MessageModel> deletedMessages;
+                IEnumerable<MessageModel> editedMessages;
+
+                while(true)
+                {
+                    newMessages = messages.GetMessagesSince(channelId, since);
+                    deletedMessages = messages.GetDeletedMessagesSince(channelId, since);
+                    editedMessages = messages.GetEditedMessagesSince(channelId, since);
+
+                    //Stop looking if something happened
+                    if (newMessages.Any() || deletedMessages.Any() || editedMessages.Any())
+                    {
+                        break;
+                    }
+
+                    //Nothing happened, so wait a while
+                    Console.WriteLine($"No new messages in channel {channelId}, waiting...");
+                    Monitor.Wait(msgLock, sleepInterval);
+
+                    //Stop looking if the user requested so
+                    if (cancellation.IsCancellationRequested)
+                    {
+                        Console.WriteLine($"Client gave up listening to channel {channelId}...");
+                        return null;
+                    }
+                }
+
+                //At this point we know that an event has happened
+                Console.WriteLine($"Something happened in channel {channelId}");
+                return constructMessageEvents(newMessages, deletedMessages, editedMessages);
+            }
+        }
+
+        private IEnumerable<MessageEventModel> constructMessageEvents(IEnumerable<MessageModel> newMessages, IEnumerable<MessageModel> deletedMessages, IEnumerable<MessageModel> editedMessages)
+        {
+            List<MessageEventModel> messageEvents = new List<MessageEventModel>();
+
+            messageEvents.AddRange(newMessages.Select(m => new MessageEventModel()
+            {
+                Type = MessageEventType.NewMessage,
+                Message = m
+            }));
+
+            messageEvents.AddRange(deletedMessages.Select(m => new MessageEventModel()
+            {
+                Type = MessageEventType.DeleteMessage,
+                Message = m
+            }));
+
+            messageEvents.AddRange(editedMessages.Select(m => new MessageEventModel()
+            {
+                Type = MessageEventType.UpdateMessage,
+                Message = m
+            }));
+
+            return messageEvents;
         }
     }
 }
