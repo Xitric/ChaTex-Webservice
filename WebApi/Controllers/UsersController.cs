@@ -26,16 +26,14 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using WebAPI.Models;
 using Business.Messages;
 using System.Linq;
-using Business.Authentication;
 using Microsoft.AspNetCore.Http;
 using Business.Models;
 using WebAPI.Authentication;
 using Business.Users;
-using System.Net;
-using Newtonsoft.Json;
 using WebAPI.Models.Mappers;
 using System;
 using IO.Swagger.Models;
+using Business.Groups;
 
 namespace WebAPI.Controllers
 {
@@ -44,13 +42,13 @@ namespace WebAPI.Controllers
     /// </summary>
     public class UsersController : Controller
     {
-        private readonly IMessageManager messageManager;
         private readonly IUserManager userManager;
+        private readonly IGroupManager groupManager;
 
-        public UsersController(IMessageManager messageManager, IUserManager userManager)
+        public UsersController(IUserManager userManager, IGroupManager groupManager)
         {
-            this.messageManager = messageManager;
             this.userManager = userManager;
+            this.groupManager = groupManager;
         }
 
         /// <summary>
@@ -89,7 +87,7 @@ namespace WebAPI.Controllers
         {
             int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
-            IEnumerable<GroupModel> groups = userManager.GetGroupsForUser((int)userId);
+            IEnumerable<GroupModel> groups = groupManager.GetGroupsForUser((int)userId);
             List<GroupDTO> dtoResponse = groups.Select(g => GroupMapper.MapGroupToGroupDTO(g)).ToList();
 
             return new ObjectResult(dtoResponse);

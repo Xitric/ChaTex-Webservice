@@ -22,11 +22,6 @@ namespace Business.Users
             return auth.Login(email);
         }
 
-        public IEnumerable<GroupModel> GetGroupsForUser(int userId)
-        {
-            return users.GetGroupsForUser(userId);
-        }
-
         public IEnumerable<UserModel> GetAllUsers()
         {
             return users.GetAllUsers();

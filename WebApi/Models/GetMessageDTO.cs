@@ -21,8 +21,12 @@
  */
 
 using System;
+using System.Linq;
 using System.IO;
 using System.Text;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
@@ -40,13 +44,15 @@ namespace WebAPI.Models
         /// <param name="Id">Id (required).</param>
         /// <param name="CreationTime">CreationTime (required).</param>
         /// <param name="Content">Content (required).</param>
+        /// <param name="DeletionDate">DeletionDate.</param>
+        /// <param name="LastEdited">LastEdited.</param>
         /// <param name="Sender">Sender (required).</param>
-        public GetMessageDTO(long? Id = null, DateTime? CreationTime = null, string Content = null, UserDTO Sender = null)
+        public GetMessageDTO(int? Id = null, DateTime? CreationTime = null, string Content = null, DateTime? DeletionDate = null, DateTime? LastEdited = null, UserDTO Sender = null)
         {
             // to ensure "Id" is required (not null)
             if (Id == null)
             {
-                throw new InvalidDataException("Id is a required property for GetMessage and cannot be null");
+                throw new InvalidDataException("Id is a required property for GetMessageDTO and cannot be null");
             }
             else
             {
@@ -55,7 +61,7 @@ namespace WebAPI.Models
             // to ensure "CreationTime" is required (not null)
             if (CreationTime == null)
             {
-                throw new InvalidDataException("CreationTime is a required property for GetMessage and cannot be null");
+                throw new InvalidDataException("CreationTime is a required property for GetMessageDTO and cannot be null");
             }
             else
             {
@@ -64,7 +70,7 @@ namespace WebAPI.Models
             // to ensure "Content" is required (not null)
             if (Content == null)
             {
-                throw new InvalidDataException("Content is a required property for GetMessage and cannot be null");
+                throw new InvalidDataException("Content is a required property for GetMessageDTO and cannot be null");
             }
             else
             {
@@ -73,12 +79,14 @@ namespace WebAPI.Models
             // to ensure "Sender" is required (not null)
             if (Sender == null)
             {
-                throw new InvalidDataException("Sender is a required property for GetMessage and cannot be null");
+                throw new InvalidDataException("Sender is a required property for GetMessageDTO and cannot be null");
             }
             else
             {
                 this.Sender = Sender;
             }
+            this.DeletionDate = DeletionDate;
+            this.LastEdited = LastEdited;
             
         }
 
@@ -86,7 +94,7 @@ namespace WebAPI.Models
         /// Gets or Sets Id
         /// </summary>
         [DataMember(Name="Id")]
-        public long? Id { get; set; }
+        public int? Id { get; set; }
 
         /// <summary>
         /// Gets or Sets CreationTime
@@ -99,6 +107,18 @@ namespace WebAPI.Models
         /// </summary>
         [DataMember(Name="Content")]
         public string Content { get; set; }
+
+        /// <summary>
+        /// Gets or Sets DeletionDate
+        /// </summary>
+        [DataMember(Name="DeletionDate")]
+        public DateTime? DeletionDate { get; set; }
+
+        /// <summary>
+        /// Gets or Sets LastEdited
+        /// </summary>
+        [DataMember(Name="LastEdited")]
+        public DateTime? LastEdited { get; set; }
 
         /// <summary>
         /// Gets or Sets Sender
@@ -114,10 +134,12 @@ namespace WebAPI.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class GetMessage {\n");
+            sb.Append("class GetMessageDTO {\n");
             sb.Append("  Id: ").Append(Id).Append("\n");
             sb.Append("  CreationTime: ").Append(CreationTime).Append("\n");
             sb.Append("  Content: ").Append(Content).Append("\n");
+            sb.Append("  DeletionDate: ").Append(DeletionDate).Append("\n");
+            sb.Append("  LastEdited: ").Append(LastEdited).Append("\n");
             sb.Append("  Sender: ").Append(Sender).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
@@ -146,9 +168,9 @@ namespace WebAPI.Models
         }
 
         /// <summary>
-        /// Returns true if GetMessage instances are equal
+        /// Returns true if GetMessageDTO instances are equal
         /// </summary>
-        /// <param name="other">Instance of GetMessage to be compared</param>
+        /// <param name="other">Instance of GetMessageDTO to be compared</param>
         /// <returns>Boolean</returns>
         public bool Equals(GetMessageDTO other)
         {
@@ -171,6 +193,16 @@ namespace WebAPI.Models
                     this.Content == other.Content ||
                     this.Content != null &&
                     this.Content.Equals(other.Content)
+                ) && 
+                (
+                    this.DeletionDate == other.DeletionDate ||
+                    this.DeletionDate != null &&
+                    this.DeletionDate.Equals(other.DeletionDate)
+                ) && 
+                (
+                    this.LastEdited == other.LastEdited ||
+                    this.LastEdited != null &&
+                    this.LastEdited.Equals(other.LastEdited)
                 ) && 
                 (
                     this.Sender == other.Sender ||
@@ -196,6 +228,10 @@ namespace WebAPI.Models
                     hash = hash * 59 + this.CreationTime.GetHashCode();
                 if (this.Content != null)
                     hash = hash * 59 + this.Content.GetHashCode();
+                if (this.DeletionDate != null)
+                    hash = hash * 59 + this.DeletionDate.GetHashCode();
+                if (this.LastEdited != null)
+                    hash = hash * 59 + this.LastEdited.GetHashCode();
                 if (this.Sender != null)
                     hash = hash * 59 + this.Sender.GetHashCode();
                 return hash;

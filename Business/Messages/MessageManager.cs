@@ -9,7 +9,6 @@ namespace Business.Messages
     class MessageManager : IMessageManager
     {
         private readonly IMessageRepository messages;
-        private readonly IUserRepository users;
         private readonly IGroupRepository groups;
         private readonly IChannelRepository channels;
 
@@ -37,10 +36,9 @@ namespace Business.Messages
             return msgLock;
         }
 
-        public MessageManager(IMessageRepository messages, IUserRepository users, IGroupRepository groups, IChannelRepository channels)
+        public MessageManager(IMessageRepository messages, IGroupRepository groups, IChannelRepository channels)
         {
             this.messages = messages;
-            this.users = users;
             this.groups = groups;
             this.channels = channels;
             messageLocks = new Dictionary<int, object>();
@@ -48,7 +46,7 @@ namespace Business.Messages
 
         private bool IsUserInChannel(int userId, int channelId)
         {
-            return users.GetGroupsForUser(userId)
+            return groups.GetGroupsForUser(userId)
                 .Select(g => g.Channels.Any(c => c.Id == channelId))
                 .Any();
         }
@@ -59,37 +57,6 @@ namespace Business.Messages
             {
                 //This should be threadsafe
                 return messages.GetMessages(channelId, from, count);
-            }
-
-            return new List<MessageModel>();
-        }
-
-        public IEnumerable<MessageModel> GetMessagesSince(int channelId, int callerId, DateTime since, CancellationToken cancellation)
-        {
-            if (IsUserInChannel(callerId, channelId))
-            {
-                IEnumerable<MessageModel> newMessages;
-
-                //We should prevent the creation of new messages while we check for them
-                object msgLock;
-                lock (msgLock = GetLockForChannel(channelId))
-                {
-                    while (!(newMessages = messages.getMessagesSince(channelId, since)).Any())
-                    {
-                        Console.WriteLine($"No new messages in channel {channelId}, waiting...");
-                        Monitor.Wait(msgLock, sleepInterval);
-
-                        //Check to see if the user cancelled the request
-                        if (cancellation.IsCancellationRequested)
-                        {
-                            Console.WriteLine($"Client gave up listening to channel {channelId}...");
-                            return new List<MessageModel>();
-                        }
-                    }
-                }
-
-                Console.WriteLine($"Got a new message in channel {channelId}");
-                return newMessages;
             }
 
             return new List<MessageModel>();
@@ -154,6 +121,20 @@ namespace Business.Messages
             {
                 throw new Exception("Message couldnt be retrived because the user isnt in the channel group");
             }
+        }
+
+        /// <summary>
+        /// Request events about messages in the specified channel. This method will block until a new message has been posted, a message has been deleted, or a message has been edited.
+        /// </summary>
+        /// <param name="channelId">The channel to wait for events in</param>
+        /// <param name="callerId">The id of the client making this request</param>
+        /// <param name="since">The timestamp from which to get events</param>
+        /// <param name="cancellation">Token specifying if this blocking method should be cancelled</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException">The channel with the specified id does not exist, or the caller does not have access to the specified channel</exception>
+        public IEnumerable<MessageEventModel> GetMessageEvents(int channelId, int callerId, DateTime since, CancellationToken cancellation)
+        {
+            return null;
         }
     }
 }

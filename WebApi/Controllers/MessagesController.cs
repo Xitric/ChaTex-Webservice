@@ -133,10 +133,10 @@ namespace WebAPI.Controllers
                 return StatusCode(404);
             }
 
-            IEnumerable<GetMessageDTO> messages = messageManager.GetMessagesSince((int)channelId, userId, (DateTime)since, cancellation)
-                .Select(m => MessageMapper.MapMessageToGetMessageDTO(m, userId));
+            //IEnumerable<GetMessageDTO> messages = messageManager.GetMessagesSince((int)channelId, userId, (DateTime)since, cancellation)
+            //    .Select(m => MessageMapper.MapMessageToGetMessageDTO(m, userId));
 
-            return new ObjectResult(messages);
+            return new ObjectResult(null);
         }
 
         /// <summary>

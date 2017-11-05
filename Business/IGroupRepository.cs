@@ -23,6 +23,8 @@ namespace Business
          
         GroupUserModel GetGroupUser(int groupId, int loggedInUser);
 
+        IEnumerable<GroupModel> GetGroupsForUser(int userId);
+
         IEnumerable<UserModel> GetAllGroupUsers(int groupId);
         void UpdateGroup(int groupId, string groupName, int callerId);
 

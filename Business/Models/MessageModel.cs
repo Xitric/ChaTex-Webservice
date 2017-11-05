@@ -12,7 +12,9 @@ namespace Business.Models
 
         public DateTime? CreationTime { get; set; }
 
-        public bool isDeleted { get; set; }
+        public DateTime? DeletionTime { get; set; }
+
+        public DateTime? LastEdited { get; set; }
 
         public int ChannelId { get; set; }
     }

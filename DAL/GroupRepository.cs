@@ -5,6 +5,7 @@ using DAL.Models;
 using DAL.Mapper;
 using System.Linq;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace DAL
 {
@@ -128,6 +129,31 @@ namespace DAL
                 return groupUsers.Union(userMatchingGroupRole)
                     .Where(u => u.IsDeleted == false)
                     .Select(u => UserMapper.MapUserEntityToModel(u))
+                    .ToList();
+            }
+        }
+
+        public IEnumerable<GroupModel> GetGroupsForUser(int userId)
+        {
+            using (var context = new ChatexdbContext())
+            {
+                IQueryable<Group> groupsUser = context.GroupUser
+                    .Where(gu => gu.UserId == userId)
+                    .Select(gu => gu.Group);
+
+                //Select Group from GroupRole where the role id is in the collection:
+                //  Select role id from UserRole where the user id is matched
+                IQueryable<Group> groupsRole = context.GroupRole
+                    .Where(gr => context.UserRole
+                        .Where(ur => ur.UserId == userId)
+                        .Select(ur => ur.Role.RoleId)
+                        .Contains(gr.RoleId))
+                    .Select(gr => gr.Group);
+
+                return groupsUser.Union(groupsRole)
+                    .Where(g => g.IsDeleted == false)
+                    .Include(g => g.Channel)
+                    .Select(g => GroupMapper.MapGroupEntityToModel(g))
                     .ToList();
             }
         }

@@ -16,6 +16,7 @@ namespace DAL.Models
         public virtual DbSet<GroupRole> GroupRole { get; set; }
         public virtual DbSet<GroupUser> GroupUser { get; set; }
         public virtual DbSet<Message> Message { get; set; }
+        public virtual DbSet<MessageRevision> MessageRevision { get; set; }
         public virtual DbSet<Role> Role { get; set; }
         public virtual DbSet<SystemAdministrator> SystemAdministrator { get; set; }
         public virtual DbSet<User> User { get; set; }
@@ -177,19 +178,36 @@ namespace DAL.Models
                     .IsRequired()
                     .HasMaxLength(300);
 
-                entity.Property(e => e.CreationDate)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                entity.Property(e => e.CreationDate).HasColumnType("datetime");
 
-                entity.Property(e => e.EditDate).HasColumnType("datetime");
+                entity.Property(e => e.DeletionDate).HasColumnType("datetime");
 
-                entity.Property(e => e.IsDeleted).HasDefaultValueSql("((0))");
+                entity.Property(e => e.LastEditDate).HasColumnType("datetime");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Message)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Message_User");
+            });
+
+            modelBuilder.Entity<MessageRevision>(entity =>
+            {
+                entity.HasKey(e => e.MessageId);
+
+                entity.Property(e => e.MessageId).ValueGeneratedNever();
+
+                entity.Property(e => e.Content)
+                    .IsRequired()
+                    .HasMaxLength(300);
+
+                entity.Property(e => e.EditDate).HasColumnType("datetime");
+
+                entity.HasOne(d => d.Message)
+                    .WithOne(p => p.MessageRevision)
+                    .HasForeignKey<MessageRevision>(d => d.MessageId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_MessageRevision_Message");
             });
 
             modelBuilder.Entity<Role>(entity =>
