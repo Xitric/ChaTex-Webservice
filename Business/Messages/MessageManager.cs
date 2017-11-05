@@ -8,13 +8,21 @@ namespace Business.Messages
 {
     class MessageManager : IMessageManager
     {
-        private readonly IMessageRepository messages;
-        private readonly IGroupRepository groups;
-        private readonly IChannelRepository channels;
+        private readonly IMessageRepository messageRepository;
+        private readonly IGroupRepository groupRepository;
+        private readonly IChannelRepository channelRepository;
 
-        //These locks are used to ensure that two threads to not read and write messages simultaneously
+        //These locks are used to ensure that two threads do not perform mutually exclusive operations on messages simultaneously
         private readonly Dictionary<int, object> messageLocks;
         private readonly int sleepInterval = 2000;
+
+        public MessageManager(IMessageRepository messages, IGroupRepository groups, IChannelRepository channels)
+        {
+            messageRepository = messages;
+            groupRepository = groups;
+            channelRepository = channels;
+            messageLocks = new Dictionary<int, object>();
+        }
 
         private object GetLockForChannel(int channelId)
         {
@@ -36,17 +44,9 @@ namespace Business.Messages
             return msgLock;
         }
 
-        public MessageManager(IMessageRepository messages, IGroupRepository groups, IChannelRepository channels)
-        {
-            this.messages = messages;
-            this.groups = groups;
-            this.channels = channels;
-            messageLocks = new Dictionary<int, object>();
-        }
-
         private bool IsUserInChannel(int userId, int channelId)
         {
-            return groups.GetGroupsForUser(userId)
+            return groupRepository.GetGroupsForUser(userId)
                 .Select(g => g.Channels.Any(c => c.Id == channelId))
                 .Any();
         }
@@ -56,7 +56,9 @@ namespace Business.Messages
             if (IsUserInChannel(callerId, channelId))
             {
                 //This should be threadsafe
-                return messages.GetMessages(channelId, from, count);
+                IEnumerable<MessageModel> messages = messageRepository.GetMessages(channelId, from, count);
+                censorMessages(messages);
+                return messages;
             }
 
             return new List<MessageModel>();
@@ -82,7 +84,7 @@ namespace Business.Messages
             object msgLock;
             lock (msgLock = GetLockForChannel(channelId))
             {
-                messages.CreateMessage(message, channelId);
+                messageRepository.CreateMessage(message, channelId);
 
                 //Inform waiting threads that a new message was posted
                 Console.WriteLine($"New message for channel {channelId}, wake up my little lambs!");
@@ -93,13 +95,13 @@ namespace Business.Messages
         /// <exception cref="ArgumentException">The message with the specified id does not exist, or the caller does not have the rights to delete the specified message</exception>
         public void DeleteMessage(int callerId, int messageId)
         {
-            MessageModel message = messages.GetMessage(messageId);
-            var channel = channels.GetChannel(message.ChannelId);
-            var loggedInUser = groups.GetGroupUser(channel.GroupId, callerId);
+            MessageModel message = messageRepository.GetMessage(messageId);
+            var channel = channelRepository.GetChannel(message.ChannelId);
+            var loggedInUser = groupRepository.GetGroupUser(channel.GroupId, callerId);
 
             if (loggedInUser.IsAdministrator || message.Author.Id == callerId)
             {
-                messages.DeleteMessage(messageId);
+                messageRepository.DeleteMessage(messageId);
             }
             else
             {
@@ -109,7 +111,8 @@ namespace Business.Messages
 
         public MessageModel GetMessage(int callerId, int messageId)
         {
-            MessageModel message = messages.GetMessage(messageId);
+            MessageModel message = messageRepository.GetMessage(messageId);
+            if (message.DeletionTime != null) message.Content = "";
             if (message == null)
             {
                 throw new Exception("Message does not exist in the database");
@@ -153,9 +156,9 @@ namespace Business.Messages
 
                 while (true)
                 {
-                    newMessages = messages.GetMessagesSince(channelId, since);
-                    deletedMessages = messages.GetDeletedMessagesSince(channelId, since);
-                    editedMessages = messages.GetEditedMessagesSince(channelId, since);
+                    newMessages = messageRepository.GetMessagesSince(channelId, since);
+                    deletedMessages = messageRepository.GetDeletedMessagesSince(channelId, since);
+                    editedMessages = messageRepository.GetEditedMessagesSince(channelId, since);
 
                     //Stop looking if something happened
                     if (newMessages.Any() || deletedMessages.Any() || editedMessages.Any())
@@ -177,7 +180,25 @@ namespace Business.Messages
 
                 //At this point we know that an event has happened
                 Console.WriteLine($"Something happened in channel {channelId}");
+                censorMessages(newMessages);
+                censorMessages(deletedMessages);
+                censorMessages(editedMessages);
                 return constructMessageEvents(newMessages, deletedMessages, editedMessages);
+            }
+        }
+
+        /// <summary>
+        /// Remove the content of deleted messages. This operation is important to ensure that the contents of deleted messages do not get distributed to clients.
+        /// </summary>
+        /// <param name="messages">The messages to censor</param>
+        private void censorMessages(IEnumerable<MessageModel> messages)
+        {
+            foreach (MessageModel message in messages)
+            {
+                if (message.DeletionTime != null)
+                {
+                    message.Content = "";
+                }
             }
         }
 
