@@ -57,7 +57,7 @@ namespace Business.Messages
             {
                 //This should be threadsafe
                 IEnumerable<MessageModel> messages = messageRepository.GetMessages(channelId, from, count);
-                censorMessages(messages);
+                CensorMessages(messages);
                 return messages;
             }
 
@@ -96,16 +96,28 @@ namespace Business.Messages
         public void DeleteMessage(int callerId, int messageId)
         {
             MessageModel message = messageRepository.GetMessage(messageId);
-            var channel = channelRepository.GetChannel(message.ChannelId);
-            var loggedInUser = groupRepository.GetGroupUser(channel.GroupId, callerId);
+            if (message == null) throw new ArgumentException("Message with the specified id does not exist", "messageId");
 
-            if (loggedInUser.IsAdministrator || message.Author.Id == callerId)
+            var channel = channelRepository.GetChannel(message.ChannelId);
+
+            //Since message ids are fixed and messages don't change channels, these operations did not need to be within the lock
+            object msgLock;
+            lock (msgLock = GetLockForChannel((int)channel.Id))
             {
-                messageRepository.DeleteMessage(messageId);
-            }
-            else
-            {
-                throw new ArgumentException("User does not have the rights to delete the specified message", "callerId");
+                var loggedInUser = groupRepository.GetGroupUser(channel.GroupId, callerId);
+
+                if (loggedInUser.IsAdministrator || message.Author.Id == callerId)
+                {
+                    messageRepository.DeleteMessage(messageId);
+
+                    //Inform waiting threads that a message was deleted
+                    Console.WriteLine($"Message deleted in channel {channel.Id}, wake up my little lambs!");
+                    Monitor.PulseAll(msgLock);
+                }
+                else
+                {
+                    throw new ArgumentException("User does not have the rights to delete the specified message", "callerId");
+                }
             }
         }
 
@@ -180,10 +192,10 @@ namespace Business.Messages
 
                 //At this point we know that an event has happened
                 Console.WriteLine($"Something happened in channel {channelId}");
-                censorMessages(newMessages);
-                censorMessages(deletedMessages);
-                censorMessages(editedMessages);
-                return constructMessageEvents(newMessages, deletedMessages, editedMessages);
+                CensorMessages(newMessages);
+                CensorMessages(deletedMessages);
+                CensorMessages(editedMessages);
+                return ConstructMessageEvents(newMessages, deletedMessages, editedMessages);
             }
         }
 
@@ -191,7 +203,7 @@ namespace Business.Messages
         /// Remove the content of deleted messages. This operation is important to ensure that the contents of deleted messages do not get distributed to clients.
         /// </summary>
         /// <param name="messages">The messages to censor</param>
-        private void censorMessages(IEnumerable<MessageModel> messages)
+        private void CensorMessages(IEnumerable<MessageModel> messages)
         {
             foreach (MessageModel message in messages)
             {
@@ -202,7 +214,7 @@ namespace Business.Messages
             }
         }
 
-        private IEnumerable<MessageEventModel> constructMessageEvents(IEnumerable<MessageModel> newMessages, IEnumerable<MessageModel> deletedMessages, IEnumerable<MessageModel> editedMessages)
+        private IEnumerable<MessageEventModel> ConstructMessageEvents(IEnumerable<MessageModel> newMessages, IEnumerable<MessageModel> deletedMessages, IEnumerable<MessageModel> editedMessages)
         {
             List<MessageEventModel> messageEvents = new List<MessageEventModel>();
 

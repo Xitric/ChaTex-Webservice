@@ -179,12 +179,20 @@ namespace WebAPI.Controllers
             try
             {
                 messageManager.CreateMessage((int)userId, (int)channelId, messageContentDTO.Message);
+                return StatusCode(204);
             }
-            catch (Exception)
+            catch (ArgumentException e)
             {
-                return StatusCode(401);
+                switch (e.ParamName)
+                {
+                    case "callerId":
+                        //Caller was not authorized
+                        return new StatusCodeResult(401);
+                    default:
+                        //Some unexpected exception
+                        throw;
+                }
             }
-            return StatusCode(204);
         }
 
 
@@ -202,20 +210,31 @@ namespace WebAPI.Controllers
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual StatusCodeResult DeleteMessage([FromRoute]int? messageId)
         {
-            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            int userId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
             if (messageId == null)
             {
-                return StatusCode(401);
+                return StatusCode(404);
             }
 
             try
             {
-                messageManager.DeleteMessage((int)userId, (int)messageId);
-                return StatusCode(201);
+                messageManager.DeleteMessage(userId, (int)messageId);
+                return StatusCode(204);
             }
-            catch (Exception)
+            catch (ArgumentException e)
             {
-                return StatusCode(401);
+                switch (e.ParamName)
+                {
+                    case "callerId":
+                        //Caller was not authorized
+                        return new StatusCodeResult(401);
+                    case "messageId":
+                        //Message was unknown
+                        return new StatusCodeResult(404);
+                    default:
+                        //Some unexpected exception
+                        throw;
+                }
             }
         }
 
