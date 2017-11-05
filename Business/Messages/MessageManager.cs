@@ -62,49 +62,49 @@ namespace Business.Messages
             return new List<MessageModel>();
         }
 
+        /// <exception cref="ArgumentException">The channel with the specified id does not exist, or the caller does not have access to the specified channel</exception>
         public void CreateMessage(int callerId, int channelId, string messageContent)
         {
-            if (IsUserInChannel(callerId, channelId))
-            {
-                MessageModel message = new MessageModel()
-                {
-                    Author = new UserModel { Id = callerId },
-                    Content = messageContent,
-                };
+            bool hasAccess = IsUserInChannel(callerId, channelId);
 
-                //Wait until we are allowed to add new messages
-                object msgLock;
-                lock (msgLock = GetLockForChannel(channelId))
-                {
-                    messages.CreateMessage(message, channelId);
-                    Console.WriteLine($"New message for channel {channelId}, wake up my little lambs!");
-                    Monitor.PulseAll(msgLock);
-                }
-            }
-            else
+            if (!hasAccess)
             {
-                throw new Exception("Message couldnt be created, user isnt in the channel group");
+                throw new ArgumentException("User does not have access to the specified channel", "callerId");
+            }
+
+            MessageModel message = new MessageModel()
+            {
+                Author = new UserModel { Id = callerId },
+                Content = messageContent,
+            };
+
+            //Wait until we are allowed to add new messages
+            object msgLock;
+            lock (msgLock = GetLockForChannel(channelId))
+            {
+                messages.CreateMessage(message, channelId);
+
+                //Inform waiting threads that a new message was posted
+                Console.WriteLine($"New message for channel {channelId}, wake up my little lambs!");
+                Monitor.PulseAll(msgLock);
             }
         }
 
+        /// <exception cref="ArgumentException">The message with the specified id does not exist, or the caller does not have the rights to delete the specified message</exception>
         public void DeleteMessage(int callerId, int messageId)
         {
             MessageModel message = messages.GetMessage(messageId);
             var channel = channels.GetChannel(message.ChannelId);
             var loggedInUser = groups.GetGroupUser(channel.GroupId, callerId);
-            if (loggedInUser.IsAdministrator)
-            {
-                messages.DeleteMessage(messageId);
-            }
-            else if (message.Author.Id == callerId)
+
+            if (loggedInUser.IsAdministrator || message.Author.Id == callerId)
             {
                 messages.DeleteMessage(messageId);
             }
             else
             {
-                throw new Exception("You dosent have the rights to delete this message!");
+                throw new ArgumentException("User does not have the rights to delete the specified message", "callerId");
             }
-
         }
 
         public MessageModel GetMessage(int callerId, int messageId)
@@ -151,7 +151,7 @@ namespace Business.Messages
                 IEnumerable<MessageModel> deletedMessages;
                 IEnumerable<MessageModel> editedMessages;
 
-                while(true)
+                while (true)
                 {
                     newMessages = messages.GetMessagesSince(channelId, since);
                     deletedMessages = messages.GetDeletedMessagesSince(channelId, since);
