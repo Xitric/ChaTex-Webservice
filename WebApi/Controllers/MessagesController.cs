@@ -135,9 +135,10 @@ namespace WebAPI.Controllers
 
             try
             {
-                IEnumerable<MessageEventDTO> messageEvents = messageManager.GetMessageEvents((int)channelId, userId, (DateTime)since, cancellation)
-                    .Select(me => MessageMapper.MapMessageEventToMessageEventDTO(me, userId));
+                IEnumerable<MessageEventModel> messageEvents = messageManager.GetMessageEvents((int)channelId, userId, (DateTime)since, cancellation);
+                if (messageEvents == null) return StatusCode(404);
 
+                IEnumerable<MessageEventDTO> messageEventDTO = messageEvents.Select(me => MessageMapper.MapMessageEventToMessageEventDTO(me, userId));
                 return new ObjectResult(messageEvents);
             }
             catch (ArgumentException e)
