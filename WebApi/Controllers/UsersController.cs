@@ -139,27 +139,19 @@ namespace WebAPI.Controllers
             
             if(userId == null || updateUserDTO == null)
             {
-                return StatusCode(404);
-            }
-            try
-            {
-                userManager.UpdateUser((int)callerId, new UserModel()
-                {
-                    Id = userId,
-                    FirstName = updateUserDTO.FirstName,
-                    MiddleInitial = updateUserDTO.MiddleInitial[0],
-                    LastName = updateUserDTO.LastName,
-                    Email = updateUserDTO.Email,
-                    IsDeleted = (bool)updateUserDTO.IsDeleted
-                });
-                return StatusCode(202);
-            }
-            catch (Exception)
-            {
-                return StatusCode(404);
+                return StatusCode(400);
             }
 
-            return null;
+            userManager.UpdateUser((int)callerId, new UserModel()
+            {
+                Id = userId,
+                FirstName = updateUserDTO.FirstName,
+                MiddleInitial = updateUserDTO.MiddleInitial?[0],
+                LastName = updateUserDTO.LastName,
+                Email = updateUserDTO.Email,
+                IsDeleted = updateUserDTO.IsDeleted
+            });
+            return StatusCode(204);
         }
     }
 }

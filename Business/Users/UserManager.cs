@@ -27,12 +27,28 @@ namespace Business.Users
             return users.GetAllUsers();
         }
         
-
         public void UpdateUser(int callerId, UserModel userModel)
         {
             if (users.IsUserAdmin(callerId))
             {
-                users.UpdateUser(userModel);
+                UserModel oldUser = users.GetUser((int)userModel.Id);
+
+                if(userModel.Email != null)
+                    oldUser.Email = userModel.Email;
+
+                if (userModel.FirstName != null)
+                    oldUser.FirstName = userModel.FirstName;
+
+                if (userModel.MiddleInitial != null)
+                    oldUser.MiddleInitial = userModel.MiddleInitial;
+
+                if (userModel.LastName != null)
+                    oldUser.LastName = userModel.LastName;
+                
+                if(userModel.IsDeleted != null)
+                    oldUser.IsDeleted = userModel.IsDeleted;
+
+                users.UpdateUser(oldUser);
             }
         }
     }
