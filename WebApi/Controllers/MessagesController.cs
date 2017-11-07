@@ -239,5 +239,47 @@ namespace WebAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Edit a message
+        /// </summary>
+        /// <remarks>Edit the message with the specified id</remarks>
+        /// <param name="messageId">The id of the message to delete</param>
+        /// <param name="newContent">The new content of the message</param>
+        /// <response code="204">Message edited successfully</response>
+        /// <response code="401">The user was not authorized to access this resource</response>
+        /// <response code="404">Could not find the message with the specified id</response>
+        [HttpPut]
+        [Route("/1.0.0/messages/{messageId}")]
+        [SwaggerOperation("EditMessage")]
+        [ServiceFilter(typeof(ChaTexAuthorization))]
+        public virtual StatusCodeResult EditMessage([FromRoute]int? messageId, [FromBody]string newContent)
+        {
+            int userId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            if (messageId == null || String.IsNullOrEmpty(newContent))
+            {
+                return StatusCode(404);
+            }
+
+            try
+            {
+                messageManager.EditMessage(userId, (int)messageId, newContent);
+                return StatusCode(204);
+            }
+            catch (ArgumentException e)
+            {
+                switch (e.ParamName)
+                {
+                    case "callerId":
+                        //Caller was not authorized
+                        return new StatusCodeResult(401);
+                    case "messageId":
+                        //Message was unknown
+                        return new StatusCodeResult(404);
+                    default:
+                        //Some unexpected exception
+                        throw;
+                }
+            }
+        }
     }
 }

@@ -121,6 +121,34 @@ namespace Business.Messages
             }
         }
 
+        public void EditMessage(int callerId, int messageId, string newContent)
+        {
+            MessageModel message = messageRepository.GetMessage(messageId);
+            if (message == null) throw new ArgumentException("Message with the specified id does not exist", "messageId");
+
+            var channel = channelRepository.GetChannel(message.ChannelId);
+
+            //Since message ids are fixed and messages don't change channels, these operations did not need to be within the lock
+            object msgLock;
+            lock (msgLock = GetLockForChannel((int)channel.Id))
+            {
+                var loggedInUser = groupRepository.GetGroupUser(channel.GroupId, callerId);
+
+                if (loggedInUser.IsAdministrator || message.Author.Id == callerId)
+                {
+                    messageRepository.EditMessage(messageId, newContent);
+
+                    //Inform waiting threads that a message was edited
+                    Console.WriteLine($"Message edited in channel {channel.Id}, wake up my little lambs!");
+                    Monitor.PulseAll(msgLock);
+                }
+                else
+                {
+                    throw new ArgumentException("User does not have the rights to delete the specified message", "callerId");
+                }
+            }
+        }
+
         public MessageModel GetMessage(int callerId, int messageId)
         {
             MessageModel message = messageRepository.GetMessage(messageId);

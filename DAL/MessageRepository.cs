@@ -113,8 +113,31 @@ namespace DAL
         {
             using (var context = new ChatexdbContext())
             {
-                Message dalmessage = context.Message.Where(i => i.MessageId == messageId).FirstOrDefault();
+                Message dalmessage = context.Message.Find(messageId);
                 dalmessage.DeletionDate = DateTime.Now;
+                context.SaveChanges();
+            }
+        }
+
+        public void EditMessage(int messageId, string content)
+        {
+            using (var context = new ChatexdbContext())
+            {
+                Message dalmessage = context.Message.Find(messageId);
+
+                //Save message revision
+                MessageRevision revision = new MessageRevision()
+                {
+                    Content = dalmessage.Content,
+                    EditDate = dalmessage.LastEditDate == null ? dalmessage.CreationDate : (DateTime)dalmessage.LastEditDate,
+                    MessageId = dalmessage.MessageId
+                };
+                context.MessageRevision.Add(revision);
+
+                //Update current message
+                dalmessage.Content = content;
+                dalmessage.LastEditDate = DateTime.Now;
+
                 context.SaveChanges();
             }
         }

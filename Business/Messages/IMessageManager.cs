@@ -12,5 +12,6 @@ namespace Business.Messages
         MessageModel GetMessage(int callerId, int messageId);
         void CreateMessage(int callerId, int channelId, string messageContent);
         void DeleteMessage(int callerId, int messageId);
+        void EditMessage(int callerId, int messageId, string newContent);
     }
 }
