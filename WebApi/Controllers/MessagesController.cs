@@ -139,7 +139,7 @@ namespace WebAPI.Controllers
                 if (messageEvents == null) return StatusCode(404);
 
                 IEnumerable<MessageEventDTO> messageEventDTO = messageEvents.Select(me => MessageMapper.MapMessageEventToMessageEventDTO(me, userId));
-                return new ObjectResult(messageEvents);
+                return new ObjectResult(messageEventDTO);
             }
             catch (ArgumentException e)
             {
