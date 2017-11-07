@@ -84,25 +84,23 @@ namespace IO.Swagger.Controllers
         /// Delete a channel from a group
         /// </summary>
         /// <remarks>Deletes the channel from the specified group</remarks>
-        /// <param name="groupId">The id of the group to delete the channel from</param>
         /// <param name="channelId">The id of the channel to delete</param>
         /// <response code="204">Channel deleted successfully</response>
         /// <response code="401">The user was not authorized to access this resource</response>
         /// <response code="404">No group or channel with the specified ids were found</response>
         [HttpDelete]
-        [Route("/1.0.0/groups/{groupId}/channels/{channelId}")]
+        [Route("/1.0.0/channels/{channelId}")]
         [SwaggerOperation("DeleteChannel")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual StatusCodeResult DeleteChannel([FromRoute]int? groupId, [FromRoute]int? channelId)
-        {
+        public virtual StatusCodeResult DeleteChannel([FromRoute]int? channelId) {
             int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
-            if (groupId == null || channelId == null)
+            if (channelId == null)
             {
                 return StatusCode(404);
             }
 
-            channelManager.DeleteChannel((int)groupId, (int)userId, (int)channelId);
+            channelManager.DeleteChannel((int)userId, (int)channelId);
 
             return StatusCode(204);
         }
@@ -111,26 +109,25 @@ namespace IO.Swagger.Controllers
         /// Modify a channel in a group
         /// </summary>
         /// <remarks>Modify a channel in a group</remarks>
-        /// <param name="groupId">The id of the group</param>
         /// <param name="channelId">The id of the channel to update</param>
         /// <param name="channelName">The new name of the channel</param>
         /// <response code="204">Channel successfully updated</response>
         /// <response code="401">The user was not authorized to access this resource</response>
         /// <response code="404">No group or channel with the specified ids were found</response>
         [HttpPut]
-        [Route("/1.0.0/groups/{groupId}/channels/{channelId}")]
+        [Route("/1.0.0/channels/{channelId}")]
         [SwaggerOperation("UpdateChannel")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual StatusCodeResult UpdateChannel([FromRoute]int? groupId, [FromRoute]int? channelId, [FromQuery]string channelName)
+        public virtual StatusCodeResult UpdateChannel([FromRoute]int? channelId, [FromQuery]string channelName)
         {
-            if(groupId == null || channelId == null || String.IsNullOrEmpty(channelName))
+            if (channelId == null || String.IsNullOrEmpty(channelName))
             {
                 return StatusCode(404);
 ;            }
 
             int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
-            channelManager.UpdateChannel((int)groupId, (int)userId, (int)channelId, channelName);
+            channelManager.UpdateChannel((int)userId, (int)channelId, channelName);
 
             return StatusCode(204);
 

@@ -26,21 +26,23 @@ namespace Business.Channels
             return false;
         }
 
-        public bool DeleteChannel(int groupId, int callerId, int channelId)
+        public bool DeleteChannel(int callerId, int channelId)
         {
-            GroupUserModel user = groupRepository.GetGroupUser(groupId, callerId);
+            ChannelModel channel = channelRepository.GetChannel(channelId);
+            GroupUserModel user = groupRepository.GetGroupUser(channel.GroupId, callerId);
 
             if (user.IsAdministrator)
             {
-                channelRepository.DeleteChannel(groupId, channelId);
+                channelRepository.DeleteChannel(channelId);
                 return true;
             }
             return false;
         }
 
-        public bool UpdateChannel(int groupId, int callerId, int channelId, string channelName)
+        public bool UpdateChannel(int callerId, int channelId, string channelName)
         {
-            GroupUserModel user = groupRepository.GetGroupUser(groupId, callerId);
+            ChannelModel channel = channelRepository.GetChannel(channelId);
+            GroupUserModel user = groupRepository.GetGroupUser(channel.GroupId, callerId);
 
             if (user.IsAdministrator) {
                 channelRepository.UpdateChannel(new ChannelModel()

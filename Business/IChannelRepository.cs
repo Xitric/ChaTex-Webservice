@@ -6,7 +6,7 @@ namespace Business
     {
         void CreateChannel(int groupId, string name);
 
-        void DeleteChannel(int groupId, int channelId);
+        void DeleteChannel(int channelId);
 
         void UpdateChannel(ChannelModel channelModel);
 
