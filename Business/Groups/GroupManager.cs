@@ -201,6 +201,11 @@ namespace Business.Groups
             }
         }
 
+        public IEnumerable<GroupModel> GetGroupsForUser(int userId)
+        {
+            return groupRepository.GetGroupsForUser(userId);
+        }
+
         public void UpdateGroup(int groupId, string groupName)
         {
             throw new NotImplementedException();

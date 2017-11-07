@@ -9,8 +9,6 @@ namespace Business.Users
 
         IEnumerable<UserModel> GetAllUsers();
 
-        IEnumerable<GroupModel> GetGroupsForUser(int userId);
-
         void UpdateUser(int callerId, UserModel userModel);
 
     }

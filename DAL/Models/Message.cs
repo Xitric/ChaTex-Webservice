@@ -15,12 +15,13 @@ namespace DAL.Models
 
         public int MessageId { get; set; }
         public string Content { get; set; }
-        public DateTime? EditDate { get; set; }
+        public DateTime? LastEditDate { get; set; }
         public int UserId { get; set; }
-        public bool? IsDeleted { get; set; }
+        public DateTime? DeletionDate { get; set; }
         public DateTime CreationDate { get; set; }
 
         public User User { get; set; }
+        public MessageRevision MessageRevision { get; set; }
         public ICollection<ChannelBookmark> ChannelBookmark { get; set; }
         public ICollection<ChannelMessages> ChannelMessages { get; set; }
         public ICollection<ChatMessage> ChatMessage { get; set; }

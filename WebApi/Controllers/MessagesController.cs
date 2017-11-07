@@ -111,20 +111,20 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Wait for and get new messages sent to a channel
+        /// Wait for and get new messages, message deletions, and message edits in a channel
         /// </summary>
-        /// <remarks>This request will not return from the service until at least one new message has been posted</remarks>
-        /// <param name="channelId">The id of the channel to delete</param>
-        /// <param name="since">The time to get messages since. This defaults to the current time</param>
-        /// <response code="200">Messages fetched successfully</response>
+        /// <remarks>This request will not return from the service until at least one new message event has occurred</remarks>
+        /// <param name="channelId">The id of the channel to listen to</param>
+        /// <param name="since">The time to get message events since</param>
+        /// <response code="200">Message events fetched successfully</response>
         /// <response code="401">The user was not authorized to access this resource</response>
         /// <response code="404">Could not find the channel with the specified id</response>
         [HttpGet]
         [Route("/1.0.0/channels/{channelId}/messages/live")]
-        [SwaggerOperation("GetMessagesSince")]
-        [SwaggerResponse(200, type: typeof(GetMessageDTO))]
+        [SwaggerOperation("GetMessageEvents")]
+        [SwaggerResponse(200, type: typeof(List<MessageEventDTO>))]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual IActionResult GetMessagesSince([FromRoute]int? channelId, [FromQuery]DateTime? since, CancellationToken cancellation)
+        public virtual IActionResult GetMessageEvents([FromRoute]int? channelId, [FromQuery]DateTime? since, CancellationToken cancellation)
         {
             int userId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
@@ -133,10 +133,26 @@ namespace WebAPI.Controllers
                 return StatusCode(404);
             }
 
-            IEnumerable<GetMessageDTO> messages = messageManager.GetMessagesSince((int)channelId, userId, (DateTime)since, cancellation)
-                .Select(m => MessageMapper.MapMessageToGetMessageDTO(m, userId));
+            try
+            {
+                IEnumerable<MessageEventModel> messageEvents = messageManager.GetMessageEvents((int)channelId, userId, (DateTime)since, cancellation);
+                if (messageEvents == null) return StatusCode(404);
 
-            return new ObjectResult(messages);
+                IEnumerable<MessageEventDTO> messageEventDTO = messageEvents.Select(me => MessageMapper.MapMessageEventToMessageEventDTO(me, userId));
+                return new ObjectResult(messageEventDTO);
+            }
+            catch (ArgumentException e)
+            {
+                switch (e.ParamName)
+                {
+                    case "callerId":
+                        //Caller was not authorized
+                        return new StatusCodeResult(401);
+                    default:
+                        //Some unexpected exception
+                        throw;
+                }
+            }
         }
 
         /// <summary>
@@ -164,12 +180,20 @@ namespace WebAPI.Controllers
             try
             {
                 messageManager.CreateMessage((int)userId, (int)channelId, messageContentDTO.Message);
+                return StatusCode(204);
             }
-            catch (Exception)
+            catch (ArgumentException e)
             {
-                return StatusCode(401);
+                switch (e.ParamName)
+                {
+                    case "callerId":
+                        //Caller was not authorized
+                        return new StatusCodeResult(401);
+                    default:
+                        //Some unexpected exception
+                        throw;
+                }
             }
-            return StatusCode(204);
         }
 
 
@@ -187,20 +211,31 @@ namespace WebAPI.Controllers
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual StatusCodeResult DeleteMessage([FromRoute]int? messageId)
         {
-            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            int userId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
             if (messageId == null)
             {
-                return StatusCode(401);
+                return StatusCode(404);
             }
 
             try
             {
-                messageManager.DeleteMessage((int)userId, (int)messageId);
-                return StatusCode(201);
+                messageManager.DeleteMessage(userId, (int)messageId);
+                return StatusCode(204);
             }
-            catch (Exception)
+            catch (ArgumentException e)
             {
-                return StatusCode(401);
+                switch (e.ParamName)
+                {
+                    case "callerId":
+                        //Caller was not authorized
+                        return new StatusCodeResult(401);
+                    case "messageId":
+                        //Message was unknown
+                        return new StatusCodeResult(404);
+                    default:
+                        //Some unexpected exception
+                        throw;
+                }
             }
         }
 
