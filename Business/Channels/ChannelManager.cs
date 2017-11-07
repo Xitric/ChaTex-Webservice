@@ -38,7 +38,7 @@ namespace Business.Channels
             return false;
         }
 
-        public bool UpdateChannel(int groupId, int callerId, int channelId, string channelName)
+        public bool UpdateChannel(int callerId, int channelId, string channelName)
         {
             GroupUserModel user = groupRepository.GetGroupUser(groupId, callerId);
 
