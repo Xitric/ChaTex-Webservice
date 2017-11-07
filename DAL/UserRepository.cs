@@ -116,7 +116,7 @@ namespace DAL
             {
                 User userEntity = db.User.Where(id => id.UserId == userModel.Id).FirstOrDefault();
                 userEntity.FirstName = userModel.FirstName;
-                //userEntity.MiddleInitial = userModel.MiddleInitial;
+                userEntity.MiddleInitial = userModel.MiddleInitial.ToString();
                 userEntity.LastName = userModel.LastName;
                 userEntity.Email = userModel.Email;
                 userEntity.IsDeleted = userModel.IsDeleted;
