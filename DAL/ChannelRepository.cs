@@ -23,7 +23,7 @@ namespace DAL
             }
         }
 
-        public void DeleteChannel(int groupId, int channelId)
+        public void DeleteChannel(int channelId)
         {
             using (var db = new ChatexdbContext())
             {

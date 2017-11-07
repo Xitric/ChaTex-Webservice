@@ -84,25 +84,23 @@ namespace IO.Swagger.Controllers
         /// Delete a channel from a group
         /// </summary>
         /// <remarks>Deletes the channel from the specified group</remarks>
-        /// <param name="groupId">The id of the group to delete the channel from</param>
         /// <param name="channelId">The id of the channel to delete</param>
         /// <response code="204">Channel deleted successfully</response>
         /// <response code="401">The user was not authorized to access this resource</response>
         /// <response code="404">No group or channel with the specified ids were found</response>
         [HttpDelete]
-        [Route("/1.0.0/groups/{groupId}/channels/{channelId}")]
+        [Route("/1.0.0/channels/{channelId}")]
         [SwaggerOperation("DeleteChannel")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual StatusCodeResult DeleteChannel([FromRoute]int? groupId, [FromRoute]int? channelId)
-        {
+        public virtual StatusCodeResult DeleteChannel([FromRoute]int? channelId) {
             int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
-            if (groupId == null || channelId == null)
+            if (channelId == null)
             {
                 return StatusCode(404);
             }
 
-            channelManager.DeleteChannel((int)groupId, (int)userId, (int)channelId);
+            channelManager.DeleteChannel((int)userId, (int)channelId);
 
             return StatusCode(204);
         }
