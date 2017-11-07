@@ -12,7 +12,7 @@ namespace Business
         IEnumerable<MessageModel> GetEditedMessagesSince(int channelId, DateTime since);
         MessageModel GetMessage(int messageId);
         void CreateMessage(MessageModel message, int channelId);
-
         void DeleteMessage(int messageId);
+        void EditMessage(int messageId, string content);
     }
 }

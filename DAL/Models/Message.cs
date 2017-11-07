@@ -10,6 +10,7 @@ namespace DAL.Models
             ChannelBookmark = new HashSet<ChannelBookmark>();
             ChannelMessages = new HashSet<ChannelMessages>();
             ChatMessage = new HashSet<ChatMessage>();
+            MessageRevision = new HashSet<MessageRevision>();
             UserSavedMessage = new HashSet<UserSavedMessage>();
         }
 
@@ -21,10 +22,10 @@ namespace DAL.Models
         public DateTime CreationDate { get; set; }
 
         public User User { get; set; }
-        public MessageRevision MessageRevision { get; set; }
         public ICollection<ChannelBookmark> ChannelBookmark { get; set; }
         public ICollection<ChannelMessages> ChannelMessages { get; set; }
         public ICollection<ChatMessage> ChatMessage { get; set; }
+        public ICollection<MessageRevision> MessageRevision { get; set; }
         public ICollection<UserSavedMessage> UserSavedMessage { get; set; }
     }
 }

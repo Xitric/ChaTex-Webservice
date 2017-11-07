@@ -193,19 +193,17 @@ namespace DAL.Models
 
             modelBuilder.Entity<MessageRevision>(entity =>
             {
-                entity.HasKey(e => e.MessageId);
+                entity.HasKey(e => new { e.MessageId, e.EditDate });
 
-                entity.Property(e => e.MessageId).ValueGeneratedNever();
+                entity.Property(e => e.EditDate).HasColumnType("datetime");
 
                 entity.Property(e => e.Content)
                     .IsRequired()
                     .HasMaxLength(300);
 
-                entity.Property(e => e.EditDate).HasColumnType("datetime");
-
                 entity.HasOne(d => d.Message)
-                    .WithOne(p => p.MessageRevision)
-                    .HasForeignKey<MessageRevision>(d => d.MessageId)
+                    .WithMany(p => p.MessageRevision)
+                    .HasForeignKey(d => d.MessageId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_MessageRevision_Message");
             });
