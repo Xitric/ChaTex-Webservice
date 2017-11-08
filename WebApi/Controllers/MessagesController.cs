@@ -265,7 +265,6 @@ namespace WebAPI.Controllers
                 }
             }
         }
-
         /// <summary>
         /// Edit a message
         /// </summary>
