@@ -51,17 +51,20 @@ namespace Business.Messages
                 .Any();
         }
 
+        /// <exception cref="ArgumentException">The channel with the specified id does not exist, or the caller does not have access to the specified channel</exception>
         public IEnumerable<MessageModel> GetMessages(int channelId, int callerId, int from, int count)
         {
-            if (IsUserInChannel(callerId, channelId))
+            bool hasAccess = IsUserInChannel(callerId, channelId);
+
+            if (!hasAccess)
             {
-                //This should be threadsafe
-                IEnumerable<MessageModel> messages = messageRepository.GetMessages(channelId, from, count);
-                CensorMessages(messages);
-                return messages;
+                throw new ArgumentException("User does not have access to the specified channel", "callerId");
             }
 
-            return new List<MessageModel>();
+            //This should be threadsafe
+            IEnumerable<MessageModel> messages = messageRepository.GetMessages(channelId, from, count);
+            CensorMessages(messages);
+            return messages;
         }
 
         /// <exception cref="ArgumentException">The channel with the specified id does not exist, or the caller does not have access to the specified channel</exception>
@@ -155,7 +158,7 @@ namespace Business.Messages
             if (message.DeletionTime != null) message.Content = "";
             if (message == null)
             {
-                throw new Exception("Message does not exist in the database");
+                throw new ArgumentException("Message does not exist in the database", "messageId");
             }
             if (IsUserInChannel(callerId, message.ChannelId))
             {
@@ -163,7 +166,7 @@ namespace Business.Messages
             }
             else
             {
-                throw new Exception("Message couldnt be retrived because the user isnt in the channel group");
+                throw new ArgumentException("Message couldnt be retrieved because the user isnt in the channel group", "callerId");
             }
         }
 

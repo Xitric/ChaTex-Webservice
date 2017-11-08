@@ -68,13 +68,30 @@ namespace WebAPI.Controllers
 
             if (channelId == null)
             {
-                return StatusCode(404);
+                return BadRequest("Channel id must be specified");
             }
 
-            IEnumerable<GetMessageDTO> messages = messageManager.GetMessages((int)channelId, userId, (int)fromIndex, (int)count)
+            try
+            {
+                IEnumerable<GetMessageDTO> messages = messageManager.GetMessages((int)channelId, userId, (int)fromIndex, (int)count)
                 .Select(m => MessageMapper.MapMessageToGetMessageDTO(m, userId));
 
-            return new ObjectResult(messages);
+                return new ObjectResult(messages);
+            }
+            catch (ArgumentException e)
+            {
+                switch (e.ParamName)
+                {
+                    case "callerId":
+                        //Caller was not authorized
+                        return new StatusCodeResult(401);
+                    case "channelId":
+                        return NotFound($"The channel with id {channelId} was not found");
+                    default:
+                        //Some unexpected exception
+                        throw;
+                }
+            }
         }
 
         /// <summary>
@@ -95,7 +112,7 @@ namespace WebAPI.Controllers
             int userId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
             if (messageId == null)
             {
-                return StatusCode(404);
+                return BadRequest("Message id must be specified");
             }
             try
             {
@@ -103,9 +120,19 @@ namespace WebAPI.Controllers
                 return new ObjectResult(message);
             }
 
-            catch (Exception)
+            catch (ArgumentException e)
             {
-                return StatusCode(404);
+                switch (e.ParamName)
+                {
+                    case "callerId":
+                        //Caller was not authorized
+                        return new StatusCodeResult(401);
+                    case "messageId":
+                        return NotFound($"The message with id {messageId} was not found");
+                    default:
+                        //Some unexpected exception
+                        throw;
+                }
             }
 
         }
@@ -130,13 +157,13 @@ namespace WebAPI.Controllers
 
             if (channelId == null || since == null)
             {
-                return StatusCode(404);
+                return BadRequest("Channel id and date must be specified");
             }
 
             try
             {
                 IEnumerable<MessageEventModel> messageEvents = messageManager.GetMessageEvents((int)channelId, userId, (DateTime)since, cancellation);
-                if (messageEvents == null) return StatusCode(404);
+                if (messageEvents == null) return NoContent(); //The client canceled the request
 
                 IEnumerable<MessageEventDTO> messageEventDTO = messageEvents.Select(me => MessageMapper.MapMessageEventToMessageEventDTO(me, userId));
                 return new ObjectResult(messageEventDTO);
@@ -168,19 +195,19 @@ namespace WebAPI.Controllers
         [Route("/1.0.0/channels/{channelId}/messages")]
         [SwaggerOperation("CreateMessage")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual StatusCodeResult CreateMessage([FromRoute]int? channelId, [FromBody]MessageContentDTO messageContentDTO)
+        public virtual IActionResult CreateMessage([FromRoute]int? channelId, [FromBody]MessageContentDTO messageContentDTO)
         {
             int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
             if (channelId == null || String.IsNullOrEmpty(messageContentDTO.Message))
             {
-                return StatusCode(404);
+                return BadRequest("Channel id and message content must be specified");
             }
 
             try
             {
                 messageManager.CreateMessage((int)userId, (int)channelId, messageContentDTO.Message);
-                return StatusCode(204);
+                return NoContent();
             }
             catch (ArgumentException e)
             {
@@ -209,18 +236,18 @@ namespace WebAPI.Controllers
         [Route("/1.0.0/messages/{messageId}")]
         [SwaggerOperation("DeleteMessage")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual StatusCodeResult DeleteMessage([FromRoute]int? messageId)
+        public virtual IActionResult DeleteMessage([FromRoute]int? messageId)
         {
             int userId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
             if (messageId == null)
             {
-                return StatusCode(404);
+                return BadRequest("Message id must be specified");
             }
 
             try
             {
                 messageManager.DeleteMessage(userId, (int)messageId);
-                return StatusCode(204);
+                return NoContent();
             }
             catch (ArgumentException e)
             {
@@ -231,7 +258,7 @@ namespace WebAPI.Controllers
                         return new StatusCodeResult(401);
                     case "messageId":
                         //Message was unknown
-                        return new StatusCodeResult(404);
+                        return NotFound($"The message with id {messageId} was not found");
                     default:
                         //Some unexpected exception
                         throw;
@@ -252,18 +279,18 @@ namespace WebAPI.Controllers
         [Route("/1.0.0/messages/{messageId}")]
         [SwaggerOperation("EditMessage")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual StatusCodeResult EditMessage([FromRoute]int? messageId, [FromBody]string newContent)
+        public virtual IActionResult EditMessage([FromRoute]int? messageId, [FromBody]string newContent)
         {
             int userId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
             if (messageId == null || String.IsNullOrEmpty(newContent))
             {
-                return StatusCode(404);
+                return BadRequest($"Message id and message content must be specified!");
             }
 
             try
             {
                 messageManager.EditMessage(userId, (int)messageId, newContent);
-                return StatusCode(204);
+                return NoContent();
             }
             catch (ArgumentException e)
             {
@@ -274,7 +301,7 @@ namespace WebAPI.Controllers
                         return new StatusCodeResult(401);
                     case "messageId":
                         //Message was unknown
-                        return new StatusCodeResult(404);
+                        return NotFound($"The message with id {messageId} was not found");
                     default:
                         //Some unexpected exception
                         throw;

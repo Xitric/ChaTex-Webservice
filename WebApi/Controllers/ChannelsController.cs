@@ -56,7 +56,7 @@ namespace IO.Swagger.Controllers
         [Route("/1.0.0/groups/{groupId}/channels")]
         [SwaggerOperation("CreateChannel")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual StatusCodeResult CreateChannel([FromRoute]int? groupId, [FromBody]CreateChannelDTO createChannelDTO)
+        public virtual IActionResult CreateChannel([FromRoute]int? groupId, [FromBody]CreateChannelDTO createChannelDTO)
         {
             int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
@@ -92,7 +92,7 @@ namespace IO.Swagger.Controllers
         [Route("/1.0.0/channels/{channelId}")]
         [SwaggerOperation("DeleteChannel")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual StatusCodeResult DeleteChannel([FromRoute]int? channelId) {
+        public virtual IActionResult DeleteChannel([FromRoute]int? channelId) {
             int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
             if (channelId == null)
@@ -118,7 +118,7 @@ namespace IO.Swagger.Controllers
         [Route("/1.0.0/channels/{channelId}")]
         [SwaggerOperation("UpdateChannel")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual StatusCodeResult UpdateChannel([FromRoute]int? channelId, [FromQuery]string channelName)
+        public virtual IActionResult UpdateChannel([FromRoute]int? channelId, [FromQuery]string channelName)
         {
             if (channelId == null || String.IsNullOrEmpty(channelName))
             {

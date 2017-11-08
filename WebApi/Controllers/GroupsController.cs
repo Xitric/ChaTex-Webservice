@@ -122,7 +122,7 @@ namespace WebAPI.Controllers
         [Route("/1.0.0/groups/{groupId}")]
         [SwaggerOperation("DeleteGroup")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual StatusCodeResult DeleteGroup([FromRoute]int? groupId)
+        public virtual IActionResult DeleteGroup([FromRoute]int? groupId)
         {
             int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
             
@@ -219,7 +219,7 @@ namespace WebAPI.Controllers
         [Route("/1.0.0/groups/roles")]
         [SwaggerOperation("AddRolesToGroup")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual StatusCodeResult AddRolesToGroup([FromBody]AddRolesToGroupDTO addRolesToGroupDTO)
+        public virtual IActionResult AddRolesToGroup([FromBody]AddRolesToGroupDTO addRolesToGroupDTO)
         {
             int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
@@ -251,7 +251,7 @@ namespace WebAPI.Controllers
         [Route("/1.0.0/groups/roles")]
         [SwaggerOperation("DeleteRolesFromGroup")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual StatusCodeResult DeleteRolesFromGroup([FromQuery]int? groupId, [FromBody]List<int?> roleIds)
+        public virtual IActionResult DeleteRolesFromGroup([FromQuery]int? groupId, [FromBody]List<int?> roleIds)
         {
             int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
@@ -284,7 +284,7 @@ namespace WebAPI.Controllers
         [Route("/1.0.0/groups/{groupId}/{userId}")]
         [SwaggerOperation("MarkUserAsAdministrator")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual StatusCodeResult MarkUserAsAdministrator([FromRoute]int? groupId, [FromRoute]int? userId, [FromQuery]bool? isAdministrator)
+        public virtual IActionResult MarkUserAsAdministrator([FromRoute]int? groupId, [FromRoute]int? userId, [FromQuery]bool? isAdministrator)
         {
             int? loggedInUserId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
@@ -316,7 +316,7 @@ namespace WebAPI.Controllers
         [Route("/1.0.0/groups/{groupId}")]
         [SwaggerOperation("UpdateGroup")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual StatusCodeResult UpdateGroup([FromRoute]int? groupId, [FromQuery]string groupName)
+        public virtual IActionResult UpdateGroup([FromRoute]int? groupId, [FromQuery]string groupName)
          {
             int? loggedInUserId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
