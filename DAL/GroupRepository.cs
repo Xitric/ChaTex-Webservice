@@ -133,6 +133,14 @@ namespace DAL
             }
         }
 
+        public IEnumerable<UserModel> GetAllGroupAdmins(int groupId) {
+            using (var db = new ChatexdbContext())
+            {
+                // TODO
+                return null;
+            }
+        }
+
         public IEnumerable<GroupModel> GetGroupsForUser(int userId)
         {
             using (var context = new ChatexdbContext())

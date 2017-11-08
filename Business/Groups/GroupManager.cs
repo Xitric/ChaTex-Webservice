@@ -201,6 +201,20 @@ namespace Business.Groups
             }
         }
 
+        public IEnumerable<UserModel> GetAllGroupAdmins(int groupId, int callerId) {
+
+            var loggedInUserInGroupUser = groupRepository.GetGroupUser(groupId, callerId);
+
+            if (loggedInUserInGroupUser != null)
+            {
+                return groupRepository.GetAllGroupAdmins(groupId);
+            }
+            else
+            {
+                throw new Exception("Failed to get all group admins");
+            }
+        }
+
         public IEnumerable<GroupModel> GetGroupsForUser(int userId)
         {
             return groupRepository.GetGroupsForUser(userId);

@@ -79,6 +79,37 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
+        /// Get admins for a group
+        /// </summary>
+        /// <remarks>Get administrators for the group specified</remarks>
+        /// <param name="groupId"></param>
+        /// <response code="200">Successfully retrieved all the groupadmins</response>
+        /// <response code="401">The user was not authorized to access this resource</response>
+        /// <response code="404">No group with the specified id was found</response>
+        [HttpGet]
+        [Route("/1.0.0/groups/{groupId}/admins")]
+        [SwaggerOperation("GetAllGroupAdmins")]
+        [SwaggerResponse(200, type: typeof(List<UserDTO>))]
+        public virtual IActionResult GetAllGroupAdmins([FromRoute]int? groupId) {
+            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+
+            if (groupId == null)
+            {
+                return StatusCode(404);
+            }
+            try
+            {
+                IEnumerable<UserModel> admins = groupManager.GetAllGroupAdmins((int)groupId, (int)userId);
+                IEnumerable<UserDTO> dtoResponse = admins.Select(x => UserMapper.MapUserToUserDTO(x, (int)userId));
+                return new ObjectResult(dtoResponse);
+            }
+            catch (Exception)
+            {
+                return StatusCode(401);
+            }
+        }
+
+        /// <summary>
         /// Get users for a group
         /// </summary>
         /// <remarks>Get users, taking into account members and roles on the group</remarks>
