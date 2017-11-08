@@ -136,8 +136,12 @@ namespace DAL
         public IEnumerable<UserModel> GetAllGroupAdmins(int groupId) {
             using (var db = new ChatexdbContext())
             {
-                // TODO
-                return null;
+                List<UserModel> userMatchingAdmin = db.GroupUser
+                    .Where(i => i.GroupId == groupId && i.IsAdministrator == true)
+                    .Select(x => UserMapper.MapUserEntityToModel(x.User))
+                    .ToList();
+
+                return userMatchingAdmin;
             }
         }
 
