@@ -118,7 +118,7 @@ namespace IO.Swagger.Controllers
         [Route("/1.0.0/channels/{channelId}")]
         [SwaggerOperation("UpdateChannel")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual IActionResult UpdateChannel([FromRoute]int? channelId, [FromQuery]string channelName)
+        public virtual IActionResult IActionResult([FromRoute]int? channelId, [FromBody]string channelName)
         {
             if (channelId == null || String.IsNullOrEmpty(channelName))
             {
@@ -130,7 +130,6 @@ namespace IO.Swagger.Controllers
             channelManager.UpdateChannel((int)userId, (int)channelId, channelName);
 
             return StatusCode(204);
-
         }
     }
 }

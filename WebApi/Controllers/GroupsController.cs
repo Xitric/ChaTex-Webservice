@@ -270,6 +270,7 @@ namespace WebAPI.Controllers
             return StatusCode(200);
         }
 
+
         /// <summary>
         /// Mark or unmark a user as administrator
         /// </summary>
@@ -277,15 +278,15 @@ namespace WebAPI.Controllers
         /// <param name="groupId">The id of the group to affect</param>
         /// <param name="userId">The id of the user to mark or unmark</param>
         /// <param name="isAdministrator">true to mark the user as group administrator, false to unmark</param>
-        /// <response code="200">User marked or unmarked successfully</response>
+        /// <response code="204">User marked or unmarked successfully</response>
         /// <response code="401">The user was not authorized to access this resource</response>
         /// <response code="404">No group or group user with the specified ids were found</response>
         [HttpPut]
         [Route("/1.0.0/groups/{groupId}/{userId}")]
         [SwaggerOperation("MarkUserAsAdministrator")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual IActionResult MarkUserAsAdministrator([FromRoute]int? groupId, [FromRoute]int? userId, [FromQuery]bool? isAdministrator)
-        {
+        public virtual IActionResult MarkUserAsAdministrator([FromRoute]int? groupId, [FromRoute]int? userId, [FromBody]bool? isAdministrator)
+       {
             int? loggedInUserId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
             if (groupId == null || loggedInUserId == null || userId == null || isAdministrator == null)
@@ -316,7 +317,7 @@ namespace WebAPI.Controllers
         [Route("/1.0.0/groups/{groupId}")]
         [SwaggerOperation("UpdateGroup")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual IActionResult UpdateGroup([FromRoute]int? groupId, [FromQuery]string groupName)
+        public virtual IActionResult UpdateGroup([FromRoute]int? groupId, [FromBody]string groupName)
          {
             int? loggedInUserId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
