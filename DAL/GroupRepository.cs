@@ -150,10 +150,21 @@ namespace DAL
                         .Contains(gr.RoleId))
                     .Select(gr => gr.Group);
 
-                return groupsUser.Union(groupsRole)
-                    .Where(g => g.IsDeleted == false)
-                    .Include(g => g.Channel)
-                    .Select(g => GroupMapper.MapGroupEntityToModel(g))
+                IQueryable<Group> unionGroups = groupsUser.Union(groupsRole)
+                    .Where(g => g.IsDeleted == false);
+
+                //Load and track only those channels that are not deleted
+                foreach (Group group in unionGroups)
+                {
+                    context.Entry(group)
+                    .Collection(g => g.Channel)
+                    .Query()
+                    .Where(c => c.IsDeleted == false)
+                    .ToList();
+                }
+
+                //Convert to group models
+                return unionGroups.Select(g => GroupMapper.MapGroupEntityToModel(g))
                     .ToList();
             }
         }
