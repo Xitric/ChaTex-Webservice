@@ -30,7 +30,7 @@ using System.Collections.ObjectModel;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
-namespace WebAPI.Models
+namespace IO.Swagger.Models
 {
     /// <summary>
     /// 
@@ -41,26 +41,26 @@ namespace WebAPI.Models
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateChannelDTO" /> class.
         /// </summary>
-        /// <param name="ChannelName">ChannelName (required).</param>
-        public CreateChannelDTO(string ChannelName = null)
+        /// <param name="Name">Name (required).</param>
+        public CreateChannelDTO(string Name = null)
         {
-            // to ensure "ChannelName" is required (not null)
-            if (ChannelName == null)
+            // to ensure "Name" is required (not null)
+            if (Name == null)
             {
-                throw new InvalidDataException("ChannelName is a required property for CreateChannelDTO and cannot be null");
+                throw new InvalidDataException("Name is a required property for CreateChannelDTO and cannot be null");
             }
             else
             {
-                this.ChannelName = ChannelName;
+                this.Name = Name;
             }
             
         }
 
         /// <summary>
-        /// Gets or Sets ChannelName
+        /// Gets or Sets Name
         /// </summary>
-        [DataMember(Name="channelName")]
-        public string ChannelName { get; set; }
+        [DataMember(Name="name")]
+        public string Name { get; set; }
 
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace WebAPI.Models
         {
             var sb = new StringBuilder();
             sb.Append("class CreateChannelDTO {\n");
-            sb.Append("  ChannelName: ").Append(ChannelName).Append("\n");
+            sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -111,9 +111,9 @@ namespace WebAPI.Models
 
             return 
                 (
-                    this.ChannelName == other.ChannelName ||
-                    this.ChannelName != null &&
-                    this.ChannelName.Equals(other.ChannelName)
+                    this.Name == other.Name ||
+                    this.Name != null &&
+                    this.Name.Equals(other.Name)
                 );
         }
 
@@ -128,8 +128,8 @@ namespace WebAPI.Models
             {
                 int hash = 41;
                 // Suitable nullity checks etc, of course :)
-                if (this.ChannelName != null)
-                    hash = hash * 59 + this.ChannelName.GetHashCode();
+                if (this.Name != null)
+                    hash = hash * 59 + this.Name.GetHashCode();
                 return hash;
             }
         }

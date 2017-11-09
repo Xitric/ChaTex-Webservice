@@ -36,47 +36,31 @@ namespace IO.Swagger.Models
     /// 
     /// </summary>
     [DataContract]
-    public partial class AddUsersToGroupDTO :  IEquatable<AddUsersToGroupDTO>
+    public partial class CreateChatDTO :  IEquatable<CreateChatDTO>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="AddUsersToGroupDTO" /> class.
+        /// Initializes a new instance of the <see cref="CreateChatDTO" /> class.
         /// </summary>
-        /// <param name="GroupId">GroupId (required).</param>
-        /// <param name="UserIds">UserIds (required).</param>
-        public AddUsersToGroupDTO(int? GroupId = null, List<int?> UserIds = null)
+        /// <param name="ChatName">ChatName (required).</param>
+        public CreateChatDTO(string ChatName = null)
         {
-            // to ensure "GroupId" is required (not null)
-            if (GroupId == null)
+            // to ensure "ChatName" is required (not null)
+            if (ChatName == null)
             {
-                throw new InvalidDataException("GroupId is a required property for AddUsersToGroupDTO and cannot be null");
+                throw new InvalidDataException("ChatName is a required property for CreateChatDTO and cannot be null");
             }
             else
             {
-                this.GroupId = GroupId;
-            }
-            // to ensure "UserIds" is required (not null)
-            if (UserIds == null)
-            {
-                throw new InvalidDataException("UserIds is a required property for AddUsersToGroupDTO and cannot be null");
-            }
-            else
-            {
-                this.UserIds = UserIds;
+                this.ChatName = ChatName;
             }
             
         }
 
         /// <summary>
-        /// Gets or Sets GroupId
+        /// Gets or Sets ChatName
         /// </summary>
-        [DataMember(Name="groupId")]
-        public int? GroupId { get; set; }
-
-        /// <summary>
-        /// Gets or Sets UserIds
-        /// </summary>
-        [DataMember(Name="userIds")]
-        public List<int?> UserIds { get; set; }
+        [DataMember(Name="chatName")]
+        public string ChatName { get; set; }
 
 
         /// <summary>
@@ -86,9 +70,8 @@ namespace IO.Swagger.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class AddUsersToGroupDTO {\n");
-            sb.Append("  GroupId: ").Append(GroupId).Append("\n");
-            sb.Append("  UserIds: ").Append(UserIds).Append("\n");
+            sb.Append("class CreateChatDTO {\n");
+            sb.Append("  ChatName: ").Append(ChatName).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -112,15 +95,15 @@ namespace IO.Swagger.Models
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((AddUsersToGroupDTO)obj);
+            return Equals((CreateChatDTO)obj);
         }
 
         /// <summary>
-        /// Returns true if AddUsersToGroupDTO instances are equal
+        /// Returns true if CreateChatDTO instances are equal
         /// </summary>
-        /// <param name="other">Instance of AddUsersToGroupDTO to be compared</param>
+        /// <param name="other">Instance of CreateChatDTO to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(AddUsersToGroupDTO other)
+        public bool Equals(CreateChatDTO other)
         {
 
             if (ReferenceEquals(null, other)) return false;
@@ -128,14 +111,9 @@ namespace IO.Swagger.Models
 
             return 
                 (
-                    this.GroupId == other.GroupId ||
-                    this.GroupId != null &&
-                    this.GroupId.Equals(other.GroupId)
-                ) && 
-                (
-                    this.UserIds == other.UserIds ||
-                    this.UserIds != null &&
-                    this.UserIds.SequenceEqual(other.UserIds)
+                    this.ChatName == other.ChatName ||
+                    this.ChatName != null &&
+                    this.ChatName.Equals(other.ChatName)
                 );
         }
 
@@ -150,22 +128,20 @@ namespace IO.Swagger.Models
             {
                 int hash = 41;
                 // Suitable nullity checks etc, of course :)
-                if (this.GroupId != null)
-                    hash = hash * 59 + this.GroupId.GetHashCode();
-                if (this.UserIds != null)
-                    hash = hash * 59 + this.UserIds.GetHashCode();
+                if (this.ChatName != null)
+                    hash = hash * 59 + this.ChatName.GetHashCode();
                 return hash;
             }
         }
 
         #region Operators
 
-        public static bool operator ==(AddUsersToGroupDTO left, AddUsersToGroupDTO right)
+        public static bool operator ==(CreateChatDTO left, CreateChatDTO right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(AddUsersToGroupDTO left, AddUsersToGroupDTO right)
+        public static bool operator !=(CreateChatDTO left, CreateChatDTO right)
         {
             return !Equals(left, right);
         }

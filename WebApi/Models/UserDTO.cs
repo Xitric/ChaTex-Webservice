@@ -21,12 +21,16 @@
  */
 
 using System;
+using System.Linq;
 using System.IO;
 using System.Text;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
-namespace WebAPI.Models
+namespace IO.Swagger.Models
 {
     /// <summary>
     /// 
@@ -39,11 +43,12 @@ namespace WebAPI.Models
         /// </summary>
         /// <param name="Id">Id (required).</param>
         /// <param name="FirstName">FirstName (required).</param>
-        /// <param name="MiddleInitial">MiddleInitial.</param>
+        /// <param name="MiddleInitial">MiddleInitial (required).</param>
         /// <param name="LastName">LastName (required).</param>
         /// <param name="Email">Email (required).</param>
         /// <param name="Me">Me (required).</param>
-        public UserDTO(int? Id = null, string FirstName = null, string MiddleInitial = null, string LastName = null, string Email = null, bool? Me = null)
+        /// <param name="IsDeleted">IsDeleted.</param>
+        public UserDTO(int? Id = null, string FirstName = null, string MiddleInitial = null, string LastName = null, string Email = null, bool? Me = null, bool? IsDeleted = null)
         {
             // to ensure "Id" is required (not null)
             if (Id == null)
@@ -62,6 +67,15 @@ namespace WebAPI.Models
             else
             {
                 this.FirstName = FirstName;
+            }
+            // to ensure "MiddleInitial" is required (not null)
+            if (MiddleInitial == null)
+            {
+                throw new InvalidDataException("MiddleInitial is a required property for UserDTO and cannot be null");
+            }
+            else
+            {
+                this.MiddleInitial = MiddleInitial;
             }
             // to ensure "LastName" is required (not null)
             if (LastName == null)
@@ -90,7 +104,7 @@ namespace WebAPI.Models
             {
                 this.Me = Me;
             }
-            this.MiddleInitial = MiddleInitial;
+            this.IsDeleted = IsDeleted;
             
         }
 
@@ -130,6 +144,12 @@ namespace WebAPI.Models
         [DataMember(Name="Me")]
         public bool? Me { get; set; }
 
+        /// <summary>
+        /// Gets or Sets IsDeleted
+        /// </summary>
+        [DataMember(Name="IsDeleted")]
+        public bool? IsDeleted { get; set; }
+
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -145,6 +165,7 @@ namespace WebAPI.Models
             sb.Append("  LastName: ").Append(LastName).Append("\n");
             sb.Append("  Email: ").Append(Email).Append("\n");
             sb.Append("  Me: ").Append(Me).Append("\n");
+            sb.Append("  IsDeleted: ").Append(IsDeleted).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -212,6 +233,11 @@ namespace WebAPI.Models
                     this.Me == other.Me ||
                     this.Me != null &&
                     this.Me.Equals(other.Me)
+                ) && 
+                (
+                    this.IsDeleted == other.IsDeleted ||
+                    this.IsDeleted != null &&
+                    this.IsDeleted.Equals(other.IsDeleted)
                 );
         }
 
@@ -238,6 +264,8 @@ namespace WebAPI.Models
                     hash = hash * 59 + this.Email.GetHashCode();
                 if (this.Me != null)
                     hash = hash * 59 + this.Me.GetHashCode();
+                if (this.IsDeleted != null)
+                    hash = hash * 59 + this.IsDeleted.GetHashCode();
                 return hash;
             }
         }

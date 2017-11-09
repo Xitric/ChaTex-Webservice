@@ -1,4 +1,5 @@
 ﻿using Business.Models;
+using IO.Swagger.Models;
 
 namespace WebAPI.Models.Mappers
 {

@@ -21,12 +21,16 @@
  */
 
 using System;
+using System.Linq;
 using System.IO;
 using System.Text;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
-namespace WebAPI.Models
+namespace IO.Swagger.Models
 {
     /// <summary>
     /// 
@@ -39,12 +43,12 @@ namespace WebAPI.Models
         /// </summary>
         /// <param name="Id">Id (required).</param>
         /// <param name="Name">Name (required).</param>
-        public ChannelDTO(long? Id = null, string Name = null)
+        public ChannelDTO(int? Id = null, string Name = null)
         {
             // to ensure "Id" is required (not null)
             if (Id == null)
             {
-                throw new InvalidDataException("Id is a required property for Channel and cannot be null");
+                throw new InvalidDataException("Id is a required property for ChannelDTO and cannot be null");
             }
             else
             {
@@ -53,7 +57,7 @@ namespace WebAPI.Models
             // to ensure "Name" is required (not null)
             if (Name == null)
             {
-                throw new InvalidDataException("Name is a required property for Channel and cannot be null");
+                throw new InvalidDataException("Name is a required property for ChannelDTO and cannot be null");
             }
             else
             {
@@ -66,7 +70,7 @@ namespace WebAPI.Models
         /// Gets or Sets Id
         /// </summary>
         [DataMember(Name="Id")]
-        public long? Id { get; set; }
+        public int? Id { get; set; }
 
         /// <summary>
         /// Gets or Sets Name
@@ -82,7 +86,7 @@ namespace WebAPI.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class Channel {\n");
+            sb.Append("class ChannelDTO {\n");
             sb.Append("  Id: ").Append(Id).Append("\n");
             sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("}\n");
@@ -112,9 +116,9 @@ namespace WebAPI.Models
         }
 
         /// <summary>
-        /// Returns true if Channel instances are equal
+        /// Returns true if ChannelDTO instances are equal
         /// </summary>
-        /// <param name="other">Instance of Channel to be compared</param>
+        /// <param name="other">Instance of ChannelDTO to be compared</param>
         /// <returns>Boolean</returns>
         public bool Equals(ChannelDTO other)
         {

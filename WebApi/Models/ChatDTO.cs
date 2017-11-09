@@ -36,47 +36,55 @@ namespace IO.Swagger.Models
     /// 
     /// </summary>
     [DataContract]
-    public partial class AddUsersToGroupDTO :  IEquatable<AddUsersToGroupDTO>
+    public partial class ChatDTO :  IEquatable<ChatDTO>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="AddUsersToGroupDTO" /> class.
+        /// Initializes a new instance of the <see cref="ChatDTO" /> class.
         /// </summary>
-        /// <param name="GroupId">GroupId (required).</param>
-        /// <param name="UserIds">UserIds (required).</param>
-        public AddUsersToGroupDTO(int? GroupId = null, List<int?> UserIds = null)
+        /// <param name="Id">Id (required).</param>
+        /// <param name="Name">Name (required).</param>
+        /// <param name="Users">Users.</param>
+        public ChatDTO(int? Id = null, string Name = null, List<UserDTO> Users = null)
         {
-            // to ensure "GroupId" is required (not null)
-            if (GroupId == null)
+            // to ensure "Id" is required (not null)
+            if (Id == null)
             {
-                throw new InvalidDataException("GroupId is a required property for AddUsersToGroupDTO and cannot be null");
+                throw new InvalidDataException("Id is a required property for ChatDTO and cannot be null");
             }
             else
             {
-                this.GroupId = GroupId;
+                this.Id = Id;
             }
-            // to ensure "UserIds" is required (not null)
-            if (UserIds == null)
+            // to ensure "Name" is required (not null)
+            if (Name == null)
             {
-                throw new InvalidDataException("UserIds is a required property for AddUsersToGroupDTO and cannot be null");
+                throw new InvalidDataException("Name is a required property for ChatDTO and cannot be null");
             }
             else
             {
-                this.UserIds = UserIds;
+                this.Name = Name;
             }
+            this.Users = Users;
             
         }
 
         /// <summary>
-        /// Gets or Sets GroupId
+        /// Gets or Sets Id
         /// </summary>
-        [DataMember(Name="groupId")]
-        public int? GroupId { get; set; }
+        [DataMember(Name="Id")]
+        public int? Id { get; set; }
 
         /// <summary>
-        /// Gets or Sets UserIds
+        /// Gets or Sets Name
         /// </summary>
-        [DataMember(Name="userIds")]
-        public List<int?> UserIds { get; set; }
+        [DataMember(Name="Name")]
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Gets or Sets Users
+        /// </summary>
+        [DataMember(Name="Users")]
+        public List<UserDTO> Users { get; set; }
 
 
         /// <summary>
@@ -86,9 +94,10 @@ namespace IO.Swagger.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class AddUsersToGroupDTO {\n");
-            sb.Append("  GroupId: ").Append(GroupId).Append("\n");
-            sb.Append("  UserIds: ").Append(UserIds).Append("\n");
+            sb.Append("class ChatDTO {\n");
+            sb.Append("  Id: ").Append(Id).Append("\n");
+            sb.Append("  Name: ").Append(Name).Append("\n");
+            sb.Append("  Users: ").Append(Users).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -112,15 +121,15 @@ namespace IO.Swagger.Models
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((AddUsersToGroupDTO)obj);
+            return Equals((ChatDTO)obj);
         }
 
         /// <summary>
-        /// Returns true if AddUsersToGroupDTO instances are equal
+        /// Returns true if ChatDTO instances are equal
         /// </summary>
-        /// <param name="other">Instance of AddUsersToGroupDTO to be compared</param>
+        /// <param name="other">Instance of ChatDTO to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(AddUsersToGroupDTO other)
+        public bool Equals(ChatDTO other)
         {
 
             if (ReferenceEquals(null, other)) return false;
@@ -128,14 +137,19 @@ namespace IO.Swagger.Models
 
             return 
                 (
-                    this.GroupId == other.GroupId ||
-                    this.GroupId != null &&
-                    this.GroupId.Equals(other.GroupId)
+                    this.Id == other.Id ||
+                    this.Id != null &&
+                    this.Id.Equals(other.Id)
                 ) && 
                 (
-                    this.UserIds == other.UserIds ||
-                    this.UserIds != null &&
-                    this.UserIds.SequenceEqual(other.UserIds)
+                    this.Name == other.Name ||
+                    this.Name != null &&
+                    this.Name.Equals(other.Name)
+                ) && 
+                (
+                    this.Users == other.Users ||
+                    this.Users != null &&
+                    this.Users.SequenceEqual(other.Users)
                 );
         }
 
@@ -150,22 +164,24 @@ namespace IO.Swagger.Models
             {
                 int hash = 41;
                 // Suitable nullity checks etc, of course :)
-                if (this.GroupId != null)
-                    hash = hash * 59 + this.GroupId.GetHashCode();
-                if (this.UserIds != null)
-                    hash = hash * 59 + this.UserIds.GetHashCode();
+                if (this.Id != null)
+                    hash = hash * 59 + this.Id.GetHashCode();
+                if (this.Name != null)
+                    hash = hash * 59 + this.Name.GetHashCode();
+                if (this.Users != null)
+                    hash = hash * 59 + this.Users.GetHashCode();
                 return hash;
             }
         }
 
         #region Operators
 
-        public static bool operator ==(AddUsersToGroupDTO left, AddUsersToGroupDTO right)
+        public static bool operator ==(ChatDTO left, ChatDTO right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(AddUsersToGroupDTO left, AddUsersToGroupDTO right)
+        public static bool operator !=(ChatDTO left, ChatDTO right)
         {
             return !Equals(left, right);
         }
