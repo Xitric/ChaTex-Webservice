@@ -27,6 +27,7 @@ using WebAPI.Authentication;
 using Business.Channels;
 using WebAPI.Models;
 using System;
+using IO.Swagger.Models;
 
 namespace IO.Swagger.Controllers
 {
@@ -65,12 +66,12 @@ namespace IO.Swagger.Controllers
                 return StatusCode(404);
             }
 
-            if (createChannelDTO.ChannelName == null)
+            if (createChannelDTO.Name == null)
             {
                 return StatusCode(400);
             }
 
-            bool success = channelManager.CreateChannel((int)groupId, (int)userId, createChannelDTO.ChannelName);
+            bool success = channelManager.CreateChannel((int)groupId, (int)userId, createChannelDTO.Name);
 
             if (!success)
             {

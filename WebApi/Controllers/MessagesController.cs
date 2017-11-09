@@ -31,6 +31,7 @@ using WebAPI.Models.Mappers;
 using System;
 using Business.Models;
 using System.Threading;
+using IO.Swagger.Models;
 
 namespace WebAPI.Controllers
 {

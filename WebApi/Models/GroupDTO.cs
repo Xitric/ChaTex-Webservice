@@ -24,11 +24,13 @@ using System;
 using System.Linq;
 using System.IO;
 using System.Text;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
-namespace WebAPI.Models
+namespace IO.Swagger.Models
 {
     /// <summary>
     /// 
@@ -42,12 +44,12 @@ namespace WebAPI.Models
         /// <param name="Id">Id (required).</param>
         /// <param name="Name">Name (required).</param>
         /// <param name="Channels">Channels.</param>
-        public GroupDTO(long? Id = null, string Name = null, List<ChannelDTO> Channels = null)
+        public GroupDTO(int? Id = null, string Name = null, List<ChannelDTO> Channels = null)
         {
             // to ensure "Id" is required (not null)
             if (Id == null)
             {
-                throw new InvalidDataException("Id is a required property for Group and cannot be null");
+                throw new InvalidDataException("Id is a required property for GroupDTO and cannot be null");
             }
             else
             {
@@ -56,7 +58,7 @@ namespace WebAPI.Models
             // to ensure "Name" is required (not null)
             if (Name == null)
             {
-                throw new InvalidDataException("Name is a required property for Group and cannot be null");
+                throw new InvalidDataException("Name is a required property for GroupDTO and cannot be null");
             }
             else
             {
@@ -70,7 +72,7 @@ namespace WebAPI.Models
         /// Gets or Sets Id
         /// </summary>
         [DataMember(Name="Id")]
-        public long? Id { get; set; }
+        public int? Id { get; set; }
 
         /// <summary>
         /// Gets or Sets Name
@@ -92,7 +94,7 @@ namespace WebAPI.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class Group {\n");
+            sb.Append("class GroupDTO {\n");
             sb.Append("  Id: ").Append(Id).Append("\n");
             sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("  Channels: ").Append(Channels).Append("\n");
@@ -123,9 +125,9 @@ namespace WebAPI.Models
         }
 
         /// <summary>
-        /// Returns true if Group instances are equal
+        /// Returns true if GroupDTO instances are equal
         /// </summary>
-        /// <param name="other">Instance of Group to be compared</param>
+        /// <param name="other">Instance of GroupDTO to be compared</param>
         /// <returns>Boolean</returns>
         public bool Equals(GroupDTO other)
         {

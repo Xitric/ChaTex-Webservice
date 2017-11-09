@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using WebAPI.Models;
 using WebAPI.Models.Mappers;
 using Business.Models;
+using IO.Swagger.Models;
 
 namespace WebAPI.Controllers
 {

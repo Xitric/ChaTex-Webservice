@@ -1,5 +1,6 @@
 ﻿using Business.Authentication;
 using Business.Channels;
+using Business.Chats;
 using Business.Groups;
 using Business.Messages;
 using Business.Roles;
@@ -17,6 +18,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IChannelManager, ChannelManager>();
             services.AddSingleton<IAuthenticator, Authenticator>();
             services.AddSingleton<IRoleManager, RoleManager>();
+            services.AddSingleton<IChatManager, ChatManager>();
             services.AddSingleton<Authenticator>();
             return services;
         }
