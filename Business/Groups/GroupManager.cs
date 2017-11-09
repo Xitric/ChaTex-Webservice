@@ -33,7 +33,7 @@ namespace Business.Groups
             }
             else
             {
-                throw new Exception("The user was not authorized to add users to the group");
+                throw new ArgumentException("The user was not authorized to add users to the group", "loggedInUserId");
             }
         }
 
@@ -108,7 +108,7 @@ namespace Business.Groups
             }
             else
             {
-                throw new Exception("The user was not authorized to remove users to the group");
+                throw new ArgumentException("The user was not authorized to remove users to the group", "loggedInUserId");
             }
         }
 
@@ -132,7 +132,7 @@ namespace Business.Groups
             }
             else
             {
-                throw new Exception("The user was not authorized to add roles to the group");
+                throw new ArgumentException("The user was not authorized to add roles to the group", "callerId");
             }
 
         }
@@ -157,7 +157,7 @@ namespace Business.Groups
             }
             else
             {
-                throw new Exception("The user was not authorized to remove roles from the group");
+                throw new ArgumentException("The user was not authorized to remove roles from the group", "callerId");
             }
         }
 
@@ -183,7 +183,7 @@ namespace Business.Groups
             }
             else
             {
-                throw new Exception("The user was not authorized to change administrator");
+                throw new ArgumentException("The user was not authorized to change administrator", "callerId");
             }
         }
 
@@ -197,7 +197,7 @@ namespace Business.Groups
             }
             else
             {
-                throw new Exception("Failed to get all group users");
+                throw new ArgumentException("Failed to get all group users", "callerId");
             }
         }
 
@@ -211,7 +211,7 @@ namespace Business.Groups
             }
             else
             {
-                throw new Exception("Failed to get all group admins");
+                throw new ArgumentException("Failed to get all group admins", "callerId");
             }
         }
 
