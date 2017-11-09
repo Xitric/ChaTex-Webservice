@@ -36,14 +36,14 @@ namespace IO.Swagger.Models
     /// 
     /// </summary>
     [DataContract]
-    public partial class UserDTO :  IEquatable<UserDTO>
+    public partial class UserDTO : IEquatable<UserDTO>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="UserDTO" /> class.
         /// </summary>
         /// <param name="Id">Id (required).</param>
         /// <param name="FirstName">FirstName (required).</param>
-        /// <param name="MiddleInitial">MiddleInitial (required).</param>
+        /// <param name="MiddleInitial">MiddleInitial.</param>
         /// <param name="LastName">LastName (required).</param>
         /// <param name="Email">Email (required).</param>
         /// <param name="Me">Me (required).</param>
@@ -68,15 +68,9 @@ namespace IO.Swagger.Models
             {
                 this.FirstName = FirstName;
             }
-            // to ensure "MiddleInitial" is required (not null)
-            if (MiddleInitial == null)
-            {
-                throw new InvalidDataException("MiddleInitial is a required property for UserDTO and cannot be null");
-            }
-            else
-            {
-                this.MiddleInitial = MiddleInitial;
-            }
+
+            this.MiddleInitial = MiddleInitial;
+
             // to ensure "LastName" is required (not null)
             if (LastName == null)
             {
@@ -105,49 +99,49 @@ namespace IO.Swagger.Models
                 this.Me = Me;
             }
             this.IsDeleted = IsDeleted;
-            
+
         }
 
         /// <summary>
         /// Gets or Sets Id
         /// </summary>
-        [DataMember(Name="Id")]
+        [DataMember(Name = "Id")]
         public int? Id { get; set; }
 
         /// <summary>
         /// Gets or Sets FirstName
         /// </summary>
-        [DataMember(Name="FirstName")]
+        [DataMember(Name = "FirstName")]
         public string FirstName { get; set; }
 
         /// <summary>
         /// Gets or Sets MiddleInitial
         /// </summary>
-        [DataMember(Name="MiddleInitial")]
+        [DataMember(Name = "MiddleInitial")]
         public string MiddleInitial { get; set; }
 
         /// <summary>
         /// Gets or Sets LastName
         /// </summary>
-        [DataMember(Name="LastName")]
+        [DataMember(Name = "LastName")]
         public string LastName { get; set; }
 
         /// <summary>
         /// Gets or Sets Email
         /// </summary>
-        [DataMember(Name="Email")]
+        [DataMember(Name = "Email")]
         public string Email { get; set; }
 
         /// <summary>
         /// Gets or Sets Me
         /// </summary>
-        [DataMember(Name="Me")]
+        [DataMember(Name = "Me")]
         public bool? Me { get; set; }
 
         /// <summary>
         /// Gets or Sets IsDeleted
         /// </summary>
-        [DataMember(Name="IsDeleted")]
+        [DataMember(Name = "IsDeleted")]
         public bool? IsDeleted { get; set; }
 
 
@@ -203,37 +197,37 @@ namespace IO.Swagger.Models
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return 
+            return
                 (
                     this.Id == other.Id ||
                     this.Id != null &&
                     this.Id.Equals(other.Id)
-                ) && 
+                ) &&
                 (
                     this.FirstName == other.FirstName ||
                     this.FirstName != null &&
                     this.FirstName.Equals(other.FirstName)
-                ) && 
+                ) &&
                 (
                     this.MiddleInitial == other.MiddleInitial ||
                     this.MiddleInitial != null &&
                     this.MiddleInitial.Equals(other.MiddleInitial)
-                ) && 
+                ) &&
                 (
                     this.LastName == other.LastName ||
                     this.LastName != null &&
                     this.LastName.Equals(other.LastName)
-                ) && 
+                ) &&
                 (
                     this.Email == other.Email ||
                     this.Email != null &&
                     this.Email.Equals(other.Email)
-                ) && 
+                ) &&
                 (
                     this.Me == other.Me ||
                     this.Me != null &&
                     this.Me.Equals(other.Me)
-                ) && 
+                ) &&
                 (
                     this.IsDeleted == other.IsDeleted ||
                     this.IsDeleted != null &&
