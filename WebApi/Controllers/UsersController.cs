@@ -37,9 +37,6 @@ using Business.Groups;
 
 namespace WebAPI.Controllers
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public class UsersController : Controller
     {
         private readonly IUserManager userManager;
@@ -64,10 +61,10 @@ namespace WebAPI.Controllers
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult GetAllUsers()
         {
-            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
             IEnumerable<UserModel> users = userManager.GetAllUsers();
-            IEnumerable<UserDTO> dtoResponse = users.Select(u => UserMapper.MapUserToUserDTO(u, (int)userId));
+            IEnumerable<UserDTO> dtoResponse = users.Select(u => UserMapper.MapUserToUserDTO(u, callerId));
            
             return new ObjectResult(dtoResponse);
         }
@@ -85,9 +82,9 @@ namespace WebAPI.Controllers
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult GetGroupsForUser()
         {
-            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
-            IEnumerable<GroupModel> groups = groupManager.GetGroupsForUser((int)userId);
+            IEnumerable<GroupModel> groups = groupManager.GetGroupsForUser(callerId);
             List<GroupDTO> dtoResponse = groups.Select(g => GroupMapper.MapGroupToGroupDTO(g)).ToList();
 
             return new ObjectResult(dtoResponse);
@@ -106,14 +103,14 @@ namespace WebAPI.Controllers
         [SwaggerResponse(200, type: typeof(string))]
         public virtual IActionResult Login([FromQuery]string userEmail)
         {
-            if (userEmail == null)
+            if (string.IsNullOrWhiteSpace(userEmail))
             {
                 return BadRequest("An email must be specified!");
             }
 
             string token = userManager.Login(userEmail);
 
-            if (token == null)
+            if (string.IsNullOrWhiteSpace(token))
             {
                 return NotFound("No user with the specified email was found!");
             }
@@ -135,14 +132,14 @@ namespace WebAPI.Controllers
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult UpdateUser([FromRoute]int? userId, [FromBody]UpdateUserDTO updateUserDTO)
         {
-            int? callerId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
             
             if(userId == null || updateUserDTO == null)
             {
                 return StatusCode(400);
             }
 
-            userManager.UpdateUser((int)callerId, new UserModel()
+            userManager.UpdateUser(callerId, new UserModel()
             {
                 Id = userId,
                 FirstName = updateUserDTO.FirstName,
@@ -151,6 +148,7 @@ namespace WebAPI.Controllers
                 Email = updateUserDTO.Email,
                 IsDeleted = updateUserDTO.IsDeleted
             });
+
             return StatusCode(204);
         }
     }

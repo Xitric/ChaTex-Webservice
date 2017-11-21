@@ -28,6 +28,7 @@ using Business.Channels;
 using WebAPI.Models;
 using System;
 using IO.Swagger.Models;
+using Business.Errors;
 
 namespace IO.Swagger.Controllers
 {
@@ -101,11 +102,21 @@ namespace IO.Swagger.Controllers
                 return StatusCode(404);
             }
 
-            bool success = channelManager.DeleteChannel(callerId, (int)channelId);
-
-            if (!success)
+            try
             {
-                return StatusCode(401);
+                channelManager.DeleteChannel(callerId, (int)channelId);
+            }
+            catch (InvalidArgumentException e)
+            {
+                switch (e.ParamName)
+                {
+                    case ParamNameType.CallerId:
+                        return StatusCode(401);
+                    case ParamNameType.GroupId:
+                        return StatusCode(404);
+                    default:
+                        return StatusCode(500);
+                }
             }
 
             return StatusCode(204);
