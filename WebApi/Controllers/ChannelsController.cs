@@ -48,7 +48,7 @@ namespace IO.Swagger.Controllers
         /// </summary>
         /// <remarks>Creates a new channel in the specified group</remarks>
         /// <param name="groupId">The id of the group to make the channel in</param>
-        /// <param name="name">The name of the new channel</param>
+        /// <param name="createChannelDTO">The object containing information about the new channel</param>
         /// <response code="204">Channel created successfully</response>
         /// <response code="400">Name must be specified</response>
         /// <response code="401">The user was not authorized to access this resource</response>
@@ -59,7 +59,7 @@ namespace IO.Swagger.Controllers
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult CreateChannel([FromRoute]int? groupId, [FromBody]CreateChannelDTO createChannelDTO)
         {
-            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
             if (groupId == null)
             {
@@ -71,7 +71,7 @@ namespace IO.Swagger.Controllers
                 return StatusCode(400);
             }
 
-            bool success = channelManager.CreateChannel((int)groupId, (int)userId, createChannelDTO.Name);
+            bool success = channelManager.CreateChannel((int)groupId, callerId, createChannelDTO.Name);
 
             if (!success)
             {
@@ -94,14 +94,19 @@ namespace IO.Swagger.Controllers
         [SwaggerOperation("DeleteChannel")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult DeleteChannel([FromRoute]int? channelId) {
-            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
             if (channelId == null)
             {
                 return StatusCode(404);
             }
 
-            channelManager.DeleteChannel((int)userId, (int)channelId);
+            bool success = channelManager.DeleteChannel(callerId, (int)channelId);
+
+            if (!success)
+            {
+                return StatusCode(401);
+            }
 
             return StatusCode(204);
         }
@@ -119,16 +124,21 @@ namespace IO.Swagger.Controllers
         [Route("/1.0.0/channels/{channelId}")]
         [SwaggerOperation("UpdateChannel")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual IActionResult IActionResult([FromRoute]int? channelId, [FromBody]string channelName)
+        public virtual IActionResult UpdateChannel([FromRoute]int? channelId, [FromBody]string channelName)
         {
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+
             if (channelId == null || String.IsNullOrEmpty(channelName))
             {
                 return StatusCode(404);
-;            }
+            }
 
-            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            bool success = channelManager.UpdateChannel(callerId, (int)channelId, channelName);
 
-            channelManager.UpdateChannel((int)userId, (int)channelId, channelName);
+            if (!success)
+            {
+                return StatusCode(401);
+            }
 
             return StatusCode(204);
         }

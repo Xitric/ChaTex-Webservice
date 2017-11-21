@@ -34,9 +34,6 @@ using IO.Swagger.Models;
 
 namespace WebAPI.Controllers
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public class GroupsController : Controller
     {
         private readonly IGroupManager groupManager;
@@ -50,11 +47,8 @@ namespace WebAPI.Controllers
         /// Create a new group
         /// </summary>
         /// <remarks>Creates a new group with the caller as the group administrator</remarks>
-        /// <param name="groupName">The name of the group</param>
-        /// <param name="allowEmployeeSticky">Whether employees are allowed to make sticky messages</param>
-        /// <param name="allowEmployeeAcknowledgeable">Whether employees are allowed to make acknowledgeable messages</param>
-        /// <param name="allowEmployeeBookmark">Whether employees are allowed to make bookmarks</param>
-        /// <response code="204">The group was created, and the group administrator was successfully added</response>
+        /// <param name="createGroupDTO">The object containing information about the group</param>
+        /// <response code="200">The group was created, and the group administrator was successfully added</response>
         /// <response code="400">Bad input</response>
         /// <response code="401">The user was not authorized to access this resource</response>
         [HttpPost]
@@ -64,14 +58,14 @@ namespace WebAPI.Controllers
         [SwaggerResponse(200, type: typeof(GroupDTO))]
         public virtual IActionResult CreateGroup([FromBody]CreateGroupDTO createGroupDTO)
         {
-            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
             if (string.IsNullOrEmpty(createGroupDTO.GroupName))
             {
                 return StatusCode(400);
             }
 
-            int? groupId = groupManager.CreateGroup(userId: (int)userId, groupName: createGroupDTO.GroupName,
+            int? groupId = groupManager.CreateGroup(userId: callerId, groupName: createGroupDTO.GroupName,
                                      allowEmployeeSticky: (bool)createGroupDTO.AllowEmployeeSticky,
                                      allowEmployeeAcknowledgeable: (bool)createGroupDTO.AllowEmployeeAcknowledgeable,
                                      allowEmployeeBookmark: (bool)createGroupDTO.AllowEmployeeBookmark);
@@ -92,20 +86,22 @@ namespace WebAPI.Controllers
         [SwaggerOperation("GetAllGroupAdmins")]
         [SwaggerResponse(200, type: typeof(List<UserDTO>))]
         public virtual IActionResult GetAllGroupAdmins([FromRoute]int? groupId) {
-            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
             if (groupId == null)
             {
                 return StatusCode(404);
             }
+
             try
             {
-                IEnumerable<UserModel> admins = groupManager.GetAllGroupAdmins((int)groupId, (int)userId);
-                IEnumerable<UserDTO> dtoResponse = admins.Select(x => UserMapper.MapUserToUserDTO(x, (int)userId));
+                IEnumerable<UserModel> admins = groupManager.GetAllGroupAdmins((int)groupId, callerId);
+                IEnumerable<UserDTO> dtoResponse = admins.Select(x => UserMapper.MapUserToUserDTO(x, callerId));
                 return new ObjectResult(dtoResponse);
             }
             catch (Exception)
             {
+                //TODO: change
                 return StatusCode(401);
             }
         }
@@ -114,7 +110,7 @@ namespace WebAPI.Controllers
         /// Get users for a group
         /// </summary>
         /// <remarks>Get users, taking into account members and roles on the group</remarks>
-        /// <param name="groupId"></param>
+        /// <param name="groupId">The group id</param>
         /// <response code="200">Successfully retrieved all the groupuser&#39;s</response>
         /// <response code="401">The user was not authorized to access this resource</response>
         /// <response code="404">No group with the specified id was found</response>
@@ -125,19 +121,22 @@ namespace WebAPI.Controllers
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult GetAllGroupUsers([FromRoute]int? groupId)
         {
-            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
             if (groupId == null)
             {
                 return StatusCode(404);
             }
+
             try
             {
-                IEnumerable<UserModel> users = groupManager.GetAllGroupUsers((int)groupId,(int)userId);
-                IEnumerable<UserDTO> dtoResponse = users.Select(x => UserMapper.MapUserToUserDTO(x, (int)userId));
+                IEnumerable<UserModel> users = groupManager.GetAllGroupUsers((int)groupId, callerId);
+                IEnumerable<UserDTO> dtoResponse = users.Select(x => UserMapper.MapUserToUserDTO(x, callerId));
                 return new ObjectResult(dtoResponse);
-            } catch(Exception)
+            }
+            catch (Exception)
             {
+                //TODO: change
                 return StatusCode(401);
             }
         }
@@ -146,7 +145,7 @@ namespace WebAPI.Controllers
         /// Delete a group
         /// </summary>
         /// <remarks>Deletes the group with the specified id</remarks>
-        /// <param name="groupId"></param>
+        /// <param name="groupId">The groupId</param>
         /// <response code="204">Group deleted successfully</response>
         /// <response code="404">No group with the specified id exists</response>
         /// <response code="401">The user was not authorized to access this resource</response>
@@ -156,28 +155,31 @@ namespace WebAPI.Controllers
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult DeleteGroup([FromRoute]int? groupId)
         {
-            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
             
             if (groupId == null)
             {
                 return StatusCode(404);
             }
+
             try
             {
-                groupManager.DeleteGroup((int)groupId, (int)userId);
-                return StatusCode(204);
-            } catch(Exception)
+                groupManager.DeleteGroup((int)groupId, callerId);
+            }
+            catch (Exception)
             {
+                //TODO: change
                 return StatusCode(401);
             }
+
+            return StatusCode(204);
         }
 
         /// <summary>
         /// Add users to a group
         /// </summary>
         /// <remarks>This will add a list of users to a specific group</remarks>
-        /// <param name="groupId">The Id of the group</param>
-        /// <param name="userIds">The Ids of all the users</param>
+        /// <param name="addUsersGroupDTO">Users to be added to the group</param>
         /// <response code="204">Users added to group successfully</response>
         /// <response code="401">The user was not authorized to access this resource</response>
         /// <response code="404">No group or user with the specified ids exists</response>
@@ -187,7 +189,7 @@ namespace WebAPI.Controllers
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult AddUsersToGroup([FromBody]AddUsersToGroupDTO addUsersToGroupDTO)
         {
-            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
             //If our list of users is null, or if it contains any element that is null
             if (addUsersToGroupDTO.GroupId == null || addUsersToGroupDTO.UserIds == null || addUsersToGroupDTO.UserIds.Exists(x => x == null))
@@ -200,14 +202,15 @@ namespace WebAPI.Controllers
             {
                 groupManager.AddUsersToGroup(groupId: (int)addUsersToGroupDTO.GroupId,
                                              userIds: addUsersToGroupDTO.UserIds.Where(x => x != null).Select(x => x.Value).ToList(),
-                                             loggedInUser: (int)userId);
+                                             loggedInUser: callerId);
             }
             catch (Exception)
             {
+                //TODO: change
                 return StatusCode(403);
             }
-            return StatusCode(204);
 
+            return StatusCode(204);
         }
 
         /// <summary>
@@ -225,7 +228,7 @@ namespace WebAPI.Controllers
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult DeleteUsersFromGroup([FromQuery]int? groupId, [FromBody]List<int?> userIds)
         {
-            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
             //If our list of users is null, or if it contains any element that is null
             if (groupId == null || userIds == null || userIds.Exists(x => x == null))
@@ -234,7 +237,8 @@ namespace WebAPI.Controllers
             }
 
             //Add user (also convert list of nullable ints, to list of ints)
-            groupManager.RemoveUsersFromGroup(groupId: (int)groupId, userIds: userIds.Where(x => x != null).Select(x => x.Value).ToList(), loggedInUserId: (int)userId);
+            //TODO: return boolan, missing catch
+            groupManager.RemoveUsersFromGroup(groupId: (int)groupId, userIds: userIds.Where(x => x != null).Select(x => x.Value).ToList(), loggedInUserId: callerId);
             return StatusCode(204);
         }
 
@@ -242,8 +246,7 @@ namespace WebAPI.Controllers
         /// Add access rights for roles to a group
         /// </summary>
         /// <remarks>This will add access rights for a list of roles to a specific group</remarks>
-        /// <param name="groupId">The Id of the group</param>
-        /// <param name="roleIds">The Ids of all the roles</param>
+        /// <param name="addRolesToGroupDTO">Roles to be added to the group</param>
         /// <response code="204">Roles added to group successfully</response>
         /// <response code="401">The user was not authorized to access this resource</response>
         /// <response code="404">No group or role with the specified ids exists</response>
@@ -253,21 +256,21 @@ namespace WebAPI.Controllers
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult AddRolesToGroup([FromBody]AddRolesToGroupDTO addRolesToGroupDTO)
         {
-            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
-            if (addRolesToGroupDTO.GroupId == null || userId == null || addRolesToGroupDTO.RoleIds == null || addRolesToGroupDTO.RoleIds.Exists(x => x == null))
+            if (addRolesToGroupDTO.GroupId == null || addRolesToGroupDTO.RoleIds == null || addRolesToGroupDTO.RoleIds.Exists(x => x == null))
             {
                 return StatusCode(404);
             }
             try
             {
-                groupManager.AddRolesToGroup((int)addRolesToGroupDTO.GroupId, (int)userId, addRolesToGroupDTO.RoleIds.Where(x => x != null).Select(x => x.Value).ToList());
+                groupManager.AddRolesToGroup((int)addRolesToGroupDTO.GroupId, callerId, addRolesToGroupDTO.RoleIds.Where(x => x != null).Select(x => x.Value).ToList());
             }
             catch (Exception)
             {
                 return StatusCode(401);
             }
-            return StatusCode(200);
+            return StatusCode(204);
         }
 
         /// <summary>
@@ -285,18 +288,20 @@ namespace WebAPI.Controllers
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult DeleteRolesFromGroup([FromQuery]int? groupId, [FromBody]List<int?> roleIds)
         {
-            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
-            if (groupId == null || userId == null || roleIds == null || roleIds.Exists(x => x == null))
+            if (groupId == null || roleIds == null || roleIds.Exists(x => x == null))
             {
                 return StatusCode(404);
             }
+
             try
             {
-                groupManager.RemoveRolesFromGroup((int)groupId, (int)userId, roleIds.Where(x => x != null).Select(x => x.Value).ToList());
+                groupManager.RemoveRolesFromGroup((int)groupId, (int)callerId, roleIds.Where(x => x != null).Select(x => x.Value).ToList());
             }
             catch (Exception)
             {
+                //TODO: change
                 return StatusCode(401);
             }
             return StatusCode(200);
@@ -309,7 +314,7 @@ namespace WebAPI.Controllers
         /// <remarks>Give a group member administrator rights or remove administrator rights from a group administrator</remarks>
         /// <param name="groupId">The id of the group to affect</param>
         /// <param name="userId">The id of the user to mark or unmark</param>
-        /// <param name="isAdministrator">true to mark the user as group administrator, false to unmark</param>
+        /// <param name="isAdministrator">Indicates if user is an administrator</param>
         /// <response code="204">User marked or unmarked successfully</response>
         /// <response code="401">The user was not authorized to access this resource</response>
         /// <response code="404">No group or group user with the specified ids were found</response>
@@ -319,18 +324,20 @@ namespace WebAPI.Controllers
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult MarkUserAsAdministrator([FromRoute]int? groupId, [FromRoute]int? userId, [FromBody]bool? isAdministrator)
        {
-            int? loggedInUserId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
-            if (groupId == null || loggedInUserId == null || userId == null || isAdministrator == null)
+            if (groupId == null || userId == null || isAdministrator == null)
             {
                 return StatusCode(404);
             }
+
             try
             {
-                groupManager.SetUserAdministratorOnGroup((int)groupId, (int)userId, (int)loggedInUserId, (bool)isAdministrator);
+                groupManager.SetUserAdministratorOnGroup((int)groupId, (int)userId, callerId, (bool)isAdministrator);
             }
             catch (Exception)
             {
+                //TODO: change
                 return StatusCode(401);
             }
             return StatusCode(200);
@@ -351,21 +358,22 @@ namespace WebAPI.Controllers
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult UpdateGroup([FromRoute]int? groupId, [FromBody]string groupName)
          {
-            int? loggedInUserId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            int? callerId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
-            if(groupId == null || loggedInUserId == null || groupName == null )
+            if(groupId == null || groupName == null )
             {
                 return StatusCode(404);
             }
             try
             {
-                groupManager.UpdateGroup((int)groupId, (string)groupName);
+                groupManager.UpdateGroup((int)groupId, groupName);
             }
             catch (Exception)
             {
+                //TODO: change
                 return StatusCode(401);
             }
-            return StatusCode(200);
+            return StatusCode(204);
         }
     }
 }

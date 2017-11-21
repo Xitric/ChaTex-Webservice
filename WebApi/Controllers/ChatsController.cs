@@ -32,9 +32,7 @@ using System.Linq;
 
 namespace IO.Swagger.Controllers
 {
-    /// <summary>
-    /// 
-    /// </summary>
+    
     public class ChatsController : Controller
     {
         private readonly IChatManager chatManager;
@@ -57,7 +55,7 @@ namespace IO.Swagger.Controllers
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult AddUsersToChat([FromBody]AddUsersToChatDTO addUsersToChatDTO)
         {
-            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
             
             try
             {
@@ -66,8 +64,10 @@ namespace IO.Swagger.Controllers
             }
             catch (Exception)
             {
+                //TODO:change
                 return StatusCode(403);
             }
+
             return StatusCode(204);
         }
 
@@ -87,19 +87,27 @@ namespace IO.Swagger.Controllers
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult CreateChat([FromBody]CreateChatDTO createChatDTO)
         {
-            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
             if (string.IsNullOrEmpty(createChatDTO.ChatName))
             {
                 return StatusCode(400);
             }
+
             try
             {
-                int? chatId = chatManager.CreateChat(userId: (int)userId, chatName: createChatDTO.ChatName);
+                int? chatId = chatManager.CreateChat(userId: callerId, chatName: createChatDTO.ChatName);
+
+                if (chatId == null)
+                {
+                    return StatusCode(401);
+                }
+
                 return new ObjectResult(new ChatDTO(chatId, createChatDTO.ChatName, new List<UserDTO>()));
             }
             catch (Exception)
             {
+                //TODO:change
                 return StatusCode(401);
             }
         }
@@ -120,10 +128,7 @@ namespace IO.Swagger.Controllers
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult GetAllChatsForUser([FromRoute]int? userId)
         {
-            
-
-
-            return null;
+            throw new NotImplementedException("This feature is not yet implemented.");
         }
 
 
@@ -141,13 +146,8 @@ namespace IO.Swagger.Controllers
         [SwaggerResponse(200, type: typeof(List<GetMessageDTO>))]
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult GetMessagesInChat([FromRoute]int? chatId)
-        { 
-            string exampleJson = null;
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<List<GetMessageDTO>>(exampleJson)
-            : default(List<GetMessageDTO>);
-            return new ObjectResult(example);
+        {
+            throw new NotImplementedException("This feature is not yet implemented.");
         }
     }
 }
