@@ -10,7 +10,7 @@ namespace DAL
     {
         public void CreateChannel(int groupId, string name)
         {
-            using (var db = new ChatexdbContext())
+            using (var context = new ChatexdbContext())
             {
                 Channel channel = new Channel()
                 {
@@ -18,41 +18,43 @@ namespace DAL
                     Name = name
                 };
 
-                db.Channel.Add(channel);
-                db.SaveChanges();
+                context.Channel.Add(channel);
+                context.SaveChanges();
             }
         }
 
         public void DeleteChannel(int channelId)
         {
-            using (var db = new ChatexdbContext())
+            using (var context = new ChatexdbContext())
             {
-                var channel = db.Channel.FirstOrDefault(c => c.ChannelId == channelId);
-                if(channel != null)
+                var channel = context.Channel.FirstOrDefault(c => c.ChannelId == channelId);
+
+                if (channel != null)
                 {
                     channel.IsDeleted = true;
-                    db.SaveChanges();
+                    context.SaveChanges();
                 }
             }
         }
 
         public ChannelModel GetChannel(int channelId)
         {
-            using (var db = new ChatexdbContext())
+            using (var context = new ChatexdbContext())
             {
-                return ChannelMapper.MapChannelEntityToModel(db.Channel.Where(i => i.ChannelId == channelId).FirstOrDefault());
+                return ChannelMapper.MapChannelEntityToModel(context.Channel.Where(i => i.ChannelId == channelId).FirstOrDefault());
             }
         }
 
         public void UpdateChannel(ChannelModel channelModel)
         {
-            using (var db = new ChatexdbContext())
+            using (var context = new ChatexdbContext())
             {
-                var channel = db.Channel.FirstOrDefault(c => c.ChannelId == channelModel.Id);
-                if(channel != null)
+                var channel = context.Channel.FirstOrDefault(c => c.ChannelId == channelModel.Id);
+
+                if (channel != null)
                 {
                     channel.Name = channelModel.Name;
-                    db.SaveChanges();
+                    context.SaveChanges();
                 }
             }            
         }

@@ -13,9 +13,9 @@ namespace Business.Groups
             this.groupRepository = groupRepository;
         }
 
-        public void AddUsersToGroup(int groupId, List<int> userIds, int loggedInUserId)
+        public void AddUsersToGroup(int groupId, List<int> userIds, int callerId)
         {
-            var loggedInUser = groupRepository.GetGroupUser(groupId, loggedInUserId);
+            var loggedInUser = groupRepository.GetGroupUser(groupId, callerId);
             //Iterates through all user ids, creates a GroupUserModel and sends that to our group repository
             if (loggedInUser.IsAdministrator)
             {
@@ -33,7 +33,7 @@ namespace Business.Groups
             }
             else
             {
-                throw new ArgumentException("The user was not authorized to add users to the group", "loggedInUserId");
+                throw new ArgumentException("The user was not authorized to add users to the group", "callerId");
             }
         }
 
@@ -87,9 +87,9 @@ namespace Business.Groups
             
         }
 
-        public void RemoveUsersFromGroup(int groupId, List<int> userIds, int loggedInUserId)
+        public void RemoveUsersFromGroup(int groupId, List<int> userIds, int callerId)
         {
-            var loggedInUser = groupRepository.GetGroupUser(groupId, loggedInUserId);
+            var loggedInUser = groupRepository.GetGroupUser(groupId, callerId);
             //Iterates through all user ids, creates a GroupUserModel and sends that to our group repository
             if (loggedInUser.IsAdministrator)
             {
@@ -108,7 +108,7 @@ namespace Business.Groups
             }
             else
             {
-                throw new ArgumentException("The user was not authorized to remove users to the group", "loggedInUserId");
+                throw new ArgumentException("The user was not authorized to remove users to the group", "callerId");
             }
         }
 
@@ -163,9 +163,9 @@ namespace Business.Groups
 
         public void SetUserAdministratorOnGroup(int groupId, int userId, int callerId, bool isAdministrator)
         {
-            var loggedInUserInGroupUser = groupRepository.GetGroupUser(groupId, callerId);
+            var loggedInUser = groupRepository.GetGroupUser(groupId, callerId);
 
-            if (loggedInUserInGroupUser.IsAdministrator)
+            if (loggedInUser.IsAdministrator)
             {
                 groupRepository.SetUserAdministratorOnGroup(new GroupUserModel()
                 {
@@ -189,9 +189,9 @@ namespace Business.Groups
 
         public IEnumerable<UserModel> GetAllGroupUsers(int groupId, int callerId) { 
         
-            var loggedInUserInGroupUser = groupRepository.GetGroupUser(groupId, callerId);
+            var loggedInUser = groupRepository.GetGroupUser(groupId, callerId);
 
-            if (loggedInUserInGroupUser != null)
+            if (loggedInUser != null)
             {
                return groupRepository.GetAllGroupUsers(groupId);
             }
@@ -203,9 +203,9 @@ namespace Business.Groups
 
         public IEnumerable<UserModel> GetAllGroupAdmins(int groupId, int callerId) {
 
-            var loggedInUserInGroupUser = groupRepository.GetGroupUser(groupId, callerId);
+            var loggedInUser = groupRepository.GetGroupUser(groupId, callerId);
 
-            if (loggedInUserInGroupUser != null)
+            if (loggedInUser != null)
             {
                 return groupRepository.GetAllGroupAdmins(groupId);
             }

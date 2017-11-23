@@ -16,15 +16,15 @@ namespace Business.Messages
         private readonly Dictionary<int, object> messageLocks;
         private readonly int sleepInterval = 2000;
 
-        public MessageManager(IMessageRepository messages, IGroupRepository groups, IChannelRepository channels)
+        public MessageManager(IMessageRepository messageRepository, IGroupRepository groupRepository, IChannelRepository channelRepository)
         {
-            messageRepository = messages;
-            groupRepository = groups;
-            channelRepository = channels;
+            this.messageRepository = messageRepository;
+            this.groupRepository = groupRepository;
+            this.channelRepository = channelRepository;
             messageLocks = new Dictionary<int, object>();
         }
 
-        private object GetLockForChannel(int channelId)
+        private object getLockForChannel(int channelId)
         {
             object msgLock = messageLocks.GetValueOrDefault(channelId);
 
@@ -44,17 +44,16 @@ namespace Business.Messages
             return msgLock;
         }
 
-        private bool IsUserInChannel(int userId, int channelId)
+        private bool isUserInChannel(int userId, int channelId)
         {
             return groupRepository.GetGroupsForUser(userId)
                 .Select(g => g.Channels.Any(c => c.Id == channelId))
                 .Any();
         }
-
-        /// <exception cref="ArgumentException">The channel with the specified id does not exist, or the caller does not have access to the specified channel</exception>
+ 
         public IEnumerable<MessageModel> GetMessages(int channelId, int callerId, int from, int count)
         {
-            bool hasAccess = IsUserInChannel(callerId, channelId);
+            bool hasAccess = isUserInChannel(callerId, channelId);
 
             if (!hasAccess)
             {
@@ -63,14 +62,13 @@ namespace Business.Messages
 
             //This should be threadsafe
             IEnumerable<MessageModel> messages = messageRepository.GetMessages(channelId, from, count);
-            CensorMessages(messages);
+            censorMessages(messages);
             return messages;
         }
 
-        /// <exception cref="ArgumentException">The channel with the specified id does not exist, or the caller does not have access to the specified channel</exception>
         public void CreateMessage(int callerId, int channelId, string messageContent)
         {
-            bool hasAccess = IsUserInChannel(callerId, channelId);
+            bool hasAccess = isUserInChannel(callerId, channelId);
 
             if (!hasAccess)
             {
@@ -85,7 +83,7 @@ namespace Business.Messages
 
             //Wait until we are allowed to add new messages
             object msgLock;
-            lock (msgLock = GetLockForChannel(channelId))
+            lock (msgLock = getLockForChannel(channelId))
             {
                 messageRepository.CreateMessage(message, channelId);
 
@@ -95,17 +93,17 @@ namespace Business.Messages
             }
         }
 
-        /// <exception cref="ArgumentException">The message with the specified id does not exist, or the caller does not have the rights to delete the specified message</exception>
         public void DeleteMessage(int callerId, int messageId)
         {
+            //Since message ids are fixed and messages don't change channels, these operations did not need to be within the lock
             MessageModel message = messageRepository.GetMessage(messageId);
+
             if (message == null) throw new ArgumentException("Message with the specified id does not exist", "messageId");
 
             var channel = channelRepository.GetChannel(message.ChannelId);
 
-            //Since message ids are fixed and messages don't change channels, these operations did not need to be within the lock
             object msgLock;
-            lock (msgLock = GetLockForChannel((int)channel.Id))
+            lock (msgLock = getLockForChannel((int)channel.Id))
             {
                 var loggedInUser = groupRepository.GetGroupUser(channel.GroupId, callerId);
 
@@ -114,7 +112,7 @@ namespace Business.Messages
                     messageRepository.DeleteMessage(messageId);
 
                     //Inform waiting threads that a message was deleted
-                    Console.WriteLine($"Message deleted in channel {channel.Id}, wake up my little lambs!");
+                    Console.WriteLine($"Message deleted in channel {channel.Id}");
                     Monitor.PulseAll(msgLock);
                 }
                 else
@@ -126,14 +124,14 @@ namespace Business.Messages
 
         public void EditMessage(int callerId, int messageId, string newContent)
         {
+            //Since message ids are fixed and messages don't change channels, these operations did not need to be within the lock
             MessageModel message = messageRepository.GetMessage(messageId);
             if (message == null) throw new ArgumentException("Message with the specified id does not exist", "messageId");
 
             var channel = channelRepository.GetChannel(message.ChannelId);
 
-            //Since message ids are fixed and messages don't change channels, these operations did not need to be within the lock
             object msgLock;
-            lock (msgLock = GetLockForChannel((int)channel.Id))
+            lock (msgLock = getLockForChannel((int)channel.Id))
             {
                 var loggedInUser = groupRepository.GetGroupUser(channel.GroupId, callerId);
 
@@ -155,12 +153,17 @@ namespace Business.Messages
         public MessageModel GetMessage(int callerId, int messageId)
         {
             MessageModel message = messageRepository.GetMessage(messageId);
-            if (message.DeletionTime != null) message.Content = "";
+            if (message.DeletionTime != null)
+            {
+                message.Content = "";
+            }
+            
             if (message == null)
             {
                 throw new ArgumentException("Message does not exist in the database", "messageId");
             }
-            if (IsUserInChannel(callerId, message.ChannelId))
+
+            if (isUserInChannel(callerId, message.ChannelId))
             {
                 return message;
             }
@@ -181,7 +184,7 @@ namespace Business.Messages
         /// <exception cref="ArgumentException">The channel with the specified id does not exist, or the caller does not have access to the specified channel</exception>
         public IEnumerable<MessageEventModel> GetMessageEvents(int channelId, int callerId, DateTime since, CancellationToken cancellation)
         {
-            bool hasAccess = IsUserInChannel(callerId, channelId);
+            bool hasAccess = isUserInChannel(callerId, channelId);
 
             if (!hasAccess)
             {
@@ -191,7 +194,7 @@ namespace Business.Messages
             //We should ensure that we are not looking for changes while they are being made
             //This logic is dependent on the fact that a message event does not occur after looking for changes and before calling wait()
             object msgLock;
-            lock (msgLock = GetLockForChannel(channelId))
+            lock (msgLock = getLockForChannel(channelId))
             {
                 IEnumerable<MessageModel> newMessages;
                 IEnumerable<MessageModel> deletedMessages;
@@ -223,10 +226,12 @@ namespace Business.Messages
 
                 //At this point we know that an event has happened
                 Console.WriteLine($"Something happened in channel {channelId}");
-                CensorMessages(newMessages);
-                CensorMessages(deletedMessages);
-                CensorMessages(editedMessages);
-                return ConstructMessageEvents(newMessages, deletedMessages, editedMessages);
+
+                censorMessages(newMessages);
+                censorMessages(deletedMessages);
+                censorMessages(editedMessages);
+
+                return constructMessageEvents(newMessages, deletedMessages, editedMessages);
             }
         }
 
@@ -234,7 +239,7 @@ namespace Business.Messages
         /// Remove the content of deleted messages. This operation is important to ensure that the contents of deleted messages do not get distributed to clients.
         /// </summary>
         /// <param name="messages">The messages to censor</param>
-        private void CensorMessages(IEnumerable<MessageModel> messages)
+        private void censorMessages(IEnumerable<MessageModel> messages)
         {
             foreach (MessageModel message in messages)
             {
@@ -245,7 +250,7 @@ namespace Business.Messages
             }
         }
 
-        private IEnumerable<MessageEventModel> ConstructMessageEvents(IEnumerable<MessageModel> newMessages, IEnumerable<MessageModel> deletedMessages, IEnumerable<MessageModel> editedMessages)
+        private IEnumerable<MessageEventModel> constructMessageEvents(IEnumerable<MessageModel> newMessages, IEnumerable<MessageModel> deletedMessages, IEnumerable<MessageModel> editedMessages)
         {
             List<MessageEventModel> messageEvents = new List<MessageEventModel>();
 

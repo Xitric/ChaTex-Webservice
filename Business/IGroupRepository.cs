@@ -5,7 +5,7 @@ namespace Business
 {
     public interface IGroupRepository
     {
-        int CreateGroup(GroupModel group);
+        int CreateGroup(GroupModel groupmodel);
 
         bool DeleteGroup(int groupId);
 

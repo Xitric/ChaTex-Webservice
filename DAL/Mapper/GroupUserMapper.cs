@@ -10,7 +10,11 @@ namespace DAL.Mapper
     {
         public static GroupUser MapGroupUserModelToEntity(GroupUserModel groupUserModel)
         {
-            if (groupUserModel == null) return null;
+            if (groupUserModel == null)
+            {
+                return null;
+            }
+
             return new GroupUser()
             {
                 GroupId = groupUserModel.Group.Id == null ? 0 : (int)groupUserModel.Group.Id,
@@ -21,7 +25,11 @@ namespace DAL.Mapper
 
         public static GroupUserModel MapGroupUserEntityToModel(GroupUser groupUser)
         {
-            if (groupUser == null) return null;
+            if (groupUser == null)
+            {
+                return null;
+            }
+
             return new GroupUserModel()
             {
                 Group = GroupMapper.MapGroupEntityToModel(groupUser.Group),

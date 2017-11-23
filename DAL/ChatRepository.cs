@@ -11,15 +11,16 @@ namespace DAL
 {
     class ChatRepository : IChatRepository
     {
-
         public int CreateChat(ChatModel chat)
         {
             var entity = ChatMapper.MapChatModelToEntity(chat);
-            using (var db = new ChatexdbContext())
+
+            using (var context = new ChatexdbContext())
             {
-                db.Chat.Add(entity);
-                db.SaveChanges();
+                context.Chat.Add(entity);
+                context.SaveChanges();
             }
+
             return entity.ChatId;
         }
         public void AddUser(UserModel user, ChatModel chat)
@@ -29,20 +30,22 @@ namespace DAL
                 ChatId = (int)chat.Id,
                 UserId = (int)user.Id
             };
-            using (var db = new ChatexdbContext())
+
+            using (var context = new ChatexdbContext())
             {
-                db.ChatUser.Add(entity);
-                db.SaveChanges();
+                context.ChatUser.Add(entity);
+                context.SaveChanges();
             }
         }
 
         public void AddUsersToChat(IEnumerable<ChatUserModel> chatUserModels)
         {
-            using (var db = new ChatexdbContext())
+            using (var context = new ChatexdbContext())
             {
                 var entities = chatUserModels.Select(x => ChatUserMapper.MapChatUserModelToEntity(x));
-                db.ChatUser.AddRange(entities);
-                db.SaveChanges();
+
+                context.ChatUser.AddRange(entities);
+                context.SaveChanges();
             }
         }
     }
