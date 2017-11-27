@@ -1,8 +1,5 @@
 ﻿using Business.Models;
 using DAL.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DAL.Mapper
 {
@@ -31,9 +28,9 @@ namespace DAL.Mapper
 
             return new ChannelMessageModel()
             {
-            Channel = ChannelMapper.MapChannelEntityToModel(channelMessage.Channel),
-            Message = MessageMapper.MapMessageEntityToModel(channelMessage.Message)
-        };
+                Channel = ChannelMapper.MapChannelEntityToModel(channelMessage.Channel),
+                Message = MessageMapper.MapMessageEntityToModel(channelMessage.Message)
+            };
+        }
     }
-}
 }

@@ -1,8 +1,5 @@
 ﻿using Business.Models;
 using DAL.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DAL.Mapper
 {
@@ -20,7 +17,8 @@ namespace DAL.Mapper
                 ChannelId = channelModel.Id == null ? 0 : channelModel.Id.Value,
                 Name = channelModel.Name,
                 IsDeleted = false, //TODO
-                GroupId = channelModel.GroupId            };
+                GroupId = channelModel.GroupId
+            };
         }
 
         public static ChannelModel MapChannelEntityToModel(Channel channel)

@@ -88,6 +88,5 @@ namespace Business.Channels
                 throw new InvalidArgumentException("User is not administrator in group", ParamNameType.CallerId);
             }
         }
-        
     }
 }

@@ -5,7 +5,6 @@ using DAL.Models;
 using DAL.Mapper;
 using System.Linq;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
 
 namespace DAL
 {

@@ -15,7 +15,11 @@ namespace DAL
             using (var context = new ChatexdbContext())
             {
                 int? userID = GetUserIdFromEmail(email);
-                if (userID == null) return null;
+
+                if (userID == null)
+                {
+                    return null;
+                }
 
                 UserToken userToken = context.UserToken
                     .Find(userID);
@@ -42,7 +46,11 @@ namespace DAL
             using (var context = new ChatexdbContext())
             {
                 int? userID = GetUserIdFromEmail(email);
-                if (userID == null) return false;
+                
+                if (userID == null)
+                {
+                    return false;
+                }
 
                 UserToken userToken = new UserToken()
                 {
@@ -62,7 +70,11 @@ namespace DAL
             using (var context = new ChatexdbContext())
             {
                 int? userID = GetUserIdFromEmail(email);
-                if (userID == null) return;
+
+                if (userID == null)
+                {
+                    return;
+                }
 
                 UserToken userToken = new UserToken()
                 {
@@ -101,6 +113,7 @@ namespace DAL
             using (var context = new ChatexdbContext())
             {
                 User userEntity = context.User.Where(id => id.UserId == userModel.Id).FirstOrDefault();
+
                 userEntity.FirstName = userModel.FirstName;
                 userEntity.MiddleInitial = userModel.MiddleInitial.ToString();
                 userEntity.LastName = userModel.LastName;

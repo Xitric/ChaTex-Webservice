@@ -7,7 +7,7 @@ namespace Business
     {
         int CreateGroup(GroupModel groupmodel);
 
-        bool DeleteGroup(int groupId);
+        void DeleteGroup(int groupId);
 
         void AddMemberToGroup(GroupUserModel groupUserModel);
 
@@ -29,7 +29,6 @@ namespace Business
 
         IEnumerable<UserModel> GetAllGroupAdmins(int groupId);
         void UpdateGroup(int groupId, string groupName, int callerId);
-
     }
 }
  

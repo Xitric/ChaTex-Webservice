@@ -26,8 +26,6 @@ namespace DAL.Mapper
                 GroupId = groupModel.Id == null ? 0 : groupModel.Id.Value,
                 IsDeleted = groupModel.IsDeleted,
                 Name = groupModel.Name
-
-
             };
         }
 
@@ -48,7 +46,6 @@ namespace DAL.Mapper
                 Id = group.GroupId,
                 IsDeleted = group.IsDeleted,
                 Name = group.Name
-
             };
         }
     }

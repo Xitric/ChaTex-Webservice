@@ -16,6 +16,7 @@ namespace Business.Groups
         public void AddUsersToGroup(int groupId, List<int> userIds, int callerId)
         {
             var loggedInUser = groupRepository.GetGroupUser(groupId, callerId);
+
             //Iterates through all user ids, creates a GroupUserModel and sends that to our group repository
             if (loggedInUser.IsAdministrator)
             {
@@ -64,27 +65,32 @@ namespace Business.Groups
             };
 
             groupRepository.AddMemberToGroup(groupUserModel);
+
             return group.Id;
         }
 
-        public bool DeleteGroup(int groupId, int callerId)
+        public void DeleteGroup(int groupId, int callerId)
         {
             var loggedInUser = groupRepository.GetGroupUser(groupId, callerId);
+
             if (loggedInUser.IsAdministrator)
             {
-             return groupRepository.DeleteGroup(groupId);
+                groupRepository.DeleteGroup(groupId);
             }
-            return false;
+            else
+            {
+                throw new ArgumentException("The user was not authorized to delete the group", "callerId");
+            }
         }
 
         public void UpdateGroup(int groupId, string groupName, int callerId)
         {
             var loggedInUser = groupRepository.GetGroupUser(groupId, callerId);
-            if(loggedInUser.IsAdministrator)
+
+            if (loggedInUser.IsAdministrator)
             {
                 groupRepository.UpdateGroup(groupId, groupName, callerId);
             }
-            
         }
 
         public void RemoveUsersFromGroup(int groupId, List<int> userIds, int callerId)
@@ -134,7 +140,6 @@ namespace Business.Groups
             {
                 throw new ArgumentException("The user was not authorized to add roles to the group", "callerId");
             }
-
         }
 
         public void RemoveRolesFromGroup(int groupId, int callerId, IEnumerable<int> roleIds)
@@ -193,7 +198,7 @@ namespace Business.Groups
 
             if (loggedInUser != null)
             {
-               return groupRepository.GetAllGroupUsers(groupId);
+                return groupRepository.GetAllGroupUsers(groupId);
             }
             else
             {

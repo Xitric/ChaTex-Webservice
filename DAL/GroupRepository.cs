@@ -46,7 +46,7 @@ namespace DAL
             return entity.GroupId;
         }
 
-        public bool DeleteGroup(int groupId)
+        public void DeleteGroup(int groupId)
         {
             using (var context = new ChatexdbContext())
             {
@@ -55,8 +55,6 @@ namespace DAL
                 entity.IsDeleted = true;
                 context.SaveChanges();
             }
-
-            return true;
         }
 
         public void RemoveUsersFromGroup(IEnumerable<GroupUserModel> groupUserModels)
