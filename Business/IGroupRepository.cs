@@ -5,6 +5,8 @@ namespace Business
 {
     public interface IGroupRepository
     {
+        GroupModel GetGroup(int groupId);
+
         int CreateGroup(GroupModel groupmodel);
 
         void DeleteGroup(int groupId);
@@ -20,8 +22,8 @@ namespace Business
         void RemoveRolesFromGroup(IEnumerable<GroupRoleModel> groupRoleModel);
 
         bool SetUserAdministratorOnGroup(GroupUserModel groupUserModel);
-         
-        GroupUserModel GetGroupUser(int groupId, int loggedInUser);
+
+        GroupMembershipDetails GetGroupMembershipDetailsForUser(int groupId, int userId);
 
         IEnumerable<GroupModel> GetGroupsForUser(int userId);
 

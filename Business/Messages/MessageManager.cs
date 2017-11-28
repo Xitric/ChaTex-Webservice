@@ -105,9 +105,9 @@ namespace Business.Messages
             object msgLock;
             lock (msgLock = getLockForChannel((int)channel.Id))
             {
-                var loggedInUser = groupRepository.GetGroupUser(channel.GroupId, callerId);
+                GroupMembershipDetails membershipDetails = groupRepository.GetGroupMembershipDetailsForUser(channel.GroupId, callerId);
 
-                if (loggedInUser.IsAdministrator || message.Author.Id == callerId)
+                if (membershipDetails.IsAdministrator || message.Author.Id == callerId)
                 {
                     messageRepository.DeleteMessage(messageId);
 
@@ -133,9 +133,9 @@ namespace Business.Messages
             object msgLock;
             lock (msgLock = getLockForChannel((int)channel.Id))
             {
-                var loggedInUser = groupRepository.GetGroupUser(channel.GroupId, callerId);
+                GroupMembershipDetails membershipDetails = groupRepository.GetGroupMembershipDetailsForUser(channel.GroupId, callerId);
 
-                if (loggedInUser.IsAdministrator || message.Author.Id == callerId)
+                if (membershipDetails.IsAdministrator || message.Author.Id == callerId)
                 {
                     messageRepository.EditMessage(messageId, newContent);
 

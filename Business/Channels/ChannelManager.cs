@@ -15,23 +15,21 @@ namespace Business.Channels
             this.groupRepository = groupRepository;
         }
 
+        private void throwIfNotAdministrator(int groupId, int callerId)
+        {
+            GroupMembershipDetails membershipDetails = groupRepository.GetGroupMembershipDetailsForUser(groupId, callerId);
+
+            if (!membershipDetails.IsAdministrator)
+            {
+                throw new InvalidArgumentException("The user was not authorized to delete the group", ParamNameType.CallerId);
+            }
+        }
+
         public void CreateChannel(int groupId, int callerId, string channelName)
         {
-            GroupUserModel user = groupRepository.GetGroupUser(groupId, callerId);
+            throwIfNotAdministrator(groupId, callerId);
 
-            if (user == null)
-            {
-                throw new InvalidArgumentException("User does not exist in group", ParamNameType.GroupId);
-            }
-
-            if (user.IsAdministrator)
-            {
-                channelRepository.CreateChannel(groupId, channelName);
-            }
-            else
-            {
-                throw new InvalidArgumentException("User is not administrator in group", ParamNameType.CallerId);
-            }
+            channelRepository.CreateChannel(groupId, channelName);
         }
 
         public void DeleteChannel(int callerId, int channelId)
@@ -43,21 +41,9 @@ namespace Business.Channels
                 throw new InvalidArgumentException("Channel does not exist", ParamNameType.ChannelId);
             }
 
-            GroupUserModel user = groupRepository.GetGroupUser(channel.GroupId, callerId);
+            throwIfNotAdministrator(channel.GroupId, callerId);
 
-            if (user == null)
-            {
-                throw new InvalidArgumentException("User does not exist in group", ParamNameType.GroupId);
-            }
-
-            if (user.IsAdministrator)
-            {
-                channelRepository.DeleteChannel(channelId);
-            }
-            else
-            {
-                throw new InvalidArgumentException("User is not administrator in group", ParamNameType.CallerId);
-            }
+            channelRepository.DeleteChannel(channelId);
         }
 
         public void UpdateChannel(int callerId, int channelId, string channelName)
@@ -69,24 +55,13 @@ namespace Business.Channels
                 throw new InvalidArgumentException("Channel does not exist", ParamNameType.ChannelId);
             }
 
-            GroupUserModel user = groupRepository.GetGroupUser(channel.GroupId, callerId);
+            throwIfNotAdministrator(channel.GroupId, callerId);
 
-            if (user == null)
+            channelRepository.UpdateChannel(new ChannelModel()
             {
-                throw new InvalidArgumentException("User does not exist in group", ParamNameType.GroupId);
-            }
-
-            if (user.IsAdministrator) {
-                channelRepository.UpdateChannel(new ChannelModel()
-                {
-                    Id = channelId,
-                    Name = channelName
-                });
-            }
-            else
-            {
-                throw new InvalidArgumentException("User is not administrator in group", ParamNameType.CallerId);
-            }
+                Id = channelId,
+                Name = channelName
+            });
         }
     }
 }
