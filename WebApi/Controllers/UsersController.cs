@@ -118,7 +118,7 @@ namespace WebAPI.Controllers
                 return NotFound("No user with the specified email was found!");
             }
             
-            return Content(token);
+            return new JsonResult(token);
         }
 
         /// <summary>

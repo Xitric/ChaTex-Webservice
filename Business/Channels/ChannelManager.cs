@@ -31,7 +31,7 @@ namespace Business.Channels
             ChannelModel channel = channelRepository.GetChannel(channelId);
             GroupUserModel user = groupRepository.GetGroupUser(channel.GroupId, callerId);
 
-            if (user.IsAdministrator)
+            if (user != null && user.IsAdministrator)
             {
                 channelRepository.DeleteChannel(channelId);
                 return true;
