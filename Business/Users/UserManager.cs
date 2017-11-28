@@ -7,31 +7,31 @@ namespace Business.Users
 {
     class UserManager : IUserManager
     {
-        private readonly IUserRepository users;
-        private readonly Authenticator auth;
+        private readonly IUserRepository userRepository;
+        private readonly Authenticator authenticator;
 
-        public UserManager(IUserRepository users, Authenticator auth)
+        public UserManager(IUserRepository userRepository, Authenticator authenticator)
         {
-            this.users = users;
-            this.auth = auth;
+            this.userRepository = userRepository;
+            this.authenticator = authenticator;
         }
 
         public string Login(string email)
         {
             //Forward to authenticator
-            return auth.Login(email);
+            return authenticator.Login(email);
         }
 
         public IEnumerable<UserModel> GetAllUsers()
         {
-            return users.GetAllUsers();
+            return userRepository.GetAllUsers();
         }
         
         public void UpdateUser(int callerId, UserModel userModel)
         {
-            if (users.IsUserAdmin(callerId))
+            if (userRepository.IsUserAdmin(callerId))
             {
-                UserModel oldUser = users.GetUser((int)userModel.Id);
+                UserModel oldUser = userRepository.GetUser((int)userModel.Id);
 
                 if(userModel.Email != null)
                     oldUser.Email = userModel.Email;
@@ -48,7 +48,7 @@ namespace Business.Users
                 if(userModel.IsDeleted != null)
                     oldUser.IsDeleted = userModel.IsDeleted;
 
-                users.UpdateUser(oldUser);
+                userRepository.UpdateUser(oldUser);
             }
         }
     }

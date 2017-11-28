@@ -7,8 +7,8 @@ namespace Business
 {
     public interface IChatRepository
     {
-        int CreateChat(ChatModel chat);
-        void AddUser(UserModel user, ChatModel chat);
+        int CreateChat(ChatModel chatmodel);
+        void AddUser(UserModel usermodel, ChatModel chatmodel);
         void AddUsersToChat(IEnumerable<ChatUserModel> chatUserModels);
     }
 }

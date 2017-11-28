@@ -14,20 +14,21 @@ namespace Business.Chats
         {
             this.chatRepository = chatRepository;
         }
+
         public void AddUsersToChat(int chatId, List<int> userIds)
         {            
             chatRepository.AddUsersToChat(chatUserModels: userIds.Select(userId => new ChatUserModel()
+            {
+                Chat = new ChatModel()
                 {
-                    Chat = new ChatModel()
-                    {
-                        Id = chatId
-                    },
-                    User = new UserModel()
-                    {
-                        Id = userId
-                    }
-                }));
-            }
+                    Id = chatId
+                },
+                User = new UserModel()
+                {
+                    Id = userId
+                }
+            }));
+        }
 
         public IEnumerable<ChatModel> GetAllChatsForUser(int userId)
         {
@@ -45,11 +46,11 @@ namespace Business.Chats
             {
                 Name = chatName
             };
+
             chat.Id = chatRepository.CreateChat(chat);
             chatRepository.AddUser(user, chat);
+
             return chat.Id;
-
-
         }
     }
 }

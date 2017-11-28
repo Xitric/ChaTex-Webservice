@@ -62,20 +62,27 @@ namespace WebAPI.Controllers
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult GetMessages([FromRoute]int? channelId, [FromQuery]int? fromIndex, [FromQuery]int? count)
         {
-            int userId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
-
-            if (fromIndex == null) fromIndex = 0;
-            if (count == null) count = 25;
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
             if (channelId == null)
             {
                 return BadRequest("Channel id must be specified");
             }
 
+            if (fromIndex == null)
+            {
+                fromIndex = 0;
+            }
+
+            if (count == null)
+            {
+                count = 25;
+            }
+
             try
             {
-                IEnumerable<GetMessageDTO> messages = messageManager.GetMessages((int)channelId, userId, (int)fromIndex, (int)count)
-                .Select(m => MessageMapper.MapMessageToGetMessageDTO(m, userId));
+                IEnumerable<GetMessageDTO> messages = messageManager.GetMessages((int)channelId, callerId, (int)fromIndex, (int)count)
+                .Select(m => MessageMapper.MapMessageToGetMessageDTO(m, callerId));
 
                 return new ObjectResult(messages);
             }
@@ -85,12 +92,12 @@ namespace WebAPI.Controllers
                 {
                     case "callerId":
                         //Caller was not authorized
-                        return new StatusCodeResult(401);
+                        return StatusCode(401);
                     case "channelId":
                         return NotFound($"The channel with id {channelId} was not found");
                     default:
                         //Some unexpected exception
-                        throw;
+                        return StatusCode(500);
                 }
             }
         }
@@ -110,29 +117,30 @@ namespace WebAPI.Controllers
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult GetMessage([FromRoute]int? messageId)
         {
-            int userId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+
             if (messageId == null)
             {
                 return BadRequest("Message id must be specified");
             }
+
             try
             {
-                GetMessageDTO message = MessageMapper.MapMessageToGetMessageDTO(messageManager.GetMessage(userId, (int)messageId), userId);
+                GetMessageDTO message = MessageMapper.MapMessageToGetMessageDTO(messageManager.GetMessage(callerId, (int)messageId), callerId);
                 return new ObjectResult(message);
             }
-
             catch (ArgumentException e)
             {
                 switch (e.ParamName)
                 {
                     case "callerId":
                         //Caller was not authorized
-                        return new StatusCodeResult(401);
+                        return StatusCode(401);
                     case "messageId":
                         return NotFound($"The message with id {messageId} was not found");
                     default:
                         //Some unexpected exception
-                        throw;
+                        return StatusCode(500);
                 }
             }
 
@@ -154,7 +162,7 @@ namespace WebAPI.Controllers
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult GetMessageEvents([FromRoute]int? channelId, [FromQuery]DateTime? since, CancellationToken cancellation)
         {
-            int userId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
             if (channelId == null || since == null)
             {
@@ -163,10 +171,16 @@ namespace WebAPI.Controllers
 
             try
             {
-                IEnumerable<MessageEventModel> messageEvents = messageManager.GetMessageEvents((int)channelId, userId, (DateTime)since, cancellation);
-                if (messageEvents == null) return NoContent(); //The client canceled the request
+                IEnumerable<MessageEventModel> messageEvents = messageManager.GetMessageEvents((int)channelId, callerId, (DateTime)since, cancellation);
+                
+                //The client canceled the request
+                if (messageEvents == null)
+                {
+                    return NoContent();
+                }
 
-                IEnumerable<MessageEventDTO> messageEventDTO = messageEvents.Select(me => MessageMapper.MapMessageEventToMessageEventDTO(me, userId));
+                IEnumerable<MessageEventDTO> messageEventDTO = messageEvents.Select(me => MessageMapper.MapMessageEventToMessageEventDTO(me, callerId));
+
                 return new ObjectResult(messageEventDTO);
             }
             catch (ArgumentException e)
@@ -175,10 +189,10 @@ namespace WebAPI.Controllers
                 {
                     case "callerId":
                         //Caller was not authorized
-                        return new StatusCodeResult(401);
+                        return StatusCode(401);
                     default:
                         //Some unexpected exception
-                        throw;
+                        return StatusCode(500);
                 }
             }
         }
@@ -188,7 +202,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>Create a new message in a specific channel</remarks>
         /// <param name="channelId">The id of the channel to delete</param>
-        /// <param name="messageContent">Content of the message</param>
+        /// <param name="messageContentDTO">Object containing information about the message</param>
         /// <response code="204">Messages was successfully posted.</response>
         /// <response code="401">The user was not authorized to access this resource</response>
         /// <response code="404">No group or channel with the specified ids were found</response>
@@ -198,7 +212,7 @@ namespace WebAPI.Controllers
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult CreateMessage([FromRoute]int? channelId, [FromBody]MessageContentDTO messageContentDTO)
         {
-            int? userId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
             if (channelId == null || String.IsNullOrEmpty(messageContentDTO.Message))
             {
@@ -207,7 +221,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                messageManager.CreateMessage((int)userId, (int)channelId, messageContentDTO.Message);
+                messageManager.CreateMessage(callerId, (int)channelId, messageContentDTO.Message);
+
                 return NoContent();
             }
             catch (ArgumentException e)
@@ -216,10 +231,10 @@ namespace WebAPI.Controllers
                 {
                     case "callerId":
                         //Caller was not authorized
-                        return new StatusCodeResult(401);
+                        return StatusCode(401);
                     default:
                         //Some unexpected exception
-                        throw;
+                        return StatusCode(500);
                 }
             }
         }
@@ -239,7 +254,8 @@ namespace WebAPI.Controllers
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult DeleteMessage([FromRoute]int? messageId)
         {
-            int userId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+
             if (messageId == null)
             {
                 return BadRequest("Message id must be specified");
@@ -247,7 +263,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                messageManager.DeleteMessage(userId, (int)messageId);
+                messageManager.DeleteMessage(callerId, (int)messageId);
+
                 return NoContent();
             }
             catch (ArgumentException e)
@@ -256,13 +273,13 @@ namespace WebAPI.Controllers
                 {
                     case "callerId":
                         //Caller was not authorized
-                        return new StatusCodeResult(401);
+                        return StatusCode(401);
                     case "messageId":
                         //Message was unknown
                         return NotFound($"The message with id {messageId} was not found");
                     default:
                         //Some unexpected exception
-                        throw;
+                        return StatusCode(500);
                 }
             }
         }
@@ -281,7 +298,8 @@ namespace WebAPI.Controllers
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult EditMessage([FromRoute]int? messageId, [FromBody]string newContent)
         {
-            int userId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+
             if (messageId == null || String.IsNullOrEmpty(newContent))
             {
                 return BadRequest($"Message id and message content must be specified!");
@@ -289,7 +307,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                messageManager.EditMessage(userId, (int)messageId, newContent);
+                messageManager.EditMessage(callerId, (int)messageId, newContent);
+
                 return NoContent();
             }
             catch (ArgumentException e)
@@ -298,13 +317,13 @@ namespace WebAPI.Controllers
                 {
                     case "callerId":
                         //Caller was not authorized
-                        return new StatusCodeResult(401);
+                        return StatusCode(401);
                     case "messageId":
                         //Message was unknown
                         return NotFound($"The message with id {messageId} was not found");
                     default:
                         //Some unexpected exception
-                        throw;
+                        return StatusCode(500);
                 }
             }
         }

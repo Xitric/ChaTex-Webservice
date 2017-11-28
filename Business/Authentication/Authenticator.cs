@@ -48,7 +48,7 @@ namespace Business.Authentication
             return token;
         }
 
-        public int? AuthenticateGetId(string token)
+        public int? GetUserIdFromToken(string token)
         {
             if (!IsTokenExpired(token))
             {

@@ -1,4 +1,6 @@
-﻿using Business.Models;
+﻿using Business.Errors;
+using Business.Models;
+using System;
 
 namespace Business.Channels
 {
@@ -13,36 +15,66 @@ namespace Business.Channels
             this.groupRepository = groupRepository;
         }
 
-        public bool CreateChannel(int groupId, int callerId, string channelName)
+        public void CreateChannel(int groupId, int callerId, string channelName)
         {
             GroupUserModel user = groupRepository.GetGroupUser(groupId, callerId);
+
+            if (user == null)
+            {
+                throw new InvalidArgumentException("User does not exist in group", ParamNameType.GroupId);
+            }
 
             if (user.IsAdministrator)
             {
                 channelRepository.CreateChannel(groupId, channelName);
-                return true;
             }
-
-            return false;
+            else
+            {
+                throw new InvalidArgumentException("User is not administrator in group", ParamNameType.CallerId);
+            }
         }
 
-        public bool DeleteChannel(int callerId, int channelId)
+        public void DeleteChannel(int callerId, int channelId)
         {
             ChannelModel channel = channelRepository.GetChannel(channelId);
+
+            if (channel == null)
+            {
+                throw new InvalidArgumentException("Channel does not exist", ParamNameType.ChannelId);
+            }
+
             GroupUserModel user = groupRepository.GetGroupUser(channel.GroupId, callerId);
 
-            if (user != null && user.IsAdministrator)
+            if (user == null)
+            {
+                throw new InvalidArgumentException("User does not exist in group", ParamNameType.GroupId);
+            }
+
+            if (user.IsAdministrator)
             {
                 channelRepository.DeleteChannel(channelId);
-                return true;
             }
-            return false;
+            else
+            {
+                throw new InvalidArgumentException("User is not administrator in group", ParamNameType.CallerId);
+            }
         }
 
-        public bool UpdateChannel(int callerId, int channelId, string channelName)
+        public void UpdateChannel(int callerId, int channelId, string channelName)
         {
             ChannelModel channel = channelRepository.GetChannel(channelId);
+
+            if (channel == null)
+            {
+                throw new InvalidArgumentException("Channel does not exist", ParamNameType.ChannelId);
+            }
+
             GroupUserModel user = groupRepository.GetGroupUser(channel.GroupId, callerId);
+
+            if (user == null)
+            {
+                throw new InvalidArgumentException("User does not exist in group", ParamNameType.GroupId);
+            }
 
             if (user.IsAdministrator) {
                 channelRepository.UpdateChannel(new ChannelModel()
@@ -50,11 +82,11 @@ namespace Business.Channels
                     Id = channelId,
                     Name = channelName
                 });
-                return true;
             }
-
-            return false;
+            else
+            {
+                throw new InvalidArgumentException("User is not administrator in group", ParamNameType.CallerId);
+            }
         }
-        
     }
 }

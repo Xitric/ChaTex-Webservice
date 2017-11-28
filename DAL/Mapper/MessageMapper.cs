@@ -1,9 +1,6 @@
 ﻿using Business.Models;
 using DAL.Models;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace DAL.Mapper
 {
@@ -11,7 +8,11 @@ namespace DAL.Mapper
     {
         public static Message MapMessageModelToEntity(MessageModel messageModel)
         {
-            if (messageModel == null) return null;
+            if (messageModel == null)
+            {
+                return null;
+            }
+
             return new Message()
             {
                 MessageId = messageModel.Id == null ? 0 : messageModel.Id.Value,
@@ -22,8 +23,13 @@ namespace DAL.Mapper
 
         public static MessageModel MapMessageEntityToModel(Message message)
         {
-            if (message == null) return null;
+            if (message == null)
+            {
+                return null;
+            }
+
             var owningChannel = message.ChannelMessages.FirstOrDefault(x => x.MessageId == message.MessageId);
+
             return new MessageModel()
             {
                 Author = UserMapper.MapUserEntityToModel(message.User),
