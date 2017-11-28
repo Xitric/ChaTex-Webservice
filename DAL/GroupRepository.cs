@@ -11,6 +11,14 @@ namespace DAL
 {
     class GroupRepository : IGroupRepository
     {
+        public GroupModel GetGroup(int groupId)
+        {
+            using (var context = new ChatexdbContext())
+            {
+                return GroupMapper.MapGroupEntityToModel(context.Group.Find(groupId));
+            }
+        }
+
         public void AddMemberToGroup(GroupUserModel groupUserModel)
         {
             using (var context = new ChatexdbContext())
@@ -109,15 +117,6 @@ namespace DAL
 
             return true;
         }
-       
-        public GroupUserModel GetGroupUser (int groupId, int loggedInUser)
-        {
-            using (var context = new ChatexdbContext())
-            {
-                return GroupUserMapper.MapGroupUserEntityToModel(
-                                       context.GroupUser.FirstOrDefault(x => x.GroupId == groupId && x.UserId == loggedInUser));
-            }
-        }
 
         public IEnumerable<UserModel> GetAllGroupUsers(int groupId)
         {
@@ -202,6 +201,20 @@ namespace DAL
         public void UpdateGroup(int groupId, string groupName, int callerId)
         {
             throw new NotImplementedException();
+        }
+
+        public GroupMembershipDetails GetGroupMembershipDetailsForUser(int groupId, int userId)
+        {
+            bool isUserMember = GetAllGroupUsers(groupId).Where(u => u.Id == userId).Any();
+            bool isUserAdmin = GetAllGroupAdmins(groupId).Where(u => u.Id == userId).Any();
+
+            return new GroupMembershipDetails()
+            {
+                GroupId = groupId,
+                UserId = userId,
+                IsMember = isUserMember,
+                IsAdministrator = isUserAdmin
+            };
         }
     }
 }
