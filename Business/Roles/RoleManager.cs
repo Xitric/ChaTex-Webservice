@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using Business.Models;
 
 namespace Business.Roles
@@ -13,6 +11,7 @@ namespace Business.Roles
         {
             this.roles = roles;
         }
+
         public IEnumerable<RoleModel> GetAllRoles()
         {
             return roles.GetAllRoles();

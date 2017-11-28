@@ -11,6 +11,6 @@ namespace Business.Authentication
         /// </summary>
         /// <param name="token">The token to check</param>
         /// <returns>The id of the user owning the token, or null if the token is invalid or expired.</returns>
-        int? AuthenticateGetId(string token);
+        int? GetUserIdFromToken(string token);
     }
 }

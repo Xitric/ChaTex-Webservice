@@ -2,23 +2,31 @@
 using Business.Models;
 using System.Linq;
 using System;
+using Business.Errors;
 
 namespace Business.Groups
 {
     class GroupManager : IGroupManager
     {
         private readonly IGroupRepository groupRepository;
+
         public GroupManager(IGroupRepository groupRepository)
         {
             this.groupRepository = groupRepository;
         }
 
-        public void AddUsersToGroup(int groupId, List<int> userIds, int loggedInUserId)
+        public void AddUsersToGroup(int groupId, List<int> userIds, int callerId)
         {
-            var loggedInUser = groupRepository.GetGroupUser(groupId, loggedInUserId);
-            //Iterates through all user ids, creates a GroupUserModel and sends that to our group repository
+            var loggedInUser = groupRepository.GetGroupUser(groupId, callerId);
+
+            if (loggedInUser == null)
+            {
+                throw new InvalidArgumentException("The user is not in the specified group", ParamNameType.GroupId);
+            }
+
             if (loggedInUser.IsAdministrator)
             {
+                //Iterates through all user ids, creates a GroupUserModel and sends that to our group repository
                 groupRepository.AddMembersToGroup(groupUserModel: userIds.Select(userId => new GroupUserModel()
                 {
                     Group = new GroupModel()
@@ -33,7 +41,7 @@ namespace Business.Groups
             }
             else
             {
-                throw new ArgumentException("The user was not authorized to add users to the group", "loggedInUserId");
+                throw new InvalidArgumentException("The user was not authorized to add users to the group", ParamNameType.CallerId);
             }
         }
 
@@ -64,33 +72,57 @@ namespace Business.Groups
             };
 
             groupRepository.AddMemberToGroup(groupUserModel);
+
             return group.Id;
         }
 
-        public bool DeleteGroup(int groupId, int callerId)
+        public void DeleteGroup(int groupId, int callerId)
         {
             var loggedInUser = groupRepository.GetGroupUser(groupId, callerId);
+
+            if (loggedInUser == null)
+            {
+                throw new InvalidArgumentException("The user is not in the specified group", ParamNameType.GroupId);
+            }
+
             if (loggedInUser.IsAdministrator)
             {
-             return groupRepository.DeleteGroup(groupId);
+                groupRepository.DeleteGroup(groupId);
             }
-            return false;
+            else
+            {
+                throw new InvalidArgumentException("The user was not authorized to delete the group", ParamNameType.CallerId);
+            }
         }
 
         public void UpdateGroup(int groupId, string groupName, int callerId)
         {
             var loggedInUser = groupRepository.GetGroupUser(groupId, callerId);
-            if(loggedInUser.IsAdministrator)
+
+            if (loggedInUser == null)
+            {
+                throw new InvalidArgumentException("The user is not in the specified group", ParamNameType.GroupId);
+            }
+
+            if (loggedInUser.IsAdministrator)
             {
                 groupRepository.UpdateGroup(groupId, groupName, callerId);
             }
-            
+            else
+            {
+                throw new InvalidArgumentException("The user was not authorized to update the group", ParamNameType.CallerId);
+            }
         }
 
-        public void RemoveUsersFromGroup(int groupId, List<int> userIds, int loggedInUserId)
+        public void RemoveUsersFromGroup(int groupId, List<int> userIds, int callerId)
         {
-            var loggedInUser = groupRepository.GetGroupUser(groupId, loggedInUserId);
-            //Iterates through all user ids, creates a GroupUserModel and sends that to our group repository
+            var loggedInUser = groupRepository.GetGroupUser(groupId, callerId);
+
+            if (loggedInUser == null)
+            {
+                throw new InvalidArgumentException("The user is not in the specified group", ParamNameType.GroupId);
+            }
+
             if (loggedInUser.IsAdministrator)
             {
                 //Iterates through all user ids, creates a GroupUserModel and sends that to our group repository
@@ -108,13 +140,18 @@ namespace Business.Groups
             }
             else
             {
-                throw new ArgumentException("The user was not authorized to remove users to the group", "loggedInUserId");
+                throw new InvalidArgumentException("The user was not authorized to remove users to the group", ParamNameType.CallerId);
             }
         }
 
         public void AddRolesToGroup(int groupId, int callerId, IEnumerable<int> roleIds)
         {
             var loggedInUser = groupRepository.GetGroupUser(groupId, callerId);
+
+            if (loggedInUser == null)
+            {
+                throw new InvalidArgumentException("The user is not in the specified group", ParamNameType.GroupId);
+            }
 
             if (loggedInUser.IsAdministrator)
             {
@@ -132,14 +169,18 @@ namespace Business.Groups
             }
             else
             {
-                throw new ArgumentException("The user was not authorized to add roles to the group", "callerId");
+                throw new InvalidArgumentException("The user was not authorized to add roles to the group", ParamNameType.CallerId);
             }
-
         }
 
         public void RemoveRolesFromGroup(int groupId, int callerId, IEnumerable<int> roleIds)
         {
             var loggedInUser = groupRepository.GetGroupUser(groupId, callerId);
+
+            if (loggedInUser == null)
+            {
+                throw new InvalidArgumentException("The user is not in the specified group", ParamNameType.GroupId);
+            }
 
             if (loggedInUser.IsAdministrator)
             {
@@ -157,15 +198,20 @@ namespace Business.Groups
             }
             else
             {
-                throw new ArgumentException("The user was not authorized to remove roles from the group", "callerId");
+                throw new InvalidArgumentException("The user was not authorized to remove roles from the group", ParamNameType.CallerId);
             }
         }
 
         public void SetUserAdministratorOnGroup(int groupId, int userId, int callerId, bool isAdministrator)
         {
-            var loggedInUserInGroupUser = groupRepository.GetGroupUser(groupId, callerId);
+            var loggedInUser = groupRepository.GetGroupUser(groupId, callerId);
 
-            if (loggedInUserInGroupUser.IsAdministrator)
+            if (loggedInUser == null)
+            {
+                throw new InvalidArgumentException("The user is not in the specified group", ParamNameType.GroupId);
+            }
+
+            if (loggedInUser.IsAdministrator)
             {
                 groupRepository.SetUserAdministratorOnGroup(new GroupUserModel()
                 {
@@ -183,36 +229,32 @@ namespace Business.Groups
             }
             else
             {
-                throw new ArgumentException("The user was not authorized to change administrator", "callerId");
+                throw new InvalidArgumentException("The user was not authorized to change administrator", ParamNameType.CallerId);
             }
         }
 
         public IEnumerable<UserModel> GetAllGroupUsers(int groupId, int callerId) { 
         
-            var loggedInUserInGroupUser = groupRepository.GetGroupUser(groupId, callerId);
+            var loggedInUser = groupRepository.GetGroupUser(groupId, callerId);
 
-            if (loggedInUserInGroupUser != null)
+            if (loggedInUser == null)
             {
-               return groupRepository.GetAllGroupUsers(groupId);
+                throw new InvalidArgumentException("The user is not in the specified group", ParamNameType.GroupId);
             }
-            else
-            {
-                throw new ArgumentException("Failed to get all group users", "callerId");
-            }
+
+            return groupRepository.GetAllGroupUsers(groupId);
         }
 
         public IEnumerable<UserModel> GetAllGroupAdmins(int groupId, int callerId) {
 
-            var loggedInUserInGroupUser = groupRepository.GetGroupUser(groupId, callerId);
+            var loggedInUser = groupRepository.GetGroupUser(groupId, callerId);
 
-            if (loggedInUserInGroupUser != null)
+            if (loggedInUser == null)
             {
-                return groupRepository.GetAllGroupAdmins(groupId);
+                throw new InvalidArgumentException("The user is not in the specified group", ParamNameType.GroupId);
             }
-            else
-            {
-                throw new ArgumentException("Failed to get all group admins", "callerId");
-            }
+
+            return groupRepository.GetAllGroupAdmins(groupId);
         }
 
         public IEnumerable<GroupModel> GetGroupsForUser(int userId)

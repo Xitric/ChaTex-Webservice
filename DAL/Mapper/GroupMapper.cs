@@ -11,7 +11,11 @@ namespace DAL.Mapper
     {
         public static Group MapGroupModelToEntity(GroupModel groupModel)
         {
-            if (groupModel == null) return null;
+            if (groupModel == null)
+            {
+                return null;
+            }
+
             return new Group()
             {
                 AllowEmployeeAcknowledgeable = groupModel.AllowEmployeeAcknowledgeable,
@@ -22,14 +26,16 @@ namespace DAL.Mapper
                 GroupId = groupModel.Id == null ? 0 : groupModel.Id.Value,
                 IsDeleted = groupModel.IsDeleted,
                 Name = groupModel.Name
-
-
             };
         }
 
         public static GroupModel MapGroupEntityToModel(Group group)
         {
-            if (group == null) return null;
+            if (group == null)
+            {
+                return null;
+            }
+
             return new GroupModel()
             {
                 AllowEmployeeAcknowledgeable = group.AllowEmployeeAcknowledgeable,
@@ -40,7 +46,6 @@ namespace DAL.Mapper
                 Id = group.GroupId,
                 IsDeleted = group.IsDeleted,
                 Name = group.Name
-
             };
         }
     }

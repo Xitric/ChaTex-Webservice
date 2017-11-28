@@ -20,6 +20,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IRoleManager, RoleManager>();
             services.AddSingleton<IChatManager, ChatManager>();
             services.AddSingleton<Authenticator>();
+
             return services;
         }
     }

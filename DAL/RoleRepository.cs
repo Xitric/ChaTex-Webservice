@@ -14,7 +14,6 @@ namespace DAL
             using (var context = new ChatexdbContext())
             {
                 return context.Role.Select(r => RoleMapper.MapRoleEntityToModel(r)).ToList();
-
             }
         }
     }

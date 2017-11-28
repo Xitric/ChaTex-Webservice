@@ -33,18 +33,15 @@ using WebAPI.Authentication;
 
 namespace IO.Swagger.Controllers
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public class RolesApiController : Controller
     { 
 
         private readonly IRoleManager roleManager;
 
        public RolesApiController(IRoleManager roleManager)
-        {
+       {
             this.roleManager = roleManager;
-        }
+       }
 
         /// <summary>
         /// Get roles
@@ -59,10 +56,11 @@ namespace IO.Swagger.Controllers
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult GetAllRoles()
         {
-            int? loggedInUserId = (int?)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
             IEnumerable<RoleModel> roles = roleManager.GetAllRoles();
-            IEnumerable<RoleDTO> dtoResponse = roles.Select(u => RoleMapper.MapRoleToRoleDTO(u)); ;
+            IEnumerable<RoleDTO> dtoResponse = roles.Select(u => RoleMapper.MapRoleToRoleDTO(u));
+
             return new ObjectResult(dtoResponse);
         }
     }
