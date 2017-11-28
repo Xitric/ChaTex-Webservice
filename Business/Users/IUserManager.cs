@@ -10,6 +10,5 @@ namespace Business.Users
         IEnumerable<UserModel> GetAllUsers();
 
         void UpdateUser(int callerId, UserModel userModel);
-
     }
 }

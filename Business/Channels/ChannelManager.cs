@@ -1,4 +1,6 @@
-﻿using Business.Models;
+﻿using Business.Errors;
+using Business.Models;
+using System;
 
 namespace Business.Channels
 {
@@ -13,48 +15,53 @@ namespace Business.Channels
             this.groupRepository = groupRepository;
         }
 
-        public bool CreateChannel(int groupId, int callerId, string channelName)
+        private void throwIfNotAdministrator(int groupId, int callerId)
         {
-            GroupUserModel user = groupRepository.GetGroupUser(groupId, callerId);
+            GroupMembershipDetails membershipDetails = groupRepository.GetGroupMembershipDetailsForUser(groupId, callerId);
 
-            if (user.IsAdministrator)
+            if (!membershipDetails.IsAdministrator)
             {
-                channelRepository.CreateChannel(groupId, channelName);
-                return true;
+                throw new InvalidArgumentException("The user must be an administrator of the group to perform this action", ParamNameType.CallerId);
             }
-
-            return false;
         }
 
-        public bool DeleteChannel(int callerId, int channelId)
+        public void CreateChannel(int groupId, int callerId, string channelName)
+        {
+            throwIfNotAdministrator(groupId, callerId);
+
+            channelRepository.CreateChannel(groupId, channelName);
+        }
+
+        public void DeleteChannel(int callerId, int channelId)
         {
             ChannelModel channel = channelRepository.GetChannel(channelId);
-            GroupUserModel user = groupRepository.GetGroupUser(channel.GroupId, callerId);
 
-            if (user.IsAdministrator)
+            if (channel == null)
             {
-                channelRepository.DeleteChannel(channelId);
-                return true;
+                throw new InvalidArgumentException("Channel does not exist", ParamNameType.ChannelId);
             }
-            return false;
+
+            throwIfNotAdministrator(channel.GroupId, callerId);
+
+            channelRepository.DeleteChannel(channelId);
         }
 
-        public bool UpdateChannel(int callerId, int channelId, string channelName)
+        public void UpdateChannel(int callerId, int channelId, string channelName)
         {
             ChannelModel channel = channelRepository.GetChannel(channelId);
-            GroupUserModel user = groupRepository.GetGroupUser(channel.GroupId, callerId);
 
-            if (user.IsAdministrator) {
-                channelRepository.UpdateChannel(new ChannelModel()
-                {
-                    Id = channelId,
-                    Name = channelName
-                });
-                return true;
+            if (channel == null)
+            {
+                throw new InvalidArgumentException("Channel does not exist", ParamNameType.ChannelId);
             }
 
-            return false;
+            throwIfNotAdministrator(channel.GroupId, callerId);
+
+            channelRepository.UpdateChannel(new ChannelModel()
+            {
+                Id = channelId,
+                Name = channelName
+            });
         }
-        
     }
 }

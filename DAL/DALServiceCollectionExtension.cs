@@ -12,6 +12,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IGroupRepository, GroupRepository>();
             services.AddSingleton<IChannelRepository, ChannelRepository>();
             services.AddSingleton<IRoleRepository, RoleRepository>();
+            services.AddSingleton<IChatRepository, ChatRepository>();
 
             return services;
         }

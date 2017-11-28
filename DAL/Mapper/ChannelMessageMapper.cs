@@ -1,8 +1,5 @@
 ﻿using Business.Models;
 using DAL.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DAL.Mapper
 {
@@ -10,7 +7,11 @@ namespace DAL.Mapper
     {
         public static ChannelMessages MapChannelMessageModelToEntity(ChannelMessageModel channelMessageModel)
         {
-            if (channelMessageModel == null) return null;
+            if (channelMessageModel == null)
+            {
+                return null;
+            }
+
             return new ChannelMessages()
             {
                 Channel = ChannelMapper.MapChannelModelToEntity(channelMessageModel.Channel),
@@ -20,12 +21,16 @@ namespace DAL.Mapper
 
         public static ChannelMessageModel MapChannelMessageEntityToModel(ChannelMessages channelMessage)
         {
-            if (channelMessage == null) return null;
+            if (channelMessage == null)
+            {
+                return null;
+            }
+
             return new ChannelMessageModel()
             {
-            Channel = ChannelMapper.MapChannelEntityToModel(channelMessage.Channel),
-            Message = MessageMapper.MapMessageEntityToModel(channelMessage.Message)
-        };
+                Channel = ChannelMapper.MapChannelEntityToModel(channelMessage.Channel),
+                Message = MessageMapper.MapMessageEntityToModel(channelMessage.Message)
+            };
+        }
     }
-}
 }

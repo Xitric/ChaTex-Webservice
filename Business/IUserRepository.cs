@@ -22,6 +22,5 @@ namespace Business
         bool IsUserAdmin(int userId);
 
         void UpdateUser(UserModel userModel);
-
     }
 }

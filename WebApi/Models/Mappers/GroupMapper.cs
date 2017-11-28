@@ -1,4 +1,5 @@
 ﻿using Business.Models;
+using IO.Swagger.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

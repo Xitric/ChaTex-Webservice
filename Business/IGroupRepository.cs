@@ -5,9 +5,11 @@ namespace Business
 {
     public interface IGroupRepository
     {
-        int CreateGroup(GroupModel group);
+        GroupModel GetGroup(int groupId);
 
-        bool DeleteGroup(int groupId);
+        int CreateGroup(GroupModel groupmodel);
+
+        void DeleteGroup(int groupId);
 
         void AddMemberToGroup(GroupUserModel groupUserModel);
 
@@ -20,14 +22,15 @@ namespace Business
         void RemoveRolesFromGroup(IEnumerable<GroupRoleModel> groupRoleModel);
 
         bool SetUserAdministratorOnGroup(GroupUserModel groupUserModel);
-         
-        GroupUserModel GetGroupUser(int groupId, int loggedInUser);
+
+        GroupMembershipDetails GetGroupMembershipDetailsForUser(int groupId, int userId);
 
         IEnumerable<GroupModel> GetGroupsForUser(int userId);
 
         IEnumerable<UserModel> GetAllGroupUsers(int groupId);
-        void UpdateGroup(int groupId, string groupName, int callerId);
 
+        IEnumerable<UserModel> GetAllGroupAdmins(int groupId);
+        void UpdateGroup(int groupId, string groupName, int callerId);
     }
 }
  

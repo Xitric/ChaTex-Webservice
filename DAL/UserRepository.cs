@@ -15,14 +15,18 @@ namespace DAL
             using (var context = new ChatexdbContext())
             {
                 int? userID = GetUserIdFromEmail(email);
-                if (userID == null) return null;
 
-                UserToken uToken = context.UserToken
+                if (userID == null)
+                {
+                    return null;
+                }
+
+                UserToken userToken = context.UserToken
                     .Find(userID);
 
-                if (uToken != null)
+                if (userToken != null)
                 {
-                    return uToken.Token;
+                    return userToken.Token;
                 }
 
                 return null;
@@ -42,15 +46,19 @@ namespace DAL
             using (var context = new ChatexdbContext())
             {
                 int? userID = GetUserIdFromEmail(email);
-                if (userID == null) return false;
+                
+                if (userID == null)
+                {
+                    return false;
+                }
 
-                UserToken uToken = new UserToken()
+                UserToken userToken = new UserToken()
                 {
                     UserId = (int)userID,
                     Token = token
                 };
 
-                context.UserToken.Add(uToken);
+                context.UserToken.Add(userToken);
                 context.SaveChanges();
             }
 
@@ -62,14 +70,18 @@ namespace DAL
             using (var context = new ChatexdbContext())
             {
                 int? userID = GetUserIdFromEmail(email);
-                if (userID == null) return;
 
-                UserToken uToken = new UserToken()
+                if (userID == null)
+                {
+                    return;
+                }
+
+                UserToken userToken = new UserToken()
                 {
                     UserId = (int)userID
                 };
 
-                context.UserToken.Remove(uToken);
+                context.UserToken.Remove(userToken);
                 context.SaveChanges();
             }
         }
@@ -78,17 +90,10 @@ namespace DAL
         {
             using (var context = new ChatexdbContext())
             {
-                try
-                {
-                    return context.User
-                    .Where(u => u.Email.Equals(email))
-                    .Select(u => u.UserId)
-                    .Single();
-                }
-                catch (InvalidOperationException)
-                {
-                    return null;
-                }
+                return context.User
+                .Where(u => u.Email.Equals(email))
+                .Select(u => u.UserId)
+                .FirstOrDefault(); 
             }
         }
 
@@ -96,55 +101,44 @@ namespace DAL
         {
             using (var context = new ChatexdbContext())
             {
-                try
-                {
-                    return context.UserToken
-                    .Where(u => u.Token.Equals(token))
-                    .Select(u => u.UserId)
-                    .Single();
-                }
-                catch (InvalidOperationException)
-                {
-                    return null;
-                }
+                return context.UserToken
+                .Where(u => u.Token.Equals(token))
+                .Select(u => u.UserId)
+                .FirstOrDefault();               
             }
         }
 
         public void UpdateUser(UserModel userModel)
         {
-            using (var db = new ChatexdbContext())
+            using (var context = new ChatexdbContext())
             {
-                User userEntity = db.User.Where(id => id.UserId == userModel.Id).FirstOrDefault();
+                User userEntity = context.User.Where(id => id.UserId == userModel.Id).FirstOrDefault();
+
                 userEntity.FirstName = userModel.FirstName;
                 userEntity.MiddleInitial = userModel.MiddleInitial.ToString();
                 userEntity.LastName = userModel.LastName;
                 userEntity.Email = userModel.Email;
                 userEntity.IsDeleted = userModel.IsDeleted;
-                db.SaveChanges();
+
+                context.SaveChanges();
             }
         }
 
         public UserModel GetUser(int userId)
         {
-            using(var db = new ChatexdbContext())
+            using(var context = new ChatexdbContext())
             {
-                var user = db.User.Where(i => i.UserId == userId).FirstOrDefault();
+                var user = context.User.Where(i => i.UserId == userId).FirstOrDefault();
+
                 return UserMapper.MapUserEntityToModel(user);
             }
         }
 
         public bool IsUserAdmin(int userId)
         {
-            using (var db = new ChatexdbContext())
-            {
-                var isAdmin = db.SystemAdministrator.Where(x => x.UserId == userId).Any();
-                if(isAdmin == true)
-                {
-                    return true;
-                } else
-                {
-                    return false;
-                }
+            using (var context = new ChatexdbContext())
+            { 
+                return context.SystemAdministrator.Where(x => x.UserId == userId).Any();
             }
         }
     }
