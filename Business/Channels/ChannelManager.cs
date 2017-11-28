@@ -21,7 +21,7 @@ namespace Business.Channels
 
             if (!membershipDetails.IsAdministrator)
             {
-                throw new InvalidArgumentException("The user was not authorized to delete the group", ParamNameType.CallerId);
+                throw new InvalidArgumentException("The user must be an administrator of the group to perform this action", ParamNameType.CallerId);
             }
         }
 
