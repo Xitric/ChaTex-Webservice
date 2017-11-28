@@ -20,21 +20,16 @@
  * limitations under the License.
  */
 
-
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using WebAPI.Authentication;
 using Business.Channels;
-using WebAPI.Models;
 using System;
 using IO.Swagger.Models;
 using Business.Errors;
 
 namespace IO.Swagger.Controllers
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public class ChannelsController : Controller
     {
         private readonly IChannelManager channelManager;
@@ -51,8 +46,9 @@ namespace IO.Swagger.Controllers
         /// <param name="groupId">The id of the group to make the channel in</param>
         /// <param name="createChannelDTO">The object containing information about the new channel</param>
         /// <response code="204">Channel created successfully</response>
-        /// <response code="400">Name must be specified</response>
+        /// <response code="400">No groupId specified or malformed CreateChannelDTO</response>
         /// <response code="401">The user was not authorized to access this resource</response>
+        /// <response code="403">The user was not authorized complete this task</response>
         /// <response code="404">No group with the specified id was found</response>
         [HttpPost]
         [Route("/1.0.0/groups/{groupId}/channels")]
@@ -64,19 +60,27 @@ namespace IO.Swagger.Controllers
 
             if (groupId == null)
             {
-                return StatusCode(404);
+                return BadRequest("No groupId specified");
             }
 
             if (createChannelDTO.Name == null)
             {
-                return StatusCode(400);
+                return BadRequest("Invalid createChannelDTO provided");
             }
 
-            bool success = channelManager.CreateChannel((int)groupId, callerId, createChannelDTO.Name);
-
-            if (!success)
+            try
             {
-                return StatusCode(401);
+                channelManager.CreateChannel((int)groupId, callerId, createChannelDTO.Name);
+            }
+            catch (InvalidArgumentException e)
+            {
+                switch (e.ParamName)
+                {
+                    case ParamNameType.CallerId:
+                        return Forbid(e.Message);
+                    default:
+                        return StatusCode(500);
+                }
             }
 
             return StatusCode(204);
@@ -88,8 +92,10 @@ namespace IO.Swagger.Controllers
         /// <remarks>Deletes the channel from the specified group</remarks>
         /// <param name="channelId">The id of the channel to delete</param>
         /// <response code="204">Channel deleted successfully</response>
+        /// <response code="400">Missing data in request</response>
         /// <response code="401">The user was not authorized to access this resource</response>
-        /// <response code="404">No group or channel with the specified ids were found</response>
+        /// <response code="403">The user was not authorized to complete the task</response>
+        /// <response code="404">Channel does not exist</response>
         [HttpDelete]
         [Route("/1.0.0/channels/{channelId}")]
         [SwaggerOperation("DeleteChannel")]
@@ -99,7 +105,7 @@ namespace IO.Swagger.Controllers
 
             if (channelId == null)
             {
-                return StatusCode(404);
+                return BadRequest("ChannelId not specified");
             }
 
             try
@@ -111,9 +117,11 @@ namespace IO.Swagger.Controllers
                 switch (e.ParamName)
                 {
                     case ParamNameType.CallerId:
-                        return StatusCode(401);
+                        return Forbid(e.Message);
                     case ParamNameType.GroupId:
-                        return StatusCode(404);
+                        return Forbid(e.Message);
+                    case ParamNameType.ChannelId:
+                        return NotFound(e.Message);
                     default:
                         return StatusCode(500);
                 }
@@ -129,7 +137,9 @@ namespace IO.Swagger.Controllers
         /// <param name="channelId">The id of the channel to update</param>
         /// <param name="channelName">The new name of the channel</param>
         /// <response code="204">Channel successfully updated</response>
+        /// <response code="400">Missing data in request</response>
         /// <response code="401">The user was not authorized to access this resource</response>
+        /// <response code="403">The user was not authorized to complete the task</response>
         /// <response code="404">No group or channel with the specified ids were found</response>
         [HttpPut]
         [Route("/1.0.0/channels/{channelId}")]
@@ -141,14 +151,26 @@ namespace IO.Swagger.Controllers
 
             if (channelId == null || String.IsNullOrEmpty(channelName))
             {
-                return StatusCode(404);
+                return BadRequest("ChannelId not specified or channel name was empty");
             }
 
-            bool success = channelManager.UpdateChannel(callerId, (int)channelId, channelName);
-
-            if (!success)
+            try
             {
-                return StatusCode(401);
+                channelManager.UpdateChannel(callerId, (int)channelId, channelName);
+            }
+            catch (InvalidArgumentException e)
+            {
+                switch (e.ParamName)
+                {
+                    case ParamNameType.ChannelId:
+                        return NotFound("Channel does not exist");
+                    case ParamNameType.GroupId:
+                        return Forbid(e.Message);
+                    case ParamNameType.CallerId:
+                        return Forbid(e.Message);
+                    default:
+                        return StatusCode(500);
+                }
             }
 
             return StatusCode(204);

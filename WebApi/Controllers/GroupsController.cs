@@ -31,6 +31,7 @@ using WebAPI.Models;
 using WebAPI.Models.Mappers;
 using Business.Models;
 using IO.Swagger.Models;
+using Business.Errors;
 
 namespace WebAPI.Controllers
 {
@@ -62,15 +63,14 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(createGroupDTO.GroupName))
             {
-                return StatusCode(400);
+                return BadRequest("Bad input");
             }
 
-            int? groupId = groupManager.CreateGroup(userId: callerId, groupName: createGroupDTO.GroupName,
+            int? groupId = groupManager.CreateGroup(callerID: callerId, groupName: createGroupDTO.GroupName,
                                      allowEmployeeSticky: (bool)createGroupDTO.AllowEmployeeSticky,
                                      allowEmployeeAcknowledgeable: (bool)createGroupDTO.AllowEmployeeAcknowledgeable,
                                      allowEmployeeBookmark: (bool)createGroupDTO.AllowEmployeeBookmark);
             return new ObjectResult(new GroupDTO(groupId, createGroupDTO.GroupName, new List<ChannelDTO>()));
-
         }
 
         /// <summary>
@@ -79,8 +79,9 @@ namespace WebAPI.Controllers
         /// <remarks>Get administrators for the group specified</remarks>
         /// <param name="groupId"></param>
         /// <response code="200">Successfully retrieved all the groupadmins</response>
+        /// <response code="400">Bad input</response>
         /// <response code="401">The user was not authorized to access this resource</response>
-        /// <response code="404">No group with the specified id was found</response>
+        /// <response code="403">No group with the specified id was found</response>
         [HttpGet]
         [Route("/1.0.0/groups/{groupId}/admins")]
         [SwaggerOperation("GetAllGroupAdmins")]
@@ -90,7 +91,7 @@ namespace WebAPI.Controllers
 
             if (groupId == null)
             {
-                return StatusCode(404);
+                return BadRequest("No groupId specified");
             }
 
             try
@@ -99,11 +100,16 @@ namespace WebAPI.Controllers
                 IEnumerable<UserDTO> dtoResponse = admins.Select(x => UserMapper.MapUserToUserDTO(x, callerId));
                 return new ObjectResult(dtoResponse);
             }
-            catch (Exception)
+            catch (InvalidArgumentException e)
             {
-                //TODO: change
-                return StatusCode(401);
+                switch (e.ParamName)
+                {
+                    case ParamNameType.GroupId:
+                        return Forbid(e.Message);
+                }
             }
+
+            return StatusCode(500);
         }
 
         /// <summary>
@@ -113,7 +119,7 @@ namespace WebAPI.Controllers
         /// <param name="groupId">The group id</param>
         /// <response code="200">Successfully retrieved all the groupuser&#39;s</response>
         /// <response code="401">The user was not authorized to access this resource</response>
-        /// <response code="404">No group with the specified id was found</response>
+        /// <response code="400">No group id specified</response>
         [HttpGet]
         [Route("/1.0.0/groups/{groupId}/users")]
         [SwaggerOperation("GetAllGroupUsers")]
@@ -125,7 +131,7 @@ namespace WebAPI.Controllers
 
             if (groupId == null)
             {
-                return StatusCode(404);
+                return BadRequest("No group id specified");
             }
 
             try
@@ -134,11 +140,16 @@ namespace WebAPI.Controllers
                 IEnumerable<UserDTO> dtoResponse = users.Select(x => UserMapper.MapUserToUserDTO(x, callerId));
                 return new ObjectResult(dtoResponse);
             }
-            catch (Exception)
+            catch (InvalidArgumentException e)
             {
-                //TODO: change
-                return StatusCode(401);
+                switch (e.ParamName)
+                {
+                    case ParamNameType.GroupId:
+                        return Forbid(e.Message);
+                }
             }
+
+            return StatusCode(500);
         }
 
         /// <summary>
@@ -147,8 +158,9 @@ namespace WebAPI.Controllers
         /// <remarks>Deletes the group with the specified id</remarks>
         /// <param name="groupId">The groupId</param>
         /// <response code="204">Group deleted successfully</response>
-        /// <response code="404">No group with the specified id exists</response>
+        /// <response code="400">No group id specified</response>
         /// <response code="401">The user was not authorized to access this resource</response>
+        /// <response code="403">User not in group or not allowed</response>
         [HttpDelete]
         [Route("/1.0.0/groups/{groupId}")]
         [SwaggerOperation("DeleteGroup")]
@@ -159,17 +171,24 @@ namespace WebAPI.Controllers
             
             if (groupId == null)
             {
-                return StatusCode(404);
+                return BadRequest("No group id specified");
             }
 
             try
             {
                 groupManager.DeleteGroup((int)groupId, callerId);
             }
-            catch (Exception)
+            catch (InvalidArgumentException e)
             {
-                //TODO: change
-                return StatusCode(401);
+                switch (e.ParamName)
+                {
+                    case ParamNameType.GroupId:
+                        return Forbid(e.Message);
+                    case ParamNameType.CallerId:
+                        return Forbid(e.Message);
+                    default:
+                        return StatusCode(500);
+                }
             }
 
             return StatusCode(204);
@@ -182,7 +201,8 @@ namespace WebAPI.Controllers
         /// <param name="addUsersGroupDTO">Users to be added to the group</param>
         /// <response code="204">Users added to group successfully</response>
         /// <response code="401">The user was not authorized to access this resource</response>
-        /// <response code="404">No group or user with the specified ids exists</response>
+        /// <response code="400">Bad input</response>
+        /// <response code="403">No group or user with the specified ids exists</response>
         [HttpPost]
         [Route("/1.0.0/groups/users")]
         [SwaggerOperation("AddUsersToGroup")]
@@ -194,7 +214,7 @@ namespace WebAPI.Controllers
             //If our list of users is null, or if it contains any element that is null
             if (addUsersToGroupDTO.GroupId == null || addUsersToGroupDTO.UserIds == null || addUsersToGroupDTO.UserIds.Exists(x => x == null))
             {
-                return StatusCode(404);
+                return BadRequest("Malformed addUsersToGroupDTO");
             }
 
             //Add user (also convert list of nullable ints, to list of ints)
@@ -202,12 +222,19 @@ namespace WebAPI.Controllers
             {
                 groupManager.AddUsersToGroup(groupId: (int)addUsersToGroupDTO.GroupId,
                                              userIds: addUsersToGroupDTO.UserIds.Where(x => x != null).Select(x => x.Value).ToList(),
-                                             loggedInUser: callerId);
+                                             callerId: callerId);
             }
-            catch (Exception)
+            catch (InvalidArgumentException e)
             {
-                //TODO: change
-                return StatusCode(403);
+                switch (e.ParamName)
+                {
+                    case ParamNameType.GroupId:
+                        return Forbid(e.Message);
+                    case ParamNameType.CallerId:
+                        return Forbid(e.Message);
+                    default:
+                        return StatusCode(500);
+                }
             }
 
             return StatusCode(204);
@@ -221,7 +248,7 @@ namespace WebAPI.Controllers
         /// <param name="userIds">The Ids of all the users</param>
         /// <response code="204">Users deleted from the group successfully</response>
         /// <response code="401">The user was not authorized to access this resource</response>
-        /// <response code="404">No group or user with the specified ids exists</response>
+        /// <response code="400">Bad input</response>
         [HttpDelete]
         [Route("/1.0.0/groups/users")]
         [SwaggerOperation("DeleteUsersFromGroup")]
@@ -233,12 +260,29 @@ namespace WebAPI.Controllers
             //If our list of users is null, or if it contains any element that is null
             if (groupId == null || userIds == null || userIds.Exists(x => x == null))
             {
-                return StatusCode(404);
+                return BadRequest("Bad input");
             }
 
             //Add user (also convert list of nullable ints, to list of ints)
-            //TODO: return boolan, missing catch
-            groupManager.RemoveUsersFromGroup(groupId: (int)groupId, userIds: userIds.Where(x => x != null).Select(x => x.Value).ToList(), loggedInUserId: callerId);
+            try
+            {
+                groupManager.RemoveUsersFromGroup(groupId: (int)groupId,
+                                              userIds: userIds.Where(x => x != null).Select(x => x.Value).ToList(),
+                                              callerId: callerId);
+            }
+            catch (InvalidArgumentException e)
+            {
+                switch (e.ParamName)
+                {
+                    case ParamNameType.CallerId:
+                        return Forbid(e.Message);
+                    case ParamNameType.GroupId:
+                        return Forbid(e.Message);
+                    default:
+                        return StatusCode(500);
+                }
+            }
+            
             return StatusCode(204);
         }
 
@@ -249,7 +293,7 @@ namespace WebAPI.Controllers
         /// <param name="addRolesToGroupDTO">Roles to be added to the group</param>
         /// <response code="204">Roles added to group successfully</response>
         /// <response code="401">The user was not authorized to access this resource</response>
-        /// <response code="404">No group or role with the specified ids exists</response>
+        /// <response code="400">Bad input</response>
         [HttpPost]
         [Route("/1.0.0/groups/roles")]
         [SwaggerOperation("AddRolesToGroup")]
@@ -260,16 +304,25 @@ namespace WebAPI.Controllers
 
             if (addRolesToGroupDTO.GroupId == null || addRolesToGroupDTO.RoleIds == null || addRolesToGroupDTO.RoleIds.Exists(x => x == null))
             {
-                return StatusCode(404);
+                return BadRequest("Bad input");
             }
             try
             {
                 groupManager.AddRolesToGroup((int)addRolesToGroupDTO.GroupId, callerId, addRolesToGroupDTO.RoleIds.Where(x => x != null).Select(x => x.Value).ToList());
             }
-            catch (Exception)
+            catch (InvalidArgumentException e)
             {
-                return StatusCode(401);
+                switch (e.ParamName)
+                {
+                    case ParamNameType.CallerId:
+                        return Forbid(e.Message);
+                    case ParamNameType.GroupId:
+                        return Forbid(e.Message);
+                    default:
+                        return StatusCode(500);
+                }
             }
+
             return StatusCode(204);
         }
 
@@ -281,7 +334,7 @@ namespace WebAPI.Controllers
         /// <param name="roleIds">The Ids of all the roles</param>
         /// <response code="204">Roles deleted from the group successfully</response>
         /// <response code="401">The user was not authorized to access this resource</response>
-        /// <response code="404">No group or role with the specified ids exists</response>
+        /// <response code="400">Bad input</response>
         [HttpDelete]
         [Route("/1.0.0/groups/roles")]
         [SwaggerOperation("DeleteRolesFromGroup")]
@@ -292,19 +345,27 @@ namespace WebAPI.Controllers
 
             if (groupId == null || roleIds == null || roleIds.Exists(x => x == null))
             {
-                return StatusCode(404);
+                return BadRequest("Bad input");
             }
 
             try
             {
                 groupManager.RemoveRolesFromGroup((int)groupId, (int)callerId, roleIds.Where(x => x != null).Select(x => x.Value).ToList());
             }
-            catch (Exception)
+            catch (InvalidArgumentException e)
             {
-                //TODO: change
-                return StatusCode(401);
+                switch (e.ParamName)
+                {
+                    case ParamNameType.CallerId:
+                        return Forbid(e.Message);
+                    case ParamNameType.GroupId:
+                        return Forbid(e.Message);
+                    default:
+                        return StatusCode(500);
+                }
             }
-            return StatusCode(200);
+
+            return StatusCode(204);
         }
 
 
@@ -317,7 +378,7 @@ namespace WebAPI.Controllers
         /// <param name="isAdministrator">Indicates if user is an administrator</param>
         /// <response code="204">User marked or unmarked successfully</response>
         /// <response code="401">The user was not authorized to access this resource</response>
-        /// <response code="404">No group or group user with the specified ids were found</response>
+        /// <response code="400">Bad input</response>
         [HttpPut]
         [Route("/1.0.0/groups/{groupId}/{userId}")]
         [SwaggerOperation("MarkUserAsAdministrator")]
@@ -328,19 +389,27 @@ namespace WebAPI.Controllers
 
             if (groupId == null || userId == null || isAdministrator == null)
             {
-                return StatusCode(404);
+                return BadRequest("Bad input");
             }
 
             try
             {
                 groupManager.SetUserAdministratorOnGroup((int)groupId, (int)userId, callerId, (bool)isAdministrator);
             }
-            catch (Exception)
+            catch (InvalidArgumentException e)
             {
-                //TODO: change
-                return StatusCode(401);
+                switch (e.ParamName)
+                {
+                    case ParamNameType.CallerId:
+                        return Forbid(e.Message);
+                    case ParamNameType.GroupId:
+                        return Forbid(e.Message);
+                    default:
+                        return StatusCode(500);
+                }
             }
-            return StatusCode(200);
+
+            return StatusCode(204);
         }
 
         /// <summary>
@@ -351,7 +420,7 @@ namespace WebAPI.Controllers
         /// <param name="groupName"></param>
         /// <response code="204">Group name successfully updated</response>
         /// <response code="401">The user was not authorized to access this resource</response>
-        /// <response code="404">No group with the specified id exists</response>
+        /// <response code="400">Bad input</response>
         [HttpPut]
         [Route("/1.0.0/groups/{groupId}")]
         [SwaggerOperation("UpdateGroup")]
@@ -362,17 +431,26 @@ namespace WebAPI.Controllers
 
             if(groupId == null || groupName == null )
             {
-                return StatusCode(404);
+                return BadRequest("Bad input");
             }
+
             try
             {
                 groupManager.UpdateGroup((int)groupId, groupName);
             }
-            catch (Exception)
+            catch (InvalidArgumentException e)
             {
-                //TODO: change
-                return StatusCode(401);
+                switch (e.ParamName)
+                {
+                    case ParamNameType.CallerId:
+                        return Forbid(e.Message);
+                    case ParamNameType.GroupId:
+                        return Forbid(e.Message);
+                    default:
+                        return StatusCode(500);
+                }
             }
+
             return StatusCode(204);
         }
     }

@@ -18,7 +18,7 @@ namespace Business.Groups
         /// <returns></returns>
         int? CreateGroup(int callerID, string groupName, bool allowEmployeeSticky = false, bool allowEmployeeAcknowledgeable = false, bool allowEmployeeBookmark = false);
 
-        bool DeleteGroup(int groupId, int callerId);
+        void DeleteGroup(int groupId, int callerId);
 
         /// <summary>
         /// Add users to a specific group. the callerId is the id of the group administrator

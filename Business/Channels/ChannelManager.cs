@@ -21,7 +21,7 @@ namespace Business.Channels
 
             if (user == null)
             {
-                throw new ArgumentException("User does not exist in group", "callerId");
+                throw new InvalidArgumentException("User does not exist in group", ParamNameType.GroupId);
             }
 
             if (user.IsAdministrator)
@@ -30,7 +30,7 @@ namespace Business.Channels
             }
             else
             {
-                throw new ArgumentException("User is not administrator in group", "callerId");
+                throw new InvalidArgumentException("User is not administrator in group", ParamNameType.CallerId);
             }
         }
 
@@ -40,14 +40,14 @@ namespace Business.Channels
 
             if (channel == null)
             {
-                throw new ArgumentException("Channel does not exist", "channelId");
+                throw new InvalidArgumentException("Channel does not exist", ParamNameType.ChannelId);
             }
 
             GroupUserModel user = groupRepository.GetGroupUser(channel.GroupId, callerId);
 
             if (user == null)
             {
-                throw new ArgumentException("User does not exist in group", "callerId");
+                throw new InvalidArgumentException("User does not exist in group", ParamNameType.GroupId);
             }
 
             if (user.IsAdministrator)
@@ -56,7 +56,7 @@ namespace Business.Channels
             }
             else
             {
-                throw new ArgumentException("User is not administrator in group", "callerId");
+                throw new InvalidArgumentException("User is not administrator in group", ParamNameType.CallerId);
             }
         }
 
@@ -66,14 +66,14 @@ namespace Business.Channels
 
             if (channel == null)
             {
-                throw new ArgumentException("Channel does not exist", "channelId");
+                throw new InvalidArgumentException("Channel does not exist", ParamNameType.ChannelId);
             }
 
             GroupUserModel user = groupRepository.GetGroupUser(channel.GroupId, callerId);
 
             if (user == null)
             {
-                throw new ArgumentException("User does not exist in group", "callerId");
+                throw new InvalidArgumentException("User does not exist in group", ParamNameType.GroupId);
             }
 
             if (user.IsAdministrator) {

@@ -23,8 +23,6 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using WebAPI.Models;
-using Business.Messages;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Business.Models;
@@ -112,7 +110,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrWhiteSpace(token))
             {
-                return NotFound("No user with the specified email was found!");
+                return Forbid("No user with the specified email was found!");
             }
             
             return Content(token);
@@ -136,7 +134,7 @@ namespace WebAPI.Controllers
             
             if(userId == null || updateUserDTO == null)
             {
-                return StatusCode(400);
+                return BadRequest("No userId or updateUserDTO specified");
             }
 
             userManager.UpdateUser(callerId, new UserModel()

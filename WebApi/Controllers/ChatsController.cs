@@ -23,7 +23,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using IO.Swagger.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using WebAPI.Authentication;
@@ -41,6 +40,7 @@ namespace IO.Swagger.Controllers
         {
             this.chatManager = chatManager;
         }
+
         /// <summary>
         /// Add users to a chat
         /// </summary>
@@ -57,17 +57,9 @@ namespace IO.Swagger.Controllers
         {
             int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
             
-            try
-            {
-                chatManager.AddUsersToChat(chatId: (int)addUsersToChatDTO.ChatId,
-                userIds: addUsersToChatDTO.UserIds.Where(x => x != null).Select(x => x.Value).ToList());
-            }
-            catch (Exception)
-            {
-                //TODO:change
-                return StatusCode(403);
-            }
-
+            chatManager.AddUsersToChat(chatId: (int)addUsersToChatDTO.ChatId,
+            userIds: addUsersToChatDTO.UserIds.Where(x => x != null).Select(x => x.Value).ToList());
+           
             return StatusCode(204);
         }
 
@@ -80,6 +72,7 @@ namespace IO.Swagger.Controllers
         /// <response code="200">The chat was created</response>
         /// <response code="400">Bad input</response>
         /// <response code="401">The user was not authorized to access this resource</response>
+        /// <response code="403">The user was not authorized to access this resource</response>
         [HttpPost]
         [Route("/1.0.0/chats")]
         [SwaggerOperation("CreateChat")]
@@ -91,25 +84,17 @@ namespace IO.Swagger.Controllers
 
             if (string.IsNullOrEmpty(createChatDTO.ChatName))
             {
-                return StatusCode(400);
+                return BadRequest("Malformed createChatDTO");
             }
 
-            try
+            int? chatId = chatManager.CreateChat(userId: callerId, chatName: createChatDTO.ChatName);
+
+            if (chatId == null)
             {
-                int? chatId = chatManager.CreateChat(userId: callerId, chatName: createChatDTO.ChatName);
-
-                if (chatId == null)
-                {
-                    return StatusCode(401);
-                }
-
-                return new ObjectResult(new ChatDTO(chatId, createChatDTO.ChatName, new List<UserDTO>()));
+                return Forbid("Could not create chat");
             }
-            catch (Exception)
-            {
-                //TODO:change
-                return StatusCode(401);
-            }
+
+            return new ObjectResult(new ChatDTO(chatId, createChatDTO.ChatName, new List<UserDTO>()));
         }
 
 
