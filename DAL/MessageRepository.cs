@@ -97,7 +97,7 @@ namespace DAL
                 using (var context = new ChatexdbContext())
                 {
                     Message messageEntity = MessageMapper.MapMessageModelToEntity(message);
-                    messageEntity.CreationDate = DateTime.Now;
+                    messageEntity.CreationDate = DateTime.Now.ToUniversalTime();
 
                     context.Message.Add(messageEntity);
                     context.SaveChanges();
@@ -119,7 +119,7 @@ namespace DAL
             using (var context = new ChatexdbContext())
             {
                 Message entity = context.Message.Find(messageId);
-                entity.DeletionDate = DateTime.Now;
+                entity.DeletionDate = DateTime.Now.ToUniversalTime();
 
                 context.SaveChanges();
             }
@@ -142,7 +142,7 @@ namespace DAL
 
                 //Update current message
                 entity.Content = content;
-                entity.LastEditDate = DateTime.Now;
+                entity.LastEditDate = DateTime.Now.ToUniversalTime();
 
                 context.SaveChanges();
             }

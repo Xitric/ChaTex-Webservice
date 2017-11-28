@@ -202,9 +202,9 @@ namespace Business.Messages
 
                 while (true)
                 {
-                    newMessages = messageRepository.GetMessagesSince(channelId, since);
-                    deletedMessages = messageRepository.GetDeletedMessagesSince(channelId, since);
-                    editedMessages = messageRepository.GetEditedMessagesSince(channelId, since);
+                    newMessages = messageRepository.GetMessagesSince(channelId, since.ToUniversalTime());
+                    deletedMessages = messageRepository.GetDeletedMessagesSince(channelId, since.ToUniversalTime());
+                    editedMessages = messageRepository.GetEditedMessagesSince(channelId, since.ToUniversalTime());
 
                     //Stop looking if something happened
                     if (newMessages.Any() || deletedMessages.Any() || editedMessages.Any())

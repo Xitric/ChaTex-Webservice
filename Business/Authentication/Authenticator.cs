@@ -34,7 +34,7 @@ namespace Business.Authentication
             //If there is no existing token at this point, a new one is generated
             if (token == null)
             {
-                token = GenerateToken(DateTime.Now.AddDays(1));
+                token = GenerateToken(DateTime.Now.ToUniversalTime().AddDays(1));
 
                 if (users.SaveUserToken(email, token))
                 {
