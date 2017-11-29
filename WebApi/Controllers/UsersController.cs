@@ -109,8 +109,9 @@ namespace WebAPI.Controllers
             string token = userManager.Login(userEmail);
 
             if (string.IsNullOrWhiteSpace(token))
-            {
-                return Forbid("No user with the specified email was found!");
+            {   
+                HttpContext.Response.StatusCode = 403;
+                return new ObjectResult("No user with the specified email was found!");
             }
             
             return new JsonResult(token);

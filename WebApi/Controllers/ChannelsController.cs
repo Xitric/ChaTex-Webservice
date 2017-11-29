@@ -77,7 +77,8 @@ namespace IO.Swagger.Controllers
                 switch (e.ParamName)
                 {
                     case ParamNameType.CallerId:
-                        return Forbid(e.Message);
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
                     default:
                         return StatusCode(500);
                 }
@@ -117,9 +118,11 @@ namespace IO.Swagger.Controllers
                 switch (e.ParamName)
                 {
                     case ParamNameType.CallerId:
-                        return Forbid(e.Message);
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
                     case ParamNameType.GroupId:
-                        return Forbid(e.Message);
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
                     case ParamNameType.ChannelId:
                         return NotFound(e.Message);
                     default:
@@ -165,9 +168,11 @@ namespace IO.Swagger.Controllers
                     case ParamNameType.ChannelId:
                         return NotFound("Channel does not exist");
                     case ParamNameType.GroupId:
-                        return Forbid(e.Message);
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
                     case ParamNameType.CallerId:
-                        return Forbid(e.Message);
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
                     default:
                         return StatusCode(500);
                 }
