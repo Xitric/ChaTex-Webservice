@@ -46,7 +46,7 @@ namespace DAL
             using (var context = new ChatexdbContext())
             {
                 int? userID = GetUserIdFromEmail(email);
-                
+
                 if (userID == null)
                 {
                     return false;
@@ -90,10 +90,18 @@ namespace DAL
         {
             using (var context = new ChatexdbContext())
             {
-                return context.User
-                .Where(u => u.Email.Equals(email))
-                .Select(u => u.UserId)
-                .FirstOrDefault(); 
+                var matchingUserIds = context.User
+                    .Where(u => u.Email.Equals(email))
+                    .Select(u => u.UserId);
+
+                if (matchingUserIds.Count() == 1)
+                {
+                    return matchingUserIds.Single();
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
 
@@ -104,7 +112,7 @@ namespace DAL
                 return context.UserToken
                 .Where(u => u.Token.Equals(token))
                 .Select(u => u.UserId)
-                .FirstOrDefault();               
+                .FirstOrDefault();
             }
         }
 
@@ -126,7 +134,7 @@ namespace DAL
 
         public UserModel GetUser(int userId)
         {
-            using(var context = new ChatexdbContext())
+            using (var context = new ChatexdbContext())
             {
                 var user = context.User.Where(i => i.UserId == userId).FirstOrDefault();
 
@@ -137,7 +145,7 @@ namespace DAL
         public bool IsUserAdmin(int userId)
         {
             using (var context = new ChatexdbContext())
-            { 
+            {
                 return context.SystemAdministrator.Where(x => x.UserId == userId).Any();
             }
         }
