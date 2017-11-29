@@ -105,7 +105,8 @@ namespace WebAPI.Controllers
                 switch (e.ParamName)
                 {
                     case ParamNameType.GroupId:
-                        return Forbid(e.Message);
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
                 }
             }
 
@@ -145,7 +146,8 @@ namespace WebAPI.Controllers
                 switch (e.ParamName)
                 {
                     case ParamNameType.GroupId:
-                        return Forbid(e.Message);
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
                 }
             }
 
@@ -183,9 +185,11 @@ namespace WebAPI.Controllers
                 switch (e.ParamName)
                 {
                     case ParamNameType.GroupId:
-                        return Forbid(e.Message);
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
                     case ParamNameType.CallerId:
-                        return Forbid(e.Message);
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
                     default:
                         return StatusCode(500);
                 }
@@ -229,9 +233,11 @@ namespace WebAPI.Controllers
                 switch (e.ParamName)
                 {
                     case ParamNameType.GroupId:
-                        return Forbid(e.Message);
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
                     case ParamNameType.CallerId:
-                        return Forbid(e.Message);
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
                     default:
                         return StatusCode(500);
                 }
@@ -275,9 +281,11 @@ namespace WebAPI.Controllers
                 switch (e.ParamName)
                 {
                     case ParamNameType.CallerId:
-                        return Forbid(e.Message);
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
                     case ParamNameType.GroupId:
-                        return Forbid(e.Message);
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
                     default:
                         return StatusCode(500);
                 }
@@ -315,9 +323,11 @@ namespace WebAPI.Controllers
                 switch (e.ParamName)
                 {
                     case ParamNameType.CallerId:
-                        return Forbid(e.Message);
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
                     case ParamNameType.GroupId:
-                        return Forbid(e.Message);
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
                     default:
                         return StatusCode(500);
                 }
@@ -357,9 +367,11 @@ namespace WebAPI.Controllers
                 switch (e.ParamName)
                 {
                     case ParamNameType.CallerId:
-                        return Forbid(e.Message);
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
                     case ParamNameType.GroupId:
-                        return Forbid(e.Message);
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
                     default:
                         return StatusCode(500);
                 }
@@ -401,9 +413,11 @@ namespace WebAPI.Controllers
                 switch (e.ParamName)
                 {
                     case ParamNameType.CallerId:
-                        return Forbid(e.Message);
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
                     case ParamNameType.GroupId:
-                        return Forbid(e.Message);
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
                     default:
                         return StatusCode(500);
                 }
@@ -443,9 +457,11 @@ namespace WebAPI.Controllers
                 switch (e.ParamName)
                 {
                     case ParamNameType.CallerId:
-                        return Forbid(e.Message);
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
                     case ParamNameType.GroupId:
-                        return Forbid(e.Message);
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
                     default:
                         return StatusCode(500);
                 }

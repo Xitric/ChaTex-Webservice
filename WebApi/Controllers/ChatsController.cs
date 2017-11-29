@@ -91,7 +91,8 @@ namespace IO.Swagger.Controllers
 
             if (chatId == null)
             {
-                return Forbid("Could not create chat");
+                HttpContext.Response.StatusCode = 403;
+                return new ObjectResult("Could not create chat");
             }
 
             return new ObjectResult(new ChatDTO(chatId, createChatDTO.ChatName, new List<UserDTO>()));
