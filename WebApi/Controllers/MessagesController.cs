@@ -232,6 +232,9 @@ namespace WebAPI.Controllers
                     case "callerId":
                         //Caller was not authorized
                         return StatusCode(401);
+                    case "channelId":
+                        //Channel did not exist
+                        return NotFound(e.Message);
                     default:
                         //Some unexpected exception
                         return StatusCode(500);

@@ -41,7 +41,7 @@ namespace DAL
         {
             using (var context = new ChatexdbContext())
             {
-                return ChannelMapper.MapChannelEntityToModel(context.Channel.Where(i => i.ChannelId == channelId).FirstOrDefault());
+                return ChannelMapper.MapChannelEntityToModel(context.Channel.Where(c => c.ChannelId == channelId).Where(c => c.IsDeleted == false).FirstOrDefault());
             }
         }
 

@@ -68,6 +68,11 @@ namespace Business.Messages
 
         public void CreateMessage(int callerId, int channelId, string messageContent)
         {
+            if (channelRepository.GetChannel(channelId) == null)
+            {
+                throw new ArgumentException("The specified channel does not exist. Maybe it has been deleted.", "channelId");
+            }
+
             bool hasAccess = isUserInChannel(callerId, channelId);
 
             if (!hasAccess)
