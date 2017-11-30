@@ -25,21 +25,11 @@ namespace Business.Channels
             }
         }
 
-        public void CreateChannel(int groupId, int callerId, string channelName)
-        {
-            GroupMembershipDetails membershipDetails = groupRepository.GetGroupMembershipDetailsForUser(groupId, callerId);
-
-            if (!membershipDetails.IsAdministrator)
-            {
-                throw new InvalidArgumentException("The user must be an administrator of the group to perform this action", ParamNameType.CallerId);
-            }
-        }
-
-        public void CreateChannel(int groupId, int callerId, string channelName)
+        public int CreateChannel(int groupId, int callerId, string channelName)
         {
             throwIfNotAdministrator(groupId, callerId);
 
-            channelRepository.CreateChannel(groupId, channelName);
+            return channelRepository.CreateChannel(groupId, channelName);
         }
 
         public void DeleteChannel(int callerId, int channelId)
