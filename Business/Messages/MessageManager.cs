@@ -66,7 +66,7 @@ namespace Business.Messages
             return messages;
         }
 
-        public void CreateMessage(int callerId, int channelId, string messageContent)
+        public int CreateMessage(int callerId, int channelId, string messageContent)
         {
             bool hasAccess = isUserInChannel(callerId, channelId);
 
@@ -85,11 +85,13 @@ namespace Business.Messages
             object msgLock;
             lock (msgLock = getLockForChannel(channelId))
             {
-                messageRepository.CreateMessage(message, channelId);
+                int messageId = messageRepository.CreateMessage(message, channelId);
 
                 //Inform waiting threads that a new message was posted
                 Console.WriteLine($"New message for channel {channelId}, wake up my little lambs!");
                 Monitor.PulseAll(msgLock);
+
+                return messageId;
             }
         }
 

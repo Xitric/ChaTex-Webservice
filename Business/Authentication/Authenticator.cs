@@ -1,7 +1,9 @@
 ﻿using Business;
 using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("ChaTexTest")]
 namespace Business.Authentication
 {
     class Authenticator : IAuthenticator

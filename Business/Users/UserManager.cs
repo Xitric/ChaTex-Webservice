@@ -2,9 +2,12 @@
 using Business.Authentication;
 using Business.Models;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("ChaTexTest")]
 namespace Business.Users
 {
+ 
     class UserManager : IUserManager
     {
         private readonly IUserRepository userRepository;
