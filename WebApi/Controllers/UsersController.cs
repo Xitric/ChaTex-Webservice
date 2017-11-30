@@ -32,6 +32,7 @@ using WebAPI.Models.Mappers;
 using System;
 using IO.Swagger.Models;
 using Business.Groups;
+using Business.Errors;
 
 namespace WebAPI.Controllers
 {
@@ -138,15 +139,30 @@ namespace WebAPI.Controllers
                 return BadRequest("No userId or updateUserDTO specified");
             }
 
-            userManager.UpdateUser(callerId, new UserModel()
+            try
             {
-                Id = userId,
-                FirstName = updateUserDTO.FirstName,
-                MiddleInitial = updateUserDTO.MiddleInitial?[0],
-                LastName = updateUserDTO.LastName,
-                Email = updateUserDTO.Email,
-                IsDeleted = updateUserDTO.IsDeleted
-            });
+                userManager.UpdateUser(callerId, new UserModel()
+                {
+                    Id = userId,
+                    FirstName = updateUserDTO.FirstName,
+                    MiddleInitial = updateUserDTO.MiddleInitial?[0],
+                    LastName = updateUserDTO.LastName,
+                    Email = updateUserDTO.Email,
+                    IsDeleted = updateUserDTO.IsDeleted
+                });
+            }
+            catch (InvalidArgumentException e) 
+            {
+                switch (e.ParamName)
+                {
+                    case ParamNameType.CallerId:
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult("User not permitted to make changes on users");
+                    default:
+                        return StatusCode(500);
+                }
+                throw;
+            }
 
             return StatusCode(204);
         }

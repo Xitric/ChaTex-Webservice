@@ -5,6 +5,7 @@
         CallerId,
         GroupId,
         ChannelId,
-        MessageId
+        MessageId,
+        UserModel
     }
 }
