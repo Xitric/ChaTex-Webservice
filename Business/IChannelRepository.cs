@@ -4,7 +4,7 @@ namespace Business
 {
     public interface IChannelRepository
     {
-        void CreateChannel(int groupId, string name);
+        int CreateChannel(int groupId, string name);
 
         void DeleteChannel(int channelId);
 

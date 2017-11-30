@@ -14,8 +14,18 @@ namespace Business.Channels
             this.channelRepository = channelRepository;
             this.groupRepository = groupRepository;
         }
-
+        
         private void throwIfNotAdministrator(int groupId, int callerId)
+        {
+            GroupMembershipDetails membershipDetails = groupRepository.GetGroupMembershipDetailsForUser(groupId, callerId);
+
+            if (!membershipDetails.IsAdministrator)
+            {
+                throw new InvalidArgumentException("The user must be an administrator of the group to perform this action", ParamNameType.CallerId);
+            }
+        }
+
+        public void CreateChannel(int groupId, int callerId, string channelName)
         {
             GroupMembershipDetails membershipDetails = groupRepository.GetGroupMembershipDetailsForUser(groupId, callerId);
 

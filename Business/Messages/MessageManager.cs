@@ -66,7 +66,7 @@ namespace Business.Messages
             return messages;
         }
 
-        public void CreateMessage(int callerId, int channelId, string messageContent)
+        public int CreateMessage(int callerId, int channelId, string messageContent)
         {
             if (channelRepository.GetChannel(channelId) == null)
             {
@@ -90,12 +90,15 @@ namespace Business.Messages
             object msgLock;
             lock (msgLock = getLockForChannel(channelId))
             {
-                messageRepository.CreateMessage(message, channelId);
+                int messageId = messageRepository.CreateMessage(message, channelId);
 
                 //Inform waiting threads that a new message was posted
                 Console.WriteLine($"New message for channel {channelId}, wake up my little lambs!");
                 Monitor.PulseAll(msgLock);
+
+                return messageId;
             }
+            return 0;
         }
 
         public void DeleteMessage(int callerId, int messageId)
@@ -122,7 +125,7 @@ namespace Business.Messages
                 }
                 else
                 {
-                    throw new ArgumentException("User does not have the rights to delete the specified message", "callerId");
+                    throw new ArgumentException("User does not have the rights to delete the specified message", nameof(callerId));
                 }
             }
         }
@@ -131,7 +134,7 @@ namespace Business.Messages
         {
             //Since message ids are fixed and messages don't change channels, these operations did not need to be within the lock
             MessageModel message = messageRepository.GetMessage(messageId);
-            if (message == null) throw new ArgumentException("Message with the specified id does not exist", "messageId");
+            if (message == null) throw new ArgumentException("Message with the specified id does not exist", nameof(messageId));
 
             var channel = channelRepository.GetChannel(message.ChannelId);
 
@@ -150,7 +153,7 @@ namespace Business.Messages
                 }
                 else
                 {
-                    throw new ArgumentException("User does not have the rights to delete the specified message", "callerId");
+                    throw new ArgumentException("User does not have the rights to delete the specified message", nameof(callerId));
                 }
             }
         }
@@ -174,7 +177,7 @@ namespace Business.Messages
             }
             else
             {
-                throw new ArgumentException("Message couldnt be retrieved because the user isnt in the channel group", "callerId");
+                throw new ArgumentException("Message couldnt be retrieved because the user isnt in the channel group", nameof(callerId));
             }
         }
 
@@ -193,7 +196,7 @@ namespace Business.Messages
 
             if (!hasAccess)
             {
-                throw new ArgumentException("User does not have access to the specified channel", "callerId");
+                throw new ArgumentException("User does not have access to the specified channel", nameof(callerId));
             }
 
             //We should ensure that we are not looking for changes while they are being made

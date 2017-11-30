@@ -11,7 +11,7 @@ namespace Business
         IEnumerable<MessageModel> GetDeletedMessagesSince(int channelId, DateTime since);
         IEnumerable<MessageModel> GetEditedMessagesSince(int channelId, DateTime since);
         MessageModel GetMessage(int messageId);
-        void CreateMessage(MessageModel messagemodel, int channelId);
+        int CreateMessage(MessageModel messagemodel, int channelId);
         void DeleteMessage(int messageId);
         void EditMessage(int messageId, string content);
     }

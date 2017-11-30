@@ -90,7 +90,7 @@ namespace DAL
             }
         }
 
-        public void CreateMessage(MessageModel message, int channelId)
+        public int CreateMessage(MessageModel message, int channelId)
         {
             if (message != null)
             {
@@ -110,8 +110,10 @@ namespace DAL
 
                     context.ChannelMessages.Add(channelMessageEntity);
                     context.SaveChanges();
+                    return messageEntity.MessageId;
                 }
             }
+            return 0;
         }
 
         public void DeleteMessage(int messageId)
