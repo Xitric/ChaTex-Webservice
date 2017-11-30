@@ -9,7 +9,7 @@
         /// <param name="callerId">The id of the user who triggered this method</param>
         /// <param name="channelName">The name of the channel to create</param>
         /// <exception cref="ArgumentException"></exception>
-        void CreateChannel(int groupId, int callerId, string channelName);
+        int CreateChannel(int groupId, int callerId, string channelName);
 
         /// <summary>
         /// Delete a channel from a group. The callerId must be the id of a group administrator in order to perform this operation.

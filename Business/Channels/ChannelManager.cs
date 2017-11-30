@@ -15,7 +15,7 @@ namespace Business.Channels
             this.groupRepository = groupRepository;
         }
 
-        public void CreateChannel(int groupId, int callerId, string channelName)
+        public int CreateChannel(int groupId, int callerId, string channelName)
         {
             GroupUserModel user = groupRepository.GetGroupUser(groupId, callerId);
 
@@ -26,7 +26,7 @@ namespace Business.Channels
 
             if (user.IsAdministrator)
             {
-                channelRepository.CreateChannel(groupId, channelName);
+                return channelRepository.CreateChannel(groupId, channelName);
             }
             else
             {
