@@ -22,39 +22,41 @@
 
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using IO.Swagger.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using Business.Roles;
+using IO.Swagger.Attributes;
+using IO.Swagger.Models;
+using WebAPI.Authentication;
 using Business.Models;
+using Business.Roles;
 using System.Linq;
 using WebAPI.Models.Mappers;
-using WebAPI.Authentication;
 
 namespace IO.Swagger.Controllers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class RolesApiController : Controller
-    { 
-
+    {
         private readonly IRoleManager roleManager;
 
-       public RolesApiController(IRoleManager roleManager)
-       {
+        public RolesApiController(IRoleManager roleManager)
+        {
             this.roleManager = roleManager;
-       }
+        }
 
         /// <summary>
-        /// Get roles
+        /// Get a list of all the roles in the system
         /// </summary>
-        /// <remarks>Get all roles in the system</remarks>
+
         /// <response code="200">Successfully retrieved all roles</response>
-        /// <response code="401">The user was not authorized to access this resource</response>
         [HttpGet]
         [Route("/1.0.0/roles")]
-        [SwaggerOperation("GetAllRoles")]
-        [SwaggerResponse(200, type: typeof(List<RoleDTO>))]
+        [ValidateModelState]
+        [SwaggerOperation("RolesGetAllRoles")]
+        [SwaggerResponse(200, typeof(List<RoleDTO>), "Successfully retrieved all roles")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual IActionResult GetAllRoles()
+        public virtual IActionResult RolesGetAllRoles()
         {
             int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 

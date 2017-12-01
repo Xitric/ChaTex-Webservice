@@ -9,7 +9,11 @@ namespace WebAPI.Models.Mappers
         public static ChannelDTO MapChannelToChanelDTO(ChannelModel channel)
         {
             if (channel == null) return null;
-            return new ChannelDTO(channel.Id, channel.Name);
+            return new ChannelDTO()
+            {
+                Id = channel.Id,
+                Name = channel.Name
+            };
         }
 
         public static ChannelEventDTO MapChannelEventToChannelEventDTO(ChannelEventModel channelEventModel, int callerId)

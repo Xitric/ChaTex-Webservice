@@ -27,73 +27,38 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
 namespace IO.Swagger.Models
-{
+{ 
     /// <summary>
     /// 
     /// </summary>
     [DataContract]
     public partial class RoleDTO :  IEquatable<RoleDTO>
-    {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RoleDTO" /> class.
-        /// </summary>
-        /// <param name="Id">Id (required).</param>
-        /// <param name="Name">Name (required).</param>
-        /// <param name="IsDeleted">IsDeleted (required).</param>
-        public RoleDTO(int? Id = null, string Name = null, bool? IsDeleted = null)
-        {
-            // to ensure "Id" is required (not null)
-            if (Id == null)
-            {
-                throw new InvalidDataException("Id is a required property for RoleDTO and cannot be null");
-            }
-            else
-            {
-                this.Id = Id;
-            }
-            // to ensure "Name" is required (not null)
-            if (Name == null)
-            {
-                throw new InvalidDataException("Name is a required property for RoleDTO and cannot be null");
-            }
-            else
-            {
-                this.Name = Name;
-            }
-            // to ensure "IsDeleted" is required (not null)
-            if (IsDeleted == null)
-            {
-                throw new InvalidDataException("IsDeleted is a required property for RoleDTO and cannot be null");
-            }
-            else
-            {
-                this.IsDeleted = IsDeleted;
-            }
-            
-        }
-
+    { 
         /// <summary>
         /// Gets or Sets Id
         /// </summary>
+        [Required]
         [DataMember(Name="Id")]
         public int? Id { get; set; }
 
         /// <summary>
         /// Gets or Sets Name
         /// </summary>
+        [Required]
         [DataMember(Name="Name")]
         public string Name { get; set; }
 
         /// <summary>
         /// Gets or Sets IsDeleted
         /// </summary>
+        [Required]
         [DataMember(Name="IsDeleted")]
         public bool? IsDeleted { get; set; }
-
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -128,8 +93,7 @@ namespace IO.Swagger.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((RoleDTO)obj);
+            return obj.GetType() == GetType() && Equals((RoleDTO)obj);
         }
 
         /// <summary>
@@ -139,25 +103,24 @@ namespace IO.Swagger.Models
         /// <returns>Boolean</returns>
         public bool Equals(RoleDTO other)
         {
-
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
             return 
                 (
-                    this.Id == other.Id ||
-                    this.Id != null &&
-                    this.Id.Equals(other.Id)
+                    Id == other.Id ||
+                    Id != null &&
+                    Id.Equals(other.Id)
                 ) && 
                 (
-                    this.Name == other.Name ||
-                    this.Name != null &&
-                    this.Name.Equals(other.Name)
+                    Name == other.Name ||
+                    Name != null &&
+                    Name.Equals(other.Name)
                 ) && 
                 (
-                    this.IsDeleted == other.IsDeleted ||
-                    this.IsDeleted != null &&
-                    this.IsDeleted.Equals(other.IsDeleted)
+                    IsDeleted == other.IsDeleted ||
+                    IsDeleted != null &&
+                    IsDeleted.Equals(other.IsDeleted)
                 );
         }
 
@@ -167,22 +130,22 @@ namespace IO.Swagger.Models
         /// <returns>Hash code</returns>
         public override int GetHashCode()
         {
-            // credit: http://stackoverflow.com/a/263416/677735
             unchecked // Overflow is fine, just wrap
             {
-                int hash = 41;
+                var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                if (this.Id != null)
-                    hash = hash * 59 + this.Id.GetHashCode();
-                if (this.Name != null)
-                    hash = hash * 59 + this.Name.GetHashCode();
-                if (this.IsDeleted != null)
-                    hash = hash * 59 + this.IsDeleted.GetHashCode();
-                return hash;
+                    if (Id != null)
+                    hashCode = hashCode * 59 + Id.GetHashCode();
+                    if (Name != null)
+                    hashCode = hashCode * 59 + Name.GetHashCode();
+                    if (IsDeleted != null)
+                    hashCode = hashCode * 59 + IsDeleted.GetHashCode();
+                return hashCode;
             }
         }
 
         #region Operators
+        #pragma warning disable 1591
 
         public static bool operator ==(RoleDTO left, RoleDTO right)
         {
@@ -194,7 +157,7 @@ namespace IO.Swagger.Models
             return !Equals(left, right);
         }
 
+        #pragma warning restore 1591
         #endregion Operators
-
     }
 }

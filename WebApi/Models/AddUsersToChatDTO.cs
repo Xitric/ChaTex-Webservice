@@ -27,57 +27,31 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
 namespace IO.Swagger.Models
-{
+{ 
     /// <summary>
     /// 
     /// </summary>
     [DataContract]
     public partial class AddUsersToChatDTO :  IEquatable<AddUsersToChatDTO>
-    {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AddUsersToChatDTO" /> class.
-        /// </summary>
-        /// <param name="ChatId">ChatId (required).</param>
-        /// <param name="UserIds">UserIds (required).</param>
-        public AddUsersToChatDTO(int? ChatId = null, List<int?> UserIds = null)
-        {
-            // to ensure "ChatId" is required (not null)
-            if (ChatId == null)
-            {
-                throw new InvalidDataException("ChatId is a required property for AddUsersToChatDTO and cannot be null");
-            }
-            else
-            {
-                this.ChatId = ChatId;
-            }
-            // to ensure "UserIds" is required (not null)
-            if (UserIds == null)
-            {
-                throw new InvalidDataException("UserIds is a required property for AddUsersToChatDTO and cannot be null");
-            }
-            else
-            {
-                this.UserIds = UserIds;
-            }
-            
-        }
-
+    { 
         /// <summary>
         /// Gets or Sets ChatId
         /// </summary>
+        [Required]
         [DataMember(Name="chatId")]
         public int? ChatId { get; set; }
 
         /// <summary>
         /// Gets or Sets UserIds
         /// </summary>
+        [Required]
         [DataMember(Name="userIds")]
         public List<int?> UserIds { get; set; }
-
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -111,8 +85,7 @@ namespace IO.Swagger.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((AddUsersToChatDTO)obj);
+            return obj.GetType() == GetType() && Equals((AddUsersToChatDTO)obj);
         }
 
         /// <summary>
@@ -122,20 +95,19 @@ namespace IO.Swagger.Models
         /// <returns>Boolean</returns>
         public bool Equals(AddUsersToChatDTO other)
         {
-
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
             return 
                 (
-                    this.ChatId == other.ChatId ||
-                    this.ChatId != null &&
-                    this.ChatId.Equals(other.ChatId)
+                    ChatId == other.ChatId ||
+                    ChatId != null &&
+                    ChatId.Equals(other.ChatId)
                 ) && 
                 (
-                    this.UserIds == other.UserIds ||
-                    this.UserIds != null &&
-                    this.UserIds.SequenceEqual(other.UserIds)
+                    UserIds == other.UserIds ||
+                    UserIds != null &&
+                    UserIds.SequenceEqual(other.UserIds)
                 );
         }
 
@@ -145,20 +117,20 @@ namespace IO.Swagger.Models
         /// <returns>Hash code</returns>
         public override int GetHashCode()
         {
-            // credit: http://stackoverflow.com/a/263416/677735
             unchecked // Overflow is fine, just wrap
             {
-                int hash = 41;
+                var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                if (this.ChatId != null)
-                    hash = hash * 59 + this.ChatId.GetHashCode();
-                if (this.UserIds != null)
-                    hash = hash * 59 + this.UserIds.GetHashCode();
-                return hash;
+                    if (ChatId != null)
+                    hashCode = hashCode * 59 + ChatId.GetHashCode();
+                    if (UserIds != null)
+                    hashCode = hashCode * 59 + UserIds.GetHashCode();
+                return hashCode;
             }
         }
 
         #region Operators
+        #pragma warning disable 1591
 
         public static bool operator ==(AddUsersToChatDTO left, AddUsersToChatDTO right)
         {
@@ -170,7 +142,7 @@ namespace IO.Swagger.Models
             return !Equals(left, right);
         }
 
+        #pragma warning restore 1591
         #endregion Operators
-
     }
 }

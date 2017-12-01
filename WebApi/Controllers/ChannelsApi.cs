@@ -1,4 +1,4 @@
-﻿/*
+/*
  * ChaTex Web API
  *
  * The Web API for ChaTex
@@ -20,14 +20,15 @@
  * limitations under the License.
  */
 
+using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using WebAPI.Authentication;
-using Business.Channels;
-using System;
+using IO.Swagger.Attributes;
 using IO.Swagger.Models;
+using Business.Channels;
+using WebAPI.Authentication;
 using Business.Errors;
-using System.Collections.Generic;
 using Business.Models;
 using System.Threading;
 using System.Linq;
@@ -35,11 +36,14 @@ using WebAPI.Models.Mappers;
 
 namespace IO.Swagger.Controllers
 {
-    public class ChannelsController : Controller
+    /// <summary>
+    /// 
+    /// </summary>
+    public class ChannelsApiController : Controller
     {
         private readonly IChannelManager channelManager;
 
-        public ChannelsController(IChannelManager channelManager)
+        public ChannelsApiController(IChannelManager channelManager)
         {
             this.channelManager = channelManager;
         }
@@ -47,35 +51,27 @@ namespace IO.Swagger.Controllers
         /// <summary>
         /// Create a channel in a group
         /// </summary>
-        /// <remarks>Creates a new channel in the specified group</remarks>
-        /// <param name="groupId">The id of the group to make the channel in</param>
-        /// <param name="createChannelDTO">The object containing information about the new channel</param>
+
+        /// <param name="groupId"></param>
+        /// <param name="channelName"></param>
         /// <response code="204">Channel created successfully</response>
-        /// <response code="400">No groupId specified or malformed CreateChannelDTO</response>
-        /// <response code="401">The user was not authorized to access this resource</response>
-        /// <response code="403">The user was not authorized complete this task</response>
-        /// <response code="404">No group with the specified id was found</response>
         [HttpPost]
         [Route("/1.0.0/groups/{groupId}/channels")]
-        [SwaggerOperation("CreateChannel")]
+        [ValidateModelState]
+        [SwaggerOperation("ChannelsCreateChannel")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual IActionResult CreateChannel([FromRoute]int? groupId, [FromBody]CreateChannelDTO createChannelDTO)
+        public virtual IActionResult ChannelsCreateChannel([FromRoute]int? groupId, [FromBody]string channelName)
         {
             int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
-            if (groupId == null)
+            if (channelName.Length == 0)
             {
-                return BadRequest("No groupId specified");
-            }
-
-            if (createChannelDTO.Name == null)
-            {
-                return BadRequest("Invalid createChannelDTO provided");
+                return BadRequest("A channel name must be specified");
             }
 
             try
             {
-                channelManager.CreateChannel((int)groupId, callerId, createChannelDTO.Name);
+                channelManager.CreateChannel((int)groupId, callerId, channelName);
             }
             catch (InvalidArgumentException e)
             {
@@ -95,25 +91,17 @@ namespace IO.Swagger.Controllers
         /// <summary>
         /// Delete a channel from a group
         /// </summary>
-        /// <remarks>Deletes the channel from the specified group</remarks>
+
         /// <param name="channelId">The id of the channel to delete</param>
         /// <response code="204">Channel deleted successfully</response>
-        /// <response code="400">Missing data in request</response>
-        /// <response code="401">The user was not authorized to access this resource</response>
-        /// <response code="403">The user was not authorized to complete the task</response>
-        /// <response code="404">Channel does not exist</response>
         [HttpDelete]
         [Route("/1.0.0/channels/{channelId}")]
-        [SwaggerOperation("DeleteChannel")]
+        [ValidateModelState]
+        [SwaggerOperation("ChannelsDeleteChannel")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual IActionResult DeleteChannel([FromRoute]int? channelId)
+        public virtual IActionResult ChannelsDeleteChannel([FromRoute]int? channelId)
         {
             int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
-
-            if (channelId == null)
-            {
-                return BadRequest("ChannelId not specified");
-            }
 
             try
             {
@@ -140,73 +128,21 @@ namespace IO.Swagger.Controllers
         }
 
         /// <summary>
-        /// Modify a channel in a group
-        /// </summary>
-        /// <remarks>Modify a channel in a group</remarks>
-        /// <param name="channelId">The id of the channel to update</param>
-        /// <param name="channelName">The new name of the channel</param>
-        /// <response code="204">Channel successfully updated</response>
-        /// <response code="400">Missing data in request</response>
-        /// <response code="401">The user was not authorized to access this resource</response>
-        /// <response code="403">The user was not authorized to complete the task</response>
-        /// <response code="404">No group or channel with the specified ids were found</response>
-        [HttpPut]
-        [Route("/1.0.0/channels/{channelId}")]
-        [SwaggerOperation("UpdateChannel")]
-        [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual IActionResult UpdateChannel([FromRoute]int? channelId, [FromBody]string channelName)
-        {
-            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
-
-            if (channelId == null || String.IsNullOrEmpty(channelName))
-            {
-                return BadRequest("ChannelId not specified or channel name was empty");
-            }
-
-            try
-            {
-                channelManager.UpdateChannel(callerId, (int)channelId, channelName);
-            }
-            catch (InvalidArgumentException e)
-            {
-                switch (e.ParamName)
-                {
-                    case ParamNameType.ChannelId:
-                        return NotFound("Channel does not exist");
-                    case ParamNameType.GroupId:
-                        HttpContext.Response.StatusCode = 403;
-                        return new ObjectResult(e.Message);
-                    case ParamNameType.CallerId:
-                        HttpContext.Response.StatusCode = 403;
-                        return new ObjectResult(e.Message);
-                    default:
-                        return StatusCode(500);
-                }
-            }
-
-            return StatusCode(204);
-        }
-
-        /// <summary>
-        /// Wait for and get new messages, message deletions, message edits, channel renames, and channel deletions in a channel
+        /// Wait for and get new messages, message deletions, message edits, channel information updates, and channel deletions in a channel
         /// </summary>
         /// <remarks>This request will not return from the service until at least one new channel event has occurred</remarks>
         /// <param name="channelId">The id of the channel to listen to</param>
-        /// <param name="since">The time to get message events since</param>
+        /// <param name="since">The time to get channel events since</param>
         /// <response code="200">Channel events fetched successfully</response>
         [HttpGet]
-        [Route("/1.0.0/channels/{channelId}/messages/live")]
+        [Route("/1.0.0/channels/{channelId}/events")]
+        [ValidateModelState]
         [SwaggerOperation("ChannelsGetChannelEvents")]
         [SwaggerResponse(200, typeof(List<ChannelEventDTO>), "Channel events fetched successfully")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult ChannelsGetChannelEvents([FromRoute]int? channelId, [FromQuery]DateTime? since, CancellationToken cancellation)
         {
             int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
-
-            if (channelId == null || since == null)
-            {
-                return BadRequest("Channel id and date must be specified");
-            }
 
             try
             {
@@ -234,6 +170,51 @@ namespace IO.Swagger.Controllers
                         return StatusCode(500);
                 }
             }
+        }
+
+        /// <summary>
+        /// Change the information about a channel in a group
+        /// </summary>
+
+        /// <param name="channelId">The id of the channel to update</param>
+        /// <param name="channelName">The new name of the channel</param>
+        /// <response code="204">Channel information updated successfully</response>
+        [HttpPut]
+        [Route("/1.0.0/channels/{channelId}")]
+        [ValidateModelState]
+        [SwaggerOperation("ChannelsUpdateChannel")]
+        [ServiceFilter(typeof(ChaTexAuthorization))]
+        public virtual IActionResult ChannelsUpdateChannel([FromRoute]int? channelId, [FromBody]string channelName)
+        {
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+
+            if (channelName.Length == 0)
+            {
+                return BadRequest("A new channel name must be specified");
+            }
+
+            try
+            {
+                channelManager.UpdateChannel(callerId, (int)channelId, channelName);
+            }
+            catch (InvalidArgumentException e)
+            {
+                switch (e.ParamName)
+                {
+                    case ParamNameType.ChannelId:
+                        return NotFound("Channel does not exist");
+                    case ParamNameType.GroupId:
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
+                    case ParamNameType.CallerId:
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
+                    default:
+                        return StatusCode(500);
+                }
+            }
+
+            return StatusCode(204);
         }
     }
 }

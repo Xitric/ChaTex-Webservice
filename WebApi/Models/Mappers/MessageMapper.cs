@@ -8,7 +8,15 @@ namespace WebAPI.Models.Mappers
         public static GetMessageDTO MapMessageToGetMessageDTO(MessageModel messageModel, int callerId)
         {
             if (messageModel == null) return null;
-            return new GetMessageDTO(messageModel.Id, messageModel.CreationTime, messageModel.Content, messageModel.DeletionTime, messageModel.LastEdited, UserMapper.MapUserToUserDTO(messageModel.Author, callerId));
+            return new GetMessageDTO()
+            {
+                Id = messageModel.Id,
+                CreationTime = messageModel.CreationTime,
+                Content = messageModel.Content,
+                DeletionDate = messageModel.DeletionTime,
+                LastEdited = messageModel.LastEdited,
+                Sender = UserMapper.MapUserToUserDTO(messageModel.Author, callerId)
+            };
         }
     }
 }
