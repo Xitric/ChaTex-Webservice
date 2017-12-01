@@ -27,6 +27,11 @@ using Business.Channels;
 using System;
 using IO.Swagger.Models;
 using Business.Errors;
+using System.Collections.Generic;
+using Business.Models;
+using System.Threading;
+using System.Linq;
+using WebAPI.Models.Mappers;
 
 namespace IO.Swagger.Controllers
 {
@@ -101,7 +106,8 @@ namespace IO.Swagger.Controllers
         [Route("/1.0.0/channels/{channelId}")]
         [SwaggerOperation("DeleteChannel")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual IActionResult DeleteChannel([FromRoute]int? channelId) {
+        public virtual IActionResult DeleteChannel([FromRoute]int? channelId)
+        {
             int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
             if (channelId == null)
@@ -179,6 +185,55 @@ namespace IO.Swagger.Controllers
             }
 
             return StatusCode(204);
+        }
+
+        /// <summary>
+        /// Wait for and get new messages, message deletions, message edits, channel renames, and channel deletions in a channel
+        /// </summary>
+        /// <remarks>This request will not return from the service until at least one new channel event has occurred</remarks>
+        /// <param name="channelId">The id of the channel to listen to</param>
+        /// <param name="since">The time to get message events since</param>
+        /// <response code="200">Channel events fetched successfully</response>
+        [HttpGet]
+        [Route("/1.0.0/channels/{channelId}/messages/live")]
+        [SwaggerOperation("ChannelsGetChannelEvents")]
+        [SwaggerResponse(200, typeof(List<ChannelEventDTO>), "Channel events fetched successfully")]
+        [ServiceFilter(typeof(ChaTexAuthorization))]
+        public virtual IActionResult ChannelsGetChannelEvents([FromRoute]int? channelId, [FromQuery]DateTime? since, CancellationToken cancellation)
+        {
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+
+            if (channelId == null || since == null)
+            {
+                return BadRequest("Channel id and date must be specified");
+            }
+
+            try
+            {
+                IEnumerable<ChannelEventModel> channelEvents = channelManager.GetChannelEvents((int)channelId, callerId, (DateTime)since, cancellation);
+
+                if (channelEvents == null)
+                {
+                    //The client canceled the request
+                    return NoContent();
+                }
+
+                IEnumerable<ChannelEventDTO> channelEventDTOs = channelEvents.Select(ce => ChannelMapper.MapChannelEventToChannelEventDTO(ce, callerId));
+
+                return new ObjectResult(channelEventDTOs);
+            }
+            catch (ArgumentException e)
+            {
+                switch (e.ParamName)
+                {
+                    case "callerId":
+                        //Caller was not authorized
+                        return StatusCode(401);
+                    default:
+                        //Some unexpected exception
+                        return StatusCode(500);
+                }
+            }
         }
     }
 }

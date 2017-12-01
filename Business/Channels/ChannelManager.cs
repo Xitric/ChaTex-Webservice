@@ -1,6 +1,8 @@
 ﻿using Business.Errors;
 using Business.Models;
 using System;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace Business.Channels
 {
@@ -8,11 +10,13 @@ namespace Business.Channels
     {
         private readonly IChannelRepository channelRepository;
         private readonly IGroupRepository groupRepository;
+        private readonly ChannelEventManager channelEventManager;
 
-        public ChannelManager(IChannelRepository channelRepository, IGroupRepository groupRepository)
+        public ChannelManager(IChannelRepository channelRepository, IGroupRepository groupRepository, ChannelEventManager channelEventManager)
         {
             this.channelRepository = channelRepository;
             this.groupRepository = groupRepository;
+            this.channelEventManager = channelEventManager;
         }
 
         private void throwIfNotAdministrator(int groupId, int callerId)
@@ -62,6 +66,13 @@ namespace Business.Channels
                 Id = channelId,
                 Name = channelName
             });
+        }
+
+        public IEnumerable<ChannelEventModel> GetChannelEvents(int channelId, int callerId, DateTime since, CancellationToken cancellation)
+        {
+            //TODO: Test if user has access to the channel
+
+            return channelEventManager.GetChannelEvents(channelId, since, cancellation);
         }
     }
 }

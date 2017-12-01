@@ -27,58 +27,67 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
 namespace IO.Swagger.Models
-{
+{ 
     /// <summary>
     /// 
     /// </summary>
     [DataContract]
-    public partial class MessageEventDTO :  IEquatable<MessageEventDTO>
-    {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MessageEventDTO" /> class.
+    public partial class ChannelEventDTO :  IEquatable<ChannelEventDTO>
+    {         /// <summary>
+        /// The type of action that generated this event
         /// </summary>
-        /// <param name="Type">The type of action that generated this event (required).</param>
-        /// <param name="Message">Message (required).</param>
-        public MessageEventDTO(string Type = null, GetMessageDTO Message = null)
-        {
-            // to ensure "Type" is required (not null)
-            if (Type == null)
-            {
-                throw new InvalidDataException("Type is a required property for MessageEventDTO and cannot be null");
-            }
-            else
-            {
-                this.Type = Type;
-            }
-            // to ensure "Message" is required (not null)
-            if (Message == null)
-            {
-                throw new InvalidDataException("Message is a required property for MessageEventDTO and cannot be null");
-            }
-            else
-            {
-                this.Message = Message;
-            }
+        /// <value>The type of action that generated this event</value>
+        public enum TypeEnum
+        { 
+            /// <summary>
+            /// Enum NewMessageEnum for "NewMessage"
+            /// </summary>
+            [EnumMember(Value = "NewMessage")]
+            NewMessageEnum = 1,
             
+            /// <summary>
+            /// Enum UpdateMessageEnum for "UpdateMessage"
+            /// </summary>
+            [EnumMember(Value = "UpdateMessage")]
+            UpdateMessageEnum = 2,
+            
+            /// <summary>
+            /// Enum DeleteMessageEnum for "DeleteMessage"
+            /// </summary>
+            [EnumMember(Value = "DeleteMessage")]
+            DeleteMessageEnum = 3,
+            
+            /// <summary>
+            /// Enum RenameChannelEnum for "RenameChannel"
+            /// </summary>
+            [EnumMember(Value = "RenameChannel")]
+            RenameChannelEnum = 4,
+            
+            /// <summary>
+            /// Enum DeleteChannelEnum for "DeleteChannel"
+            /// </summary>
+            [EnumMember(Value = "DeleteChannel")]
+            DeleteChannelEnum = 5
         }
 
         /// <summary>
         /// The type of action that generated this event
         /// </summary>
         /// <value>The type of action that generated this event</value>
+        [Required]
         [DataMember(Name="Type")]
-        public string Type { get; set; }
+        public TypeEnum? Type { get; set; }
 
         /// <summary>
         /// Gets or Sets Message
         /// </summary>
         [DataMember(Name="Message")]
         public GetMessageDTO Message { get; set; }
-
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -87,7 +96,7 @@ namespace IO.Swagger.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class MessageEventDTO {\n");
+            sb.Append("class ChannelEventDTO {\n");
             sb.Append("  Type: ").Append(Type).Append("\n");
             sb.Append("  Message: ").Append(Message).Append("\n");
             sb.Append("}\n");
@@ -112,31 +121,29 @@ namespace IO.Swagger.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((MessageEventDTO)obj);
+            return obj.GetType() == GetType() && Equals((ChannelEventDTO)obj);
         }
 
         /// <summary>
-        /// Returns true if MessageEventDTO instances are equal
+        /// Returns true if ChannelEventDTO instances are equal
         /// </summary>
-        /// <param name="other">Instance of MessageEventDTO to be compared</param>
+        /// <param name="other">Instance of ChannelEventDTO to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(MessageEventDTO other)
+        public bool Equals(ChannelEventDTO other)
         {
-
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
             return 
                 (
-                    this.Type == other.Type ||
-                    this.Type != null &&
-                    this.Type.Equals(other.Type)
+                    Type == other.Type ||
+                    Type != null &&
+                    Type.Equals(other.Type)
                 ) && 
                 (
-                    this.Message == other.Message ||
-                    this.Message != null &&
-                    this.Message.Equals(other.Message)
+                    Message == other.Message ||
+                    Message != null &&
+                    Message.Equals(other.Message)
                 );
         }
 
@@ -146,32 +153,32 @@ namespace IO.Swagger.Models
         /// <returns>Hash code</returns>
         public override int GetHashCode()
         {
-            // credit: http://stackoverflow.com/a/263416/677735
             unchecked // Overflow is fine, just wrap
             {
-                int hash = 41;
+                var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                if (this.Type != null)
-                    hash = hash * 59 + this.Type.GetHashCode();
-                if (this.Message != null)
-                    hash = hash * 59 + this.Message.GetHashCode();
-                return hash;
+                    if (Type != null)
+                    hashCode = hashCode * 59 + Type.GetHashCode();
+                    if (Message != null)
+                    hashCode = hashCode * 59 + Message.GetHashCode();
+                return hashCode;
             }
         }
 
         #region Operators
+        #pragma warning disable 1591
 
-        public static bool operator ==(MessageEventDTO left, MessageEventDTO right)
+        public static bool operator ==(ChannelEventDTO left, ChannelEventDTO right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(MessageEventDTO left, MessageEventDTO right)
+        public static bool operator !=(ChannelEventDTO left, ChannelEventDTO right)
         {
             return !Equals(left, right);
         }
 
+        #pragma warning restore 1591
         #endregion Operators
-
     }
 }

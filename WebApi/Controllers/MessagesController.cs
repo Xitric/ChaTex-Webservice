@@ -147,57 +147,6 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Wait for and get new messages, message deletions, and message edits in a channel
-        /// </summary>
-        /// <remarks>This request will not return from the service until at least one new message event has occurred</remarks>
-        /// <param name="channelId">The id of the channel to listen to</param>
-        /// <param name="since">The time to get message events since</param>
-        /// <response code="200">Message events fetched successfully</response>
-        /// <response code="401">The user was not authorized to access this resource</response>
-        /// <response code="404">Could not find the channel with the specified id</response>
-        [HttpGet]
-        [Route("/1.0.0/channels/{channelId}/messages/live")]
-        [SwaggerOperation("GetMessageEvents")]
-        [SwaggerResponse(200, type: typeof(List<MessageEventDTO>))]
-        [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual IActionResult GetMessageEvents([FromRoute]int? channelId, [FromQuery]DateTime? since, CancellationToken cancellation)
-        {
-            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
-
-            if (channelId == null || since == null)
-            {
-                return BadRequest("Channel id and date must be specified");
-            }
-
-            try
-            {
-                IEnumerable<MessageEventModel> messageEvents = messageManager.GetMessageEvents((int)channelId, callerId, (DateTime)since, cancellation);
-                
-                //The client canceled the request
-                if (messageEvents == null)
-                {
-                    return NoContent();
-                }
-
-                IEnumerable<MessageEventDTO> messageEventDTO = messageEvents.Select(me => MessageMapper.MapMessageEventToMessageEventDTO(me, callerId));
-
-                return new ObjectResult(messageEventDTO);
-            }
-            catch (ArgumentException e)
-            {
-                switch (e.ParamName)
-                {
-                    case "callerId":
-                        //Caller was not authorized
-                        return StatusCode(401);
-                    default:
-                        //Some unexpected exception
-                        return StatusCode(500);
-                }
-            }
-        }
-
-        /// <summary>
         /// Create a new message
         /// </summary>
         /// <remarks>Create a new message in a specific channel</remarks>
