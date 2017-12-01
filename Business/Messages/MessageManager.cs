@@ -39,7 +39,7 @@ namespace Business.Messages
             }
 
             //There is no reason to use any locks in this method, as it does not matter if something happens in the channel while simply getting messages - it only matters when listening for events
-            return messageRepository.GetMessages(channelId, before, count);
+            return messageRepository.GetMessages(channelId, before.ToUniversalTime(), count);
         }
 
         public MessageModel GetMessage(int callerId, int messageId)
