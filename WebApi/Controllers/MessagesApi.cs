@@ -29,6 +29,7 @@ using IO.Swagger.Models;
 using WebAPI.Authentication;
 using Business.Messages;
 using WebAPI.Models.Mappers;
+using System.Linq;
 
 namespace IO.Swagger.Controllers
 {
@@ -186,11 +187,6 @@ namespace IO.Swagger.Controllers
         {
             int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
-            if (messageId == null)
-            {
-                return BadRequest("Message id must be specified");
-            }
-
             try
             {
                 GetMessageDTO message = MessageMapper.MapMessageToGetMessageDTO(messageManager.GetMessage(callerId, (int)messageId), callerId);
@@ -228,17 +224,11 @@ namespace IO.Swagger.Controllers
         [ServiceFilter(typeof(ChaTexAuthorization))]
         public virtual IActionResult MessagesGetMessages([FromRoute]int? channelId, [FromQuery]DateTime? before, [FromQuery]int? count)
         {
-            /*
             int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
-            if (channelId == null)
+            if (before == null)
             {
-                return BadRequest("Channel id must be specified");
-            }
-
-            if (fromIndex == null)
-            {
-                fromIndex = 0;
+                before = DateTime.UtcNow;
             }
 
             if (count == null)
@@ -248,8 +238,8 @@ namespace IO.Swagger.Controllers
 
             try
             {
-                IEnumerable<GetMessageDTO> messages = messageManager.GetMessages((int)channelId, callerId, (int)fromIndex, (int)count)
-                .Select(m => MessageMapper.MapMessageToGetMessageDTO(m, callerId));
+                IEnumerable<GetMessageDTO> messages = messageManager.GetMessages((int)channelId, callerId, (DateTime)before, (int)count)
+                    .Select(m => MessageMapper.MapMessageToGetMessageDTO(m, callerId));
 
                 return new ObjectResult(messages);
             }
@@ -267,8 +257,6 @@ namespace IO.Swagger.Controllers
                         return StatusCode(500);
                 }
             }
-            */
-            return null;
         }
     }
 }

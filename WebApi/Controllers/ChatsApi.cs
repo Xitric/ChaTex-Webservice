@@ -81,9 +81,9 @@ namespace IO.Swagger.Controllers
         {
             int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
-            if (string.IsNullOrEmpty(chatName))
+            if (chatName.Length == 0)
             {
-                return BadRequest("Chat name must be specified");
+                return BadRequest("A chat name must be specified");
             }
 
             int? chatId = chatManager.CreateChat(userId: callerId, chatName: chatName);

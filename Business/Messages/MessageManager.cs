@@ -29,7 +29,7 @@ namespace Business.Messages
                 .Any();
         }
 
-        public IEnumerable<MessageModel> GetMessages(int channelId, int callerId, int from, int count)
+        public IEnumerable<MessageModel> GetMessages(int channelId, int callerId, DateTime before, int count)
         {
             bool hasAccess = isUserInChannel(callerId, channelId);
 
@@ -39,7 +39,7 @@ namespace Business.Messages
             }
 
             //There is no reason to use any locks in this method, as it does not matter if something happens in the channel while simply getting messages - it only matters when listening for events
-            return messageRepository.GetMessages(channelId, from, count);
+            return messageRepository.GetMessages(channelId, before, count);
         }
 
         public MessageModel GetMessage(int callerId, int messageId)

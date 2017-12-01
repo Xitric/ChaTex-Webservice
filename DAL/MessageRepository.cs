@@ -23,7 +23,7 @@ namespace DAL
             }
         }
 
-        public IEnumerable<MessageModel> GetMessages(int channelId, int from, int count)
+        public IEnumerable<MessageModel> GetMessages(int channelId, DateTime before, int count)
         {
             using (var context = new ChatexdbContext())
             {
@@ -34,7 +34,7 @@ namespace DAL
                     .ToList()
                     .Select(cm => cm.Message)
                     .OrderByDescending(m => m.CreationDate)
-                    .Skip(from)
+                    .SkipWhile(m => m.CreationDate >= before)
                     .Take(count)
                     .Reverse()
                     .ToList()
