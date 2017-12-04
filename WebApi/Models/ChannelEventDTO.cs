@@ -84,10 +84,23 @@ namespace IO.Swagger.Models
         public TypeEnum? Type { get; set; }
 
         /// <summary>
+        /// Gets or Sets TimeOfOccurrence
+        /// </summary>
+        [Required]
+        [DataMember(Name="TimeOfOccurrence")]
+        public DateTime? TimeOfOccurrence { get; set; }
+
+        /// <summary>
         /// Gets or Sets Message
         /// </summary>
         [DataMember(Name="Message")]
         public GetMessageDTO Message { get; set; }
+
+        /// <summary>
+        /// Gets or Sets Channel
+        /// </summary>
+        [DataMember(Name="Channel")]
+        public ChannelDTO Channel { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -98,7 +111,9 @@ namespace IO.Swagger.Models
             var sb = new StringBuilder();
             sb.Append("class ChannelEventDTO {\n");
             sb.Append("  Type: ").Append(Type).Append("\n");
+            sb.Append("  TimeOfOccurrence: ").Append(TimeOfOccurrence).Append("\n");
             sb.Append("  Message: ").Append(Message).Append("\n");
+            sb.Append("  Channel: ").Append(Channel).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -141,9 +156,19 @@ namespace IO.Swagger.Models
                     Type.Equals(other.Type)
                 ) && 
                 (
+                    TimeOfOccurrence == other.TimeOfOccurrence ||
+                    TimeOfOccurrence != null &&
+                    TimeOfOccurrence.Equals(other.TimeOfOccurrence)
+                ) && 
+                (
                     Message == other.Message ||
                     Message != null &&
                     Message.Equals(other.Message)
+                ) && 
+                (
+                    Channel == other.Channel ||
+                    Channel != null &&
+                    Channel.Equals(other.Channel)
                 );
         }
 
@@ -159,8 +184,12 @@ namespace IO.Swagger.Models
                 // Suitable nullity checks etc, of course :)
                     if (Type != null)
                     hashCode = hashCode * 59 + Type.GetHashCode();
+                    if (TimeOfOccurrence != null)
+                    hashCode = hashCode * 59 + TimeOfOccurrence.GetHashCode();
                     if (Message != null)
                     hashCode = hashCode * 59 + Message.GetHashCode();
+                    if (Channel != null)
+                    hashCode = hashCode * 59 + Channel.GetHashCode();
                 return hashCode;
             }
         }

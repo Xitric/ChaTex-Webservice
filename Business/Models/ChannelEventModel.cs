@@ -10,7 +10,9 @@ namespace Business.Models
     public class ChannelEventModel
     {
         public ChannelEventType Type { get; set; }
+        public DateTime TimeOfOccurrence { get; set; }
         public MessageModel Message { get; set; }
+        public ChannelModel Channel { get; set; }
     }
 
     public enum ChannelEventType

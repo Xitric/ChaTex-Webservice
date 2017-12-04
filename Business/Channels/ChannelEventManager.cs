@@ -13,11 +13,13 @@ namespace Business.Channels
     {
         private readonly ChannelLockStore lockStore;
         private readonly IMessageRepository messageRepository;
+        private readonly IChannelRepository channelRepository;
 
-        public ChannelEventManager(IMessageRepository messageRepository)
+        public ChannelEventManager(IMessageRepository messageRepository, IChannelRepository channelRepository)
         {
             lockStore = new ChannelLockStore();
             this.messageRepository = messageRepository;
+            this.channelRepository = channelRepository;
         }
 
         public void LockChannelForWrite(int channelId)
@@ -99,18 +101,21 @@ namespace Business.Channels
             messageEvents.AddRange(newMessages.Select(m => new ChannelEventModel()
             {
                 Type = ChannelEventType.NewMessage,
+                TimeOfOccurrence = m.CreationTime,
                 Message = m
             }));
 
             messageEvents.AddRange(deletedMessages.Select(m => new ChannelEventModel()
             {
                 Type = ChannelEventType.DeleteMessage,
+                TimeOfOccurrence = (DateTime)m.DeletionTime,
                 Message = m
             }));
 
             messageEvents.AddRange(editedMessages.Select(m => new ChannelEventModel()
             {
                 Type = ChannelEventType.UpdateMessage,
+                TimeOfOccurrence = (DateTime)m.LastEdited,
                 Message = m
             }));
 
@@ -119,8 +124,26 @@ namespace Business.Channels
 
         private List<ChannelEventModel> getChannelLevelEvents(int channelId, DateTime since)
         {
-            //TODO
-            return new List<ChannelEventModel>();
+            List<ChannelEventModel> channelEvents = new List<ChannelEventModel>();
+
+            IEnumerable<ChannelModel> renamedChannels = channelRepository.GetChannelRenamesSince(since.ToUniversalTime());
+            IEnumerable<ChannelModel> deletedChannels = channelRepository.GetChannelDeletionsSince(since.ToUniversalTime());
+
+            channelEvents.AddRange(renamedChannels.Select(c => new ChannelEventModel()
+            {
+                Type = ChannelEventType.RenameChannel,
+                TimeOfOccurrence = (DateTime)channelRepository.GetChannelRenameDate(channelId),
+                Channel = c
+            }));
+
+            channelEvents.AddRange(deletedChannels.Select(c => new ChannelEventModel()
+            {
+                Type = ChannelEventType.DeleteChannel,
+                TimeOfOccurrence = (DateTime)channelRepository.GetChannelDeletionDate(channelId),
+                Channel = c
+            }));
+
+            return channelEvents;
         }
     }
 }

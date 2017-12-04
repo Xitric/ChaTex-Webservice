@@ -14,7 +14,7 @@ namespace Business.Models
 
         public UserModel Author { get; set; }
 
-        public DateTime? CreationTime { get; set; }
+        public DateTime CreationTime { get; set; }
 
         public DateTime? DeletionTime { get; set; }
 

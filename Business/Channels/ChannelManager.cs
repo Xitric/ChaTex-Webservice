@@ -47,7 +47,9 @@ namespace Business.Channels
 
             throwIfNotAdministrator(channel.GroupId, callerId);
 
+            channelEventManager.LockChannelForWrite(channelId);
             channelRepository.DeleteChannel(channelId);
+            channelEventManager.UnlockChannelForWrite(channelId);
         }
 
         public void UpdateChannel(int callerId, int channelId, string channelName)
@@ -61,11 +63,13 @@ namespace Business.Channels
 
             throwIfNotAdministrator(channel.GroupId, callerId);
 
+            channelEventManager.LockChannelForWrite(channelId);
             channelRepository.UpdateChannel(new ChannelModel()
             {
                 Id = channelId,
                 Name = channelName
             });
+            channelEventManager.UnlockChannelForWrite(channelId);
         }
 
         public IEnumerable<ChannelEventModel> GetChannelEvents(int channelId, int callerId, DateTime since, CancellationToken cancellation)

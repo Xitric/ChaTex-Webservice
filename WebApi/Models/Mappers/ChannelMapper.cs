@@ -6,7 +6,7 @@ namespace WebAPI.Models.Mappers
 {
     class ChannelMapper
     {
-        public static ChannelDTO MapChannelToChanelDTO(ChannelModel channel)
+        public static ChannelDTO MapChannelToChannelDTO(ChannelModel channel)
         {
             if (channel == null) return null;
             return new ChannelDTO()
@@ -22,7 +22,9 @@ namespace WebAPI.Models.Mappers
             return new ChannelEventDTO()
             {
                 Type = MapChannelEventTypeToChannelEventTypeEnum(channelEventModel.Type),
-                Message = MessageMapper.MapMessageToGetMessageDTO(channelEventModel.Message, callerId)
+                TimeOfOccurrence = channelEventModel.TimeOfOccurrence,
+                Message = MessageMapper.MapMessageToGetMessageDTO(channelEventModel.Message, callerId),
+                Channel = ChannelMapper.MapChannelToChannelDTO(channelEventModel.Channel)
             };
         }
 

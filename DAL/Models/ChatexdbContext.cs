@@ -8,6 +8,7 @@ namespace DAL.Models
     {
         public virtual DbSet<Channel> Channel { get; set; }
         public virtual DbSet<ChannelBookmark> ChannelBookmark { get; set; }
+        public virtual DbSet<ChannelEvent> ChannelEvent { get; set; }
         public virtual DbSet<ChannelMessages> ChannelMessages { get; set; }
         public virtual DbSet<Chat> Chat { get; set; }
         public virtual DbSet<ChatMessage> ChatMessage { get; set; }
@@ -63,6 +64,19 @@ namespace DAL.Models
                     .HasForeignKey(d => d.MessageId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_ChannelBookmark_Message");
+            });
+
+            modelBuilder.Entity<ChannelEvent>(entity =>
+            {
+                entity.HasKey(e => new { e.TimeOfOccurrence, e.ChannelId });
+
+                entity.Property(e => e.TimeOfOccurrence).HasColumnType("datetime");
+
+                entity.HasOne(d => d.Channel)
+                    .WithMany(p => p.ChannelEvent)
+                    .HasForeignKey(d => d.ChannelId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_ChannelEvent_Channel");
             });
 
             modelBuilder.Entity<ChannelMessages>(entity =>
