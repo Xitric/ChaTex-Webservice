@@ -22,5 +22,7 @@ namespace Business
         bool IsUserAdmin(int userId);
 
         void UpdateUser(UserModel userModel);
+
+        IEnumerable<RoleModel> GetAllUserRoles(int userId);
     }
 }

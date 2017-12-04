@@ -64,5 +64,10 @@ namespace Business.Users
                 throw new InvalidArgumentException("User not system administrator", ParamNameType.CallerId);
             }
         }
+
+        public IEnumerable<RoleModel> GetAllUserRoles(int userId)
+        {
+            return userRepository.GetAllUserRoles(userId);
+        }
     }
 }

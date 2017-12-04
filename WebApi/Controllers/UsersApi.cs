@@ -163,5 +163,26 @@ namespace IO.Swagger.Controllers
 
             return StatusCode(204);
         }
+
+        /// <summary>
+        /// Get all roles for a user
+        /// </summary>
+        /// <remarks>Get the list of roles for a specific user</remarks>
+        /// <param name="userId"></param>
+        /// <response code="200">Successfully retrieved all roles for this user</response>
+        [HttpGet]
+        [Route("/1.0.0/users/{userId}")]
+        [ValidateModelState]
+        [SwaggerOperation("UsersGetAllUserRoles")]
+        [SwaggerResponse(200, typeof(List<RoleDTO>), "Successfully retrieved all roles for this user")]
+        [ServiceFilter(typeof(ChaTexAuthorization))]
+        public virtual IActionResult GetAllUserRoles([FromRoute]int? userId)
+        {
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+
+            IEnumerable<RoleModel> roles = userManager.GetAllUserRoles((int)userId);
+            IEnumerable<RoleDTO> roleDTOs = roles.Select(x => RoleMapper.MapRoleToRoleDTO(x));
+            return new ObjectResult(roleDTOs);
+        }
     }
 }

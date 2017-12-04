@@ -151,5 +151,16 @@ namespace DAL
                 return context.SystemAdministrator.Where(x => x.UserId == userId).Any();
             }
         }
+        public IEnumerable<RoleModel> GetAllUserRoles(int userId)
+        {
+            using (var context = new ChatexdbContext())
+            {
+                List<RoleModel> userRoles = context.UserRole
+                .Where(ur => ur.UserId == userId)
+                .Select(ur => RoleMapper.MapRoleEntityToModel(ur.Role))
+                .ToList();
+                return userRoles;
+            }
+        }
     }
 }

@@ -515,11 +515,9 @@ namespace IO.Swagger.Controllers
                         return new ObjectResult(e.Message);
                 }
             }
-
             return StatusCode(500);
-
-
         }
+
     }
 
 }
