@@ -9,7 +9,7 @@ namespace Business.Messages
     {
         IEnumerable<MessageModel> GetMessages(int channelId, int callerId, DateTime before, int count);
         MessageModel GetMessage(int callerId, int messageId);
-        void CreateMessage(int callerId, int channelId, string messageContent);
+        int CreateMessage(int callerId, int channelId, string messageContent);
         void DeleteMessage(int callerId, int messageId);
         void EditMessage(int callerId, int messageId, string newContent);
     }

@@ -18,7 +18,7 @@ namespace Business.Channels
             this.groupRepository = groupRepository;
             this.channelEventManager = channelEventManager;
         }
-
+        
         private void throwIfNotAdministrator(int groupId, int callerId)
         {
             GroupMembershipDetails membershipDetails = groupRepository.GetGroupMembershipDetailsForUser(groupId, callerId);
@@ -29,11 +29,11 @@ namespace Business.Channels
             }
         }
 
-        public void CreateChannel(int groupId, int callerId, string channelName)
+        public int CreateChannel(int groupId, int callerId, string channelName)
         {
             throwIfNotAdministrator(groupId, callerId);
 
-            channelRepository.CreateChannel(groupId, channelName);
+            return channelRepository.CreateChannel(groupId, channelName);
         }
 
         public void DeleteChannel(int callerId, int channelId)

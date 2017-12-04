@@ -61,7 +61,7 @@ namespace Business.Messages
             }
         }
 
-        public void CreateMessage(int callerId, int channelId, string messageContent)
+        public int CreateMessage(int callerId, int channelId, string messageContent)
         {
             if (channelRepository.GetChannel(channelId) == null)
             {
@@ -83,7 +83,7 @@ namespace Business.Messages
             channelEventManager.LockChannelForWrite(channelId);
             try
             {
-                messageRepository.CreateMessage(message, channelId);
+                return messageRepository.CreateMessage(message, channelId);
             }
             finally
             {
@@ -114,7 +114,7 @@ namespace Business.Messages
                 }
                 else
                 {
-                    throw new ArgumentException("User does not have the rights to delete the specified message", "callerId");
+                    throw new ArgumentException("User does not have the rights to delete the specified message", nameof(callerId));
                 }
             }
             finally
@@ -127,10 +127,8 @@ namespace Business.Messages
         {
             //Since message ids are fixed and messages don't change channels, these operations did not need to be within the lock
             MessageModel message = messageRepository.GetMessage(messageId);
-            if (message == null)
-            {
-                throw new ArgumentException("Message with the specified id does not exist", "messageId");
-            }
+
+            if (message == null) throw new ArgumentException("Message with the specified id does not exist", nameof(messageId));
 
             var channel = channelRepository.GetChannel(message.ChannelId);
 
@@ -145,7 +143,7 @@ namespace Business.Messages
                 }
                 else
                 {
-                    throw new ArgumentException("User does not have the rights to delete the specified message", "callerId");
+                    throw new ArgumentException("User does not have the rights to delete the specified message", nameof(callerId));
                 }
             }
             finally

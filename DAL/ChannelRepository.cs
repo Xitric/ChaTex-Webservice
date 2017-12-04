@@ -17,7 +17,7 @@ namespace DAL
             ChannelEdit
         }
 
-        public void CreateChannel(int groupId, string name)
+        public int CreateChannel(int groupId, string name)
         {
             using (var context = new ChatexdbContext())
             {
@@ -29,6 +29,8 @@ namespace DAL
 
                 context.Channel.Add(channel);
                 context.SaveChanges();
+
+                return channel.ChannelId;
             }
         }
 
