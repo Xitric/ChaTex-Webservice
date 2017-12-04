@@ -448,7 +448,7 @@ namespace IO.Swagger.Controllers
         /// <param name="groupId"></param>
         /// <response code="200">Successfully retrieved all direct users in the group</response>
         [HttpGet]
-        [Route("/1.0.0/groups/{groupId}/directUsers")]
+        [Route("/1.0.0/groups/{groupId}/groupusers")]
         [ValidateModelState]
         [SwaggerOperation("GetAllDirectGroupUsers")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
@@ -502,7 +502,7 @@ namespace IO.Swagger.Controllers
 
             try
             {
-                IEnumerable<RoleModel> roles = groupManager.GetAllGroupRoles((int)groupId, callerId);
+                IEnumerable<RoleModel> roles = groupManager.GetAllGroupRoles((int)groupId);
                 IEnumerable<RoleDTO> roleDTOs = roles.Select(x => RoleMapper.MapRoleToRoleDTO(x));
                 return new ObjectResult(roleDTOs);
             }

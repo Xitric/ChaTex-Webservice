@@ -71,6 +71,6 @@ namespace Business.Groups
 
         IEnumerable<UserModel> GetAllDirectGroupUsers(int groupId, int callerId);
 
-        IEnumerable<RoleModel> GetAllGroupRoles(int groupId, int callerId);
+        IEnumerable<RoleModel> GetAllGroupRoles(int groupId);
     }
 }

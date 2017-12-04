@@ -195,13 +195,11 @@ namespace Business.Groups
 
         public IEnumerable<UserModel> GetAllDirectGroupUsers(int groupId, int callerId)
         {
-            throwIfNotMember(groupId, callerId);
             return groupRepository.GetAllDirectGroupUsers(groupId);
         }
 
-        public IEnumerable<RoleModel> GetAllGroupRoles(int groupId, int callerId)
+        public IEnumerable<RoleModel> GetAllGroupRoles(int groupId)
         {
-            throwIfNotMember(groupId, callerId);
             return groupRepository.GetAllGroupRoles(groupId);
         }
     }
