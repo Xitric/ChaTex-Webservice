@@ -78,8 +78,8 @@ namespace IO.Swagger.Controllers
                 switch (e.ParamName)
                 {
                     case ParamNameType.CallerId:
-                        //Caller was not authorized
-                        return StatusCode(401);
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
                     case ParamNameType.ChannelId:
                         //Channel did not exist
                         return NotFound(e.Message);
@@ -116,8 +116,8 @@ namespace IO.Swagger.Controllers
                 switch (e.ParamName)
                 {
                     case ParamNameType.CallerId:
-                        //Caller was not authorized
-                        return StatusCode(401);
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
                     case ParamNameType.MessageId:
                         //Message was unknown
                         return NotFound($"The message with id {messageId} was not found");
@@ -160,8 +160,8 @@ namespace IO.Swagger.Controllers
                 switch (e.ParamName)
                 {
                     case ParamNameType.CallerId:
-                        //Caller was not authorized
-                        return StatusCode(401);
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
                     case ParamNameType.MessageId:
                         //Message was unknown
                         return NotFound($"The message with id {messageId} was not found");
@@ -198,8 +198,8 @@ namespace IO.Swagger.Controllers
                 switch (e.ParamName)
                 {
                     case ParamNameType.CallerId:
-                        //Caller was not authorized
-                        return StatusCode(401);
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
                     case ParamNameType.MessageId:
                         return NotFound($"The message with id {messageId} was not found");
                     default:
@@ -249,8 +249,8 @@ namespace IO.Swagger.Controllers
                 switch (e.ParamName)
                 {
                     case ParamNameType.CallerId:
-                        //Caller was not authorized
-                        return StatusCode(401);
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
                     case ParamNameType.ChannelId:
                         return NotFound($"The channel with id {channelId} was not found");
                     default:

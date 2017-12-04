@@ -163,8 +163,8 @@ namespace IO.Swagger.Controllers
                 switch (e.ParamName)
                 {
                     case ParamNameType.CallerId:
-                        //Caller was not authorized
-                        return StatusCode(401);
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
                     default:
                         //Some unexpected exception
                         return StatusCode(500);
