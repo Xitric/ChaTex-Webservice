@@ -216,5 +216,19 @@ namespace DAL
                 IsAdministrator = isUserAdmin
             };
         }
+
+        public IEnumerable<UserModel> GetAllDirectGroupUsers(int groupId)
+        {
+            using (var context = new ChatexdbContext())
+            {
+                List<UserModel> groupUsers = context.GroupUser
+               .Where(gu => gu.GroupId == groupId)
+               .Select(gu => UserMapper.MapUserEntityToModel(gu.User))
+               .ToList();
+
+                return groupUsers;
+            }
+            
+        }
     }
 }

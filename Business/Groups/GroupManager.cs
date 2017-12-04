@@ -192,5 +192,11 @@ namespace Business.Groups
         {
             throw new NotImplementedException();
         }
+
+        public IEnumerable<UserModel> GetAllDirectGroupUsers(int groupId, int callerId)
+        {
+            throwIfNotMember(groupId, callerId);
+            return groupRepository.GetAllDirectGroupUsers(groupId);
+        }
     }
 }

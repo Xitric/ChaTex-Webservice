@@ -31,6 +31,8 @@ namespace Business
 
         IEnumerable<UserModel> GetAllGroupAdmins(int groupId);
         void UpdateGroup(int groupId, string groupName, int callerId);
+
+        IEnumerable<UserModel> GetAllDirectGroupUsers(int groupId);
     }
 }
  

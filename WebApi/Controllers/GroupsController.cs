@@ -469,5 +469,62 @@ namespace WebAPI.Controllers
 
             return StatusCode(204);
         }
+
+        /// <summary>
+        /// Get all the the users with direct access to a specific group.
+        /// </summary>
+        /// <remarks>Gets all users with direct access to the group, this will not get the users added by roles.</remarks>
+        /// <param name="groupId"></param>
+        /// <response code="200">Successfully retrieved all direct users in the group</response>
+        [HttpGet]
+        [Route("/1.0.0/groups/{groupId}/directUsers")]
+        [SwaggerOperation("GetAllDirectGroupUsers")]
+        [ServiceFilter(typeof(ChaTexAuthorization))]
+        [SwaggerResponse(200, typeof(List<UserDTO>), "Successfully retrieved all direct users in the group")]
+        public virtual IActionResult GetAllDirectGroupUsers([FromRoute]int? groupId)
+        {
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            if (groupId == null)
+            {
+                return BadRequest("Bad input");
+            }
+
+            try
+            {
+                IEnumerable<UserModel> users = groupManager.GetAllDirectGroupUsers((int)groupId, callerId);
+                IEnumerable<UserDTO> userDTOs = users.Select(x => UserMapper.MapUserToUserDTO(x, callerId));
+                return new ObjectResult(userDTOs);
+            }
+            catch (InvalidArgumentException e)
+            {
+                switch (e.ParamName)
+                {
+                    case ParamNameType.GroupId:
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
+                }
+            }
+
+            return StatusCode(500);
+        }
+
+        /// <summary>
+        /// Get the list of roles that have access to a specific group
+        /// </summary>
+
+        /// <param name="groupId"></param>
+        /// <response code="200">Successfully retrieved all roles in the group</response>
+        [HttpGet]
+        [Route("/1.0.0/groups/{groupId}/roles")]
+        [SwaggerOperation("GetAllGroupRoles")]
+        [ServiceFilter(typeof(ChaTexAuthorization))]
+
+        public virtual IActionResult GetAllGroupRoles([FromRoute]int? groupId)
+        {
+            int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+
+            return null;
+        }
     }
+
 }
