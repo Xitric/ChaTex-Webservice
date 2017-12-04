@@ -327,23 +327,6 @@ namespace IO.Swagger.Controllers
             return StatusCode(500);
         }
 
-        /// <summary>
-        /// Get the list of roles that have access to a specific group
-        /// </summary>
-
-        /// <param name="groupId"></param>
-        /// <response code="200">Successfully retrieved all roles in the group</response>
-        [HttpGet]
-        [Route("/1.0.0/groups/{groupId}/roles")]
-        [ValidateModelState]
-        [SwaggerOperation("GroupsGetAllGroupRoles")]
-        [SwaggerResponse(200, typeof(List<RoleDTO>), "Successfully retrieved all roles in the group")]
-        [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual IActionResult GroupsGetAllGroupRoles([FromRoute]int? groupId)
-        {
-            //TODO
-            throw new NotSupportedException("This method id not yet implemented.");
-        }
 
         /// <summary>
         /// Get the list of users who have access to a specific group
@@ -466,6 +449,7 @@ namespace IO.Swagger.Controllers
         /// <response code="200">Successfully retrieved all direct users in the group</response>
         [HttpGet]
         [Route("/1.0.0/groups/{groupId}/directUsers")]
+        [ValidateModelState]
         [SwaggerOperation("GetAllDirectGroupUsers")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
         [SwaggerResponse(200, typeof(List<UserDTO>), "Successfully retrieved all direct users in the group")]
@@ -504,14 +488,37 @@ namespace IO.Swagger.Controllers
         /// <response code="200">Successfully retrieved all roles in the group</response>
         [HttpGet]
         [Route("/1.0.0/groups/{groupId}/roles")]
-        [SwaggerOperation("GetAllGroupRoles")]
+        [ValidateModelState]
+        [SwaggerOperation("GroupsGetAllGroupRoles")]
+        [SwaggerResponse(200, typeof(List<RoleDTO>), "Successfully retrieved all roles in the group")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-
         public virtual IActionResult GetAllGroupRoles([FromRoute]int? groupId)
         {
             int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
+            if (groupId == null)
+            {
+                return BadRequest("Bad input");
+            }
 
-            return null;
+            try
+            {
+                IEnumerable<RoleModel> roles = groupManager.GetAllGroupRoles((int)groupId, callerId);
+                IEnumerable<RoleDTO> roleDTOs = roles.Select(x => RoleMapper.MapRoleToRoleDTO(x));
+                return new ObjectResult(roleDTOs);
+            }
+            catch (InvalidArgumentException e)
+            {
+                switch (e.ParamName)
+                {
+                    case ParamNameType.GroupId:
+                        HttpContext.Response.StatusCode = 403;
+                        return new ObjectResult(e.Message);
+                }
+            }
+
+            return StatusCode(500);
+
+
         }
     }
 

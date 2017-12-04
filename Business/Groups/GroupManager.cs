@@ -198,5 +198,11 @@ namespace Business.Groups
             throwIfNotMember(groupId, callerId);
             return groupRepository.GetAllDirectGroupUsers(groupId);
         }
+
+        public IEnumerable<RoleModel> GetAllGroupRoles(int groupId, int callerId)
+        {
+            throwIfNotMember(groupId, callerId);
+            return groupRepository.GetAllGroupRoles(groupId);
+        }
     }
 }
