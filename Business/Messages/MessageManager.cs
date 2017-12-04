@@ -4,6 +4,7 @@ using System.Linq;
 using System;
 using System.Threading;
 using Business.Channels;
+using Business.Errors;
 
 namespace Business.Messages
 {
@@ -35,7 +36,7 @@ namespace Business.Messages
 
             if (!hasAccess)
             {
-                throw new ArgumentException("User does not have access to the specified channel", "callerId");
+                throw new InvalidArgumentException("User does not have access to the specified channel", ParamNameType.CallerId);
             }
 
             //There is no reason to use any locks in this method, as it does not matter if something happens in the channel while simply getting messages - it only matters when listening for events
@@ -48,7 +49,7 @@ namespace Business.Messages
             MessageModel message = messageRepository.GetMessage(messageId);
             if (message == null)
             {
-                throw new ArgumentException("The requested message does not exist", "messageId");
+                throw new InvalidArgumentException("The requested message does not exist", ParamNameType.MessageId);
             }
 
             if (isUserInChannel(callerId, message.ChannelId))
@@ -57,7 +58,7 @@ namespace Business.Messages
             }
             else
             {
-                throw new ArgumentException("Message could not be retrieved because the user does not have access to the channel containing the message", "callerId");
+                throw new InvalidArgumentException("Message could not be retrieved because the user does not have access to the channel containing the message", ParamNameType.CallerId);
             }
         }
 
@@ -65,12 +66,12 @@ namespace Business.Messages
         {
             if (channelRepository.GetChannel(channelId) == null)
             {
-                throw new ArgumentException("The specified channel does not exist. Maybe it has been deleted.", "channelId");
+                throw new InvalidArgumentException("The specified channel does not exist. Maybe it has been deleted.", ParamNameType.ChannelId);
             }
 
             if (!isUserInChannel(callerId, channelId))
             {
-                throw new ArgumentException("User does not have access to the specified channel", "callerId");
+                throw new InvalidArgumentException("User does not have access to the specified channel", ParamNameType.CallerId);
             }
 
             MessageModel message = new MessageModel()
@@ -98,7 +99,7 @@ namespace Business.Messages
 
             if (message == null)
             {
-                throw new ArgumentException("The message with the specified id does not exist", "messageId");
+                throw new InvalidArgumentException("The message with the specified id does not exist", ParamNameType.MessageId);
             }
 
             var channel = channelRepository.GetChannel(message.ChannelId);
@@ -114,7 +115,7 @@ namespace Business.Messages
                 }
                 else
                 {
-                    throw new ArgumentException("User does not have the rights to delete the specified message", nameof(callerId));
+                    throw new InvalidArgumentException("User does not have the rights to delete the specified message", ParamNameType.CallerId);
                 }
             }
             finally
@@ -128,7 +129,7 @@ namespace Business.Messages
             //Since message ids are fixed and messages don't change channels, these operations did not need to be within the lock
             MessageModel message = messageRepository.GetMessage(messageId);
 
-            if (message == null) throw new ArgumentException("Message with the specified id does not exist", nameof(messageId));
+            if (message == null) throw new InvalidArgumentException("Message with the specified id does not exist", ParamNameType.MessageId);
 
             var channel = channelRepository.GetChannel(message.ChannelId);
 
@@ -143,7 +144,7 @@ namespace Business.Messages
                 }
                 else
                 {
-                    throw new ArgumentException("User does not have the rights to delete the specified message", nameof(callerId));
+                    throw new InvalidArgumentException("User does not have the rights to delete the specified message", ParamNameType.CallerId);
                 }
             }
             finally

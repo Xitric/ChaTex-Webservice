@@ -30,6 +30,7 @@ using WebAPI.Authentication;
 using Business.Messages;
 using WebAPI.Models.Mappers;
 using System.Linq;
+using Business.Errors;
 
 namespace IO.Swagger.Controllers
 {
@@ -72,14 +73,14 @@ namespace IO.Swagger.Controllers
 
                 return NoContent();
             }
-            catch (ArgumentException e)
+            catch (InvalidArgumentException e)
             {
                 switch (e.ParamName)
                 {
-                    case "callerId":
+                    case ParamNameType.CallerId:
                         //Caller was not authorized
                         return StatusCode(401);
-                    case "channelId":
+                    case ParamNameType.ChannelId:
                         //Channel did not exist
                         return NotFound(e.Message);
                     default:
@@ -110,14 +111,14 @@ namespace IO.Swagger.Controllers
 
                 return NoContent();
             }
-            catch (ArgumentException e)
+            catch (InvalidArgumentException e)
             {
                 switch (e.ParamName)
                 {
-                    case "callerId":
+                    case ParamNameType.CallerId:
                         //Caller was not authorized
                         return StatusCode(401);
-                    case "messageId":
+                    case ParamNameType.MessageId:
                         //Message was unknown
                         return NotFound($"The message with id {messageId} was not found");
                     default:
@@ -154,14 +155,14 @@ namespace IO.Swagger.Controllers
 
                 return NoContent();
             }
-            catch (ArgumentException e)
+            catch (InvalidArgumentException e)
             {
                 switch (e.ParamName)
                 {
-                    case "callerId":
+                    case ParamNameType.CallerId:
                         //Caller was not authorized
                         return StatusCode(401);
-                    case "messageId":
+                    case ParamNameType.MessageId:
                         //Message was unknown
                         return NotFound($"The message with id {messageId} was not found");
                     default:
@@ -192,14 +193,14 @@ namespace IO.Swagger.Controllers
                 GetMessageDTO message = MessageMapper.MapMessageToGetMessageDTO(messageManager.GetMessage(callerId, (int)messageId), callerId);
                 return new ObjectResult(message);
             }
-            catch (ArgumentException e)
+            catch (InvalidArgumentException e)
             {
                 switch (e.ParamName)
                 {
-                    case "callerId":
+                    case ParamNameType.CallerId:
                         //Caller was not authorized
                         return StatusCode(401);
-                    case "messageId":
+                    case ParamNameType.MessageId:
                         return NotFound($"The message with id {messageId} was not found");
                     default:
                         //Some unexpected exception
@@ -243,14 +244,14 @@ namespace IO.Swagger.Controllers
 
                 return new ObjectResult(messages);
             }
-            catch (ArgumentException e)
+            catch (InvalidArgumentException e)
             {
                 switch (e.ParamName)
                 {
-                    case "callerId":
+                    case ParamNameType.CallerId:
                         //Caller was not authorized
                         return StatusCode(401);
-                    case "channelId":
+                    case ParamNameType.ChannelId:
                         return NotFound($"The channel with id {channelId} was not found");
                     default:
                         //Some unexpected exception

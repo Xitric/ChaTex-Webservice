@@ -158,11 +158,11 @@ namespace IO.Swagger.Controllers
 
                 return new ObjectResult(channelEventDTOs);
             }
-            catch (ArgumentException e)
+            catch (InvalidArgumentException e)
             {
                 switch (e.ParamName)
                 {
-                    case "callerId":
+                    case ParamNameType.CallerId:
                         //Caller was not authorized
                         return StatusCode(401);
                     default:
