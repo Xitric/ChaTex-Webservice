@@ -230,5 +230,18 @@ namespace DAL
             }
             
         }
+
+        public IEnumerable<RoleModel> GetAllGroupRoles(int groupId)
+        {
+            using (var context = new ChatexdbContext())
+            {
+                List<RoleModel> groupRoles = context.GroupRole
+                .Where(gr => gr.GroupId == groupId)
+                .Select(gr => RoleMapper.MapRoleEntityToModel(gr.Role))
+                .ToList();
+
+                return groupRoles;
+            }
+        }
     }
 }

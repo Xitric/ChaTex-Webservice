@@ -70,5 +70,7 @@ namespace Business.Groups
         void UpdateGroup(int groupId, string groupName);
 
         IEnumerable<UserModel> GetAllDirectGroupUsers(int groupId, int callerId);
+
+        IEnumerable<RoleModel> GetAllGroupRoles(int groupId);
     }
 }
