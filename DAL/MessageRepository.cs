@@ -23,7 +23,7 @@ namespace DAL
             }
         }
 
-        public IEnumerable<MessageModel> GetMessages(int channelId, int from, int count)
+        public IEnumerable<MessageModel> GetMessages(int channelId, DateTime before, int count)
         {
             using (var context = new ChatexdbContext())
             {
@@ -34,7 +34,7 @@ namespace DAL
                     .ToList()
                     .Select(cm => cm.Message)
                     .OrderByDescending(m => m.CreationDate)
-                    .Skip(from)
+                    .SkipWhile(m => m.CreationDate >= before)
                     .Take(count)
                     .Reverse()
                     .ToList()
@@ -97,7 +97,7 @@ namespace DAL
                 using (var context = new ChatexdbContext())
                 {
                     Message messageEntity = MessageMapper.MapMessageModelToEntity(message);
-                    messageEntity.CreationDate = DateTime.Now.ToUniversalTime();
+                    messageEntity.CreationDate = DateTime.UtcNow;
 
                     context.Message.Add(messageEntity);
                     context.SaveChanges();
@@ -121,7 +121,7 @@ namespace DAL
             using (var context = new ChatexdbContext())
             {
                 Message entity = context.Message.Find(messageId);
-                entity.DeletionDate = DateTime.Now.ToUniversalTime();
+                entity.DeletionDate = DateTime.UtcNow;
 
                 context.SaveChanges();
             }
@@ -144,7 +144,7 @@ namespace DAL
 
                 //Update current message
                 entity.Content = content;
-                entity.LastEditDate = DateTime.Now.ToUniversalTime();
+                entity.LastEditDate = DateTime.UtcNow;
 
                 context.SaveChanges();
             }

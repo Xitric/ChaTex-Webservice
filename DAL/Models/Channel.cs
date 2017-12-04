@@ -8,6 +8,7 @@ namespace DAL.Models
         public Channel()
         {
             ChannelBookmark = new HashSet<ChannelBookmark>();
+            ChannelEvent = new HashSet<ChannelEvent>();
             ChannelMessages = new HashSet<ChannelMessages>();
         }
 
@@ -18,6 +19,7 @@ namespace DAL.Models
 
         public Group Group { get; set; }
         public ICollection<ChannelBookmark> ChannelBookmark { get; set; }
+        public ICollection<ChannelEvent> ChannelEvent { get; set; }
         public ICollection<ChannelMessages> ChannelMessages { get; set; }
     }
 }

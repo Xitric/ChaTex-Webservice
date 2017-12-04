@@ -27,57 +27,31 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
 namespace IO.Swagger.Models
-{
+{ 
     /// <summary>
     /// 
     /// </summary>
     [DataContract]
     public partial class ChannelDTO :  IEquatable<ChannelDTO>
-    {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ChannelDTO" /> class.
-        /// </summary>
-        /// <param name="Id">Id (required).</param>
-        /// <param name="Name">Name (required).</param>
-        public ChannelDTO(int? Id = null, string Name = null)
-        {
-            // to ensure "Id" is required (not null)
-            if (Id == null)
-            {
-                throw new InvalidDataException("Id is a required property for ChannelDTO and cannot be null");
-            }
-            else
-            {
-                this.Id = Id;
-            }
-            // to ensure "Name" is required (not null)
-            if (Name == null)
-            {
-                throw new InvalidDataException("Name is a required property for ChannelDTO and cannot be null");
-            }
-            else
-            {
-                this.Name = Name;
-            }
-            
-        }
-
+    { 
         /// <summary>
         /// Gets or Sets Id
         /// </summary>
+        [Required]
         [DataMember(Name="Id")]
         public int? Id { get; set; }
 
         /// <summary>
         /// Gets or Sets Name
         /// </summary>
+        [Required]
         [DataMember(Name="Name")]
         public string Name { get; set; }
-
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -111,8 +85,7 @@ namespace IO.Swagger.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((ChannelDTO)obj);
+            return obj.GetType() == GetType() && Equals((ChannelDTO)obj);
         }
 
         /// <summary>
@@ -122,20 +95,19 @@ namespace IO.Swagger.Models
         /// <returns>Boolean</returns>
         public bool Equals(ChannelDTO other)
         {
-
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
             return 
                 (
-                    this.Id == other.Id ||
-                    this.Id != null &&
-                    this.Id.Equals(other.Id)
+                    Id == other.Id ||
+                    Id != null &&
+                    Id.Equals(other.Id)
                 ) && 
                 (
-                    this.Name == other.Name ||
-                    this.Name != null &&
-                    this.Name.Equals(other.Name)
+                    Name == other.Name ||
+                    Name != null &&
+                    Name.Equals(other.Name)
                 );
         }
 
@@ -145,20 +117,20 @@ namespace IO.Swagger.Models
         /// <returns>Hash code</returns>
         public override int GetHashCode()
         {
-            // credit: http://stackoverflow.com/a/263416/677735
             unchecked // Overflow is fine, just wrap
             {
-                int hash = 41;
+                var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                if (this.Id != null)
-                    hash = hash * 59 + this.Id.GetHashCode();
-                if (this.Name != null)
-                    hash = hash * 59 + this.Name.GetHashCode();
-                return hash;
+                    if (Id != null)
+                    hashCode = hashCode * 59 + Id.GetHashCode();
+                    if (Name != null)
+                    hashCode = hashCode * 59 + Name.GetHashCode();
+                return hashCode;
             }
         }
 
         #region Operators
+        #pragma warning disable 1591
 
         public static bool operator ==(ChannelDTO left, ChannelDTO right)
         {
@@ -170,7 +142,7 @@ namespace IO.Swagger.Models
             return !Equals(left, right);
         }
 
+        #pragma warning restore 1591
         #endregion Operators
-
     }
 }

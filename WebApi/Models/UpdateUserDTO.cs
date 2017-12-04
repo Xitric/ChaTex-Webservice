@@ -27,35 +27,18 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
 namespace IO.Swagger.Models
-{
+{ 
     /// <summary>
     /// 
     /// </summary>
     [DataContract]
     public partial class UpdateUserDTO :  IEquatable<UpdateUserDTO>
-    {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UpdateUserDTO" /> class.
-        /// </summary>
-        /// <param name="FirstName">FirstName.</param>
-        /// <param name="MiddleInitial">MiddleInitial.</param>
-        /// <param name="LastName">LastName.</param>
-        /// <param name="Email">Email.</param>
-        /// <param name="IsDeleted">IsDeleted.</param>
-        public UpdateUserDTO(string FirstName = null, string MiddleInitial = null, string LastName = null, string Email = null, bool? IsDeleted = null)
-        {
-            this.FirstName = FirstName;
-            this.MiddleInitial = MiddleInitial;
-            this.LastName = LastName;
-            this.Email = Email;
-            this.IsDeleted = IsDeleted;
-            
-        }
-
+    { 
         /// <summary>
         /// Gets or Sets FirstName
         /// </summary>
@@ -85,7 +68,6 @@ namespace IO.Swagger.Models
         /// </summary>
         [DataMember(Name="IsDeleted")]
         public bool? IsDeleted { get; set; }
-
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -122,8 +104,7 @@ namespace IO.Swagger.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((UpdateUserDTO)obj);
+            return obj.GetType() == GetType() && Equals((UpdateUserDTO)obj);
         }
 
         /// <summary>
@@ -133,35 +114,34 @@ namespace IO.Swagger.Models
         /// <returns>Boolean</returns>
         public bool Equals(UpdateUserDTO other)
         {
-
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
             return 
                 (
-                    this.FirstName == other.FirstName ||
-                    this.FirstName != null &&
-                    this.FirstName.Equals(other.FirstName)
+                    FirstName == other.FirstName ||
+                    FirstName != null &&
+                    FirstName.Equals(other.FirstName)
                 ) && 
                 (
-                    this.MiddleInitial == other.MiddleInitial ||
-                    this.MiddleInitial != null &&
-                    this.MiddleInitial.Equals(other.MiddleInitial)
+                    MiddleInitial == other.MiddleInitial ||
+                    MiddleInitial != null &&
+                    MiddleInitial.Equals(other.MiddleInitial)
                 ) && 
                 (
-                    this.LastName == other.LastName ||
-                    this.LastName != null &&
-                    this.LastName.Equals(other.LastName)
+                    LastName == other.LastName ||
+                    LastName != null &&
+                    LastName.Equals(other.LastName)
                 ) && 
                 (
-                    this.Email == other.Email ||
-                    this.Email != null &&
-                    this.Email.Equals(other.Email)
+                    Email == other.Email ||
+                    Email != null &&
+                    Email.Equals(other.Email)
                 ) && 
                 (
-                    this.IsDeleted == other.IsDeleted ||
-                    this.IsDeleted != null &&
-                    this.IsDeleted.Equals(other.IsDeleted)
+                    IsDeleted == other.IsDeleted ||
+                    IsDeleted != null &&
+                    IsDeleted.Equals(other.IsDeleted)
                 );
         }
 
@@ -171,26 +151,26 @@ namespace IO.Swagger.Models
         /// <returns>Hash code</returns>
         public override int GetHashCode()
         {
-            // credit: http://stackoverflow.com/a/263416/677735
             unchecked // Overflow is fine, just wrap
             {
-                int hash = 41;
+                var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                if (this.FirstName != null)
-                    hash = hash * 59 + this.FirstName.GetHashCode();
-                if (this.MiddleInitial != null)
-                    hash = hash * 59 + this.MiddleInitial.GetHashCode();
-                if (this.LastName != null)
-                    hash = hash * 59 + this.LastName.GetHashCode();
-                if (this.Email != null)
-                    hash = hash * 59 + this.Email.GetHashCode();
-                if (this.IsDeleted != null)
-                    hash = hash * 59 + this.IsDeleted.GetHashCode();
-                return hash;
+                    if (FirstName != null)
+                    hashCode = hashCode * 59 + FirstName.GetHashCode();
+                    if (MiddleInitial != null)
+                    hashCode = hashCode * 59 + MiddleInitial.GetHashCode();
+                    if (LastName != null)
+                    hashCode = hashCode * 59 + LastName.GetHashCode();
+                    if (Email != null)
+                    hashCode = hashCode * 59 + Email.GetHashCode();
+                    if (IsDeleted != null)
+                    hashCode = hashCode * 59 + IsDeleted.GetHashCode();
+                return hashCode;
             }
         }
 
         #region Operators
+        #pragma warning disable 1591
 
         public static bool operator ==(UpdateUserDTO left, UpdateUserDTO right)
         {
@@ -202,7 +182,7 @@ namespace IO.Swagger.Models
             return !Equals(left, right);
         }
 
+        #pragma warning restore 1591
         #endregion Operators
-
     }
 }

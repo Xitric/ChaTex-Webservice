@@ -34,7 +34,8 @@ namespace ChaTexTest
             var messageRepository = new MessageRepository();
             var groupRepository = new GroupRepository();
             var channelRepository = new ChannelRepository();
-            var messageManager = new MessageManager(messageRepository, groupRepository, channelRepository);
+            var channelEventManager = new ChannelEventManager(messageRepository, channelRepository);
+            var messageManager = new MessageManager(messageRepository, groupRepository, channelRepository, channelEventManager);
 
             var channelId = 3;
             var content = "This is a unit test message.";
@@ -63,8 +64,10 @@ namespace ChaTexTest
             Assert.IsTrue(groupInGroup != null);
 
 
+            var messageRepository = new MessageRepository();
             var channelRepository = new ChannelRepository();
-            var channelManager = new ChannelManager(channelRepository, groupRepository);
+            var channelEventManager = new ChannelEventManager(messageRepository, channelRepository);
+            var channelManager = new ChannelManager(channelRepository, groupRepository, channelEventManager);
 
             var channelId = channelManager.CreateChannel((int) groupId, callerId, "UnitTestChannel");
             var channel = channelRepository.GetChannel(channelId);

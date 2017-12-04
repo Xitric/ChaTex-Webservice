@@ -23,20 +23,23 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using IO.Swagger.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using IO.Swagger.Attributes;
+using IO.Swagger.Models;
 using WebAPI.Authentication;
 using Business.Chats;
 using System.Linq;
 
 namespace IO.Swagger.Controllers
 {
-    
-    public class ChatsController : Controller
+    /// <summary>
+    /// 
+    /// </summary>
+    public class ChatsApiController : Controller
     {
         private readonly IChatManager chatManager;
 
-        public ChatsController(IChatManager chatManager)
+        public ChatsApiController(IChatManager chatManager)
         {
             this.chatManager = chatManager;
         }
@@ -47,47 +50,43 @@ namespace IO.Swagger.Controllers
         /// <remarks>This will add a list of users to a specific chat</remarks>
         /// <param name="addUsersToChatDTO">Users to be added to a chat</param>
         /// <response code="204">Users added to chat successfully</response>
-        /// <response code="401">The user was not authorized to access this resource</response>
-        /// <response code="404">No chat or user with the specified ids exists</response>
         [HttpPost]
         [Route("/1.0.0/chats/users")]
-        [SwaggerOperation("AddUsersToChat")]
+        [ValidateModelState]
+        [SwaggerOperation("ChatsAddUsersToChat")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual IActionResult AddUsersToChat([FromBody]AddUsersToChatDTO addUsersToChatDTO)
+        public virtual IActionResult ChatsAddUsersToChat([FromBody]AddUsersToChatDTO addUsersToChatDTO)
         {
             int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
-            
+
             chatManager.AddUsersToChat(chatId: (int)addUsersToChatDTO.ChatId,
             userIds: addUsersToChatDTO.UserIds.Where(x => x != null).Select(x => x.Value).ToList());
-           
+
             return StatusCode(204);
         }
 
-
         /// <summary>
-        /// Create a new chat
+        /// Create a new chat with only the caller as a member
         /// </summary>
-        /// <remarks>Creates a new chat</remarks>
-        /// <param name="createChatDTO">The name of the group</param>
-        /// <response code="200">The chat was created</response>
-        /// <response code="400">Bad input</response>
-        /// <response code="401">The user was not authorized to access this resource</response>
-        /// <response code="403">The user was not authorized to access this resource</response>
+
+        /// <param name="chatName"></param>
+        /// <response code="200">The chat was created successfully</response>
         [HttpPost]
         [Route("/1.0.0/chats")]
-        [SwaggerOperation("CreateChat")]
-        [SwaggerResponse(200, type: typeof(ChatDTO))]
+        [ValidateModelState]
+        [SwaggerOperation("ChatsCreateChat")]
+        [SwaggerResponse(200, typeof(ChatDTO), "The chat was created successfully")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual IActionResult CreateChat([FromBody]CreateChatDTO createChatDTO)
+        public virtual IActionResult ChatsCreateChat([FromBody]string chatName)
         {
             int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
-            if (string.IsNullOrEmpty(createChatDTO.ChatName))
+            if (chatName.Length == 0)
             {
-                return BadRequest("Malformed createChatDTO");
+                return BadRequest("A chat name must be specified");
             }
 
-            int? chatId = chatManager.CreateChat(userId: callerId, chatName: createChatDTO.ChatName);
+            int? chatId = chatManager.CreateChat(userId: callerId, chatName: chatName);
 
             if (chatId == null)
             {
@@ -95,9 +94,13 @@ namespace IO.Swagger.Controllers
                 return new ObjectResult("Could not create chat");
             }
 
-            return new ObjectResult(new ChatDTO(chatId, createChatDTO.ChatName, new List<UserDTO>()));
+            return new ObjectResult(new ChatDTO()
+            {
+                Id = chatId,
+                Name = chatName,
+                Users = new List<UserDTO>()
+            });
         }
-
 
         /// <summary>
         /// Get alle chats for the user
@@ -105,33 +108,30 @@ namespace IO.Swagger.Controllers
         /// <remarks>Gets all chats for the specific user id</remarks>
         /// <param name="userId">The id of the user</param>
         /// <response code="200">Chats was returned successfully</response>
-        /// <response code="401">The user was not authorized to access this resource</response>
-        /// <response code="404">Could not find the chat with the specified id</response>
         [HttpGet]
         [Route("/1.0.0/chats/users/{userId}")]
-        [SwaggerOperation("GetAllChatsForUser")]
-        [SwaggerResponse(200, type: typeof(List<ChatDTO>))]
+        [ValidateModelState]
+        [SwaggerOperation("ChatsGetAllChatsForUser")]
+        [SwaggerResponse(200, typeof(List<ChatDTO>), "Chats was returned successfully")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual IActionResult GetAllChatsForUser([FromRoute]int? userId)
+        public virtual IActionResult ChatsGetAllChatsForUser([FromRoute]int? userId)
         {
             throw new NotImplementedException("This feature is not yet implemented.");
         }
 
-
         /// <summary>
-        /// Get all messages in a one-to-one chat
+        /// Get a list of all messages in a chat
         /// </summary>
-        /// <remarks>This will get a list of messages in a chat from a specific user</remarks>
+
         /// <param name="chatId">The id of the message to get</param>
         /// <response code="200">Messages was returned successfully</response>
-        /// <response code="401">The user was not authorized to access this resource</response>
-        /// <response code="404">Could not find the chat with the specified id</response>
         [HttpGet]
         [Route("/1.0.0/chats/{chatId}")]
-        [SwaggerOperation("GetMessagesInChat")]
-        [SwaggerResponse(200, type: typeof(List<GetMessageDTO>))]
+        [ValidateModelState]
+        [SwaggerOperation("ChatsGetMessagesInChat")]
+        [SwaggerResponse(200, typeof(List<GetMessageDTO>), "Messages was returned successfully")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual IActionResult GetMessagesInChat([FromRoute]int? chatId)
+        public virtual IActionResult ChatsGetMessagesInChat([FromRoute]int? chatId)
         {
             throw new NotImplementedException("This feature is not yet implemented.");
         }

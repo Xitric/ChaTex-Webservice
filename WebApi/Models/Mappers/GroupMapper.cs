@@ -12,10 +12,15 @@ namespace WebAPI.Models.Mappers
         public static GroupDTO MapGroupToGroupDTO(GroupModel group)
         {
             List<ChannelDTO> channels = group.Channels
-                .Select(c => ChannelMapper.MapChannelToChanelDTO(c))
+                .Select(c => ChannelMapper.MapChannelToChannelDTO(c))
                 .ToList();
 
-            return new GroupDTO(group.Id, group.Name, channels);
+            return new GroupDTO()
+            {
+                Id = group.Id,
+                Name = group.Name,
+                Channels = channels
+            };
         }
     }
 }

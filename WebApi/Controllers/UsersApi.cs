@@ -23,63 +23,65 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using System.Linq;
-using Microsoft.AspNetCore.Http;
-using Business.Models;
+using IO.Swagger.Attributes;
+using IO.Swagger.Models;
 using WebAPI.Authentication;
 using Business.Users;
-using WebAPI.Models.Mappers;
-using System;
-using IO.Swagger.Models;
 using Business.Groups;
+using Business.Models;
+using System.Linq;
+using WebAPI.Models.Mappers;
 using Business.Errors;
 
-namespace WebAPI.Controllers
+namespace IO.Swagger.Controllers
 {
-    public class UsersController : Controller
+    /// <summary>
+    /// 
+    /// </summary>
+    public class UsersApiController : Controller
     {
         private readonly IUserManager userManager;
         private readonly IGroupManager groupManager;
 
-        public UsersController(IUserManager userManager, IGroupManager groupManager)
+        public UsersApiController(IUserManager userManager, IGroupManager groupManager)
         {
             this.userManager = userManager;
             this.groupManager = groupManager;
         }
 
         /// <summary>
-        /// Get all users
+        /// Get a list of all users registered in the system
         /// </summary>
-        /// <remarks>Get the available users in the system</remarks>
-        /// <response code="200">Successfully retrieved all the user's</response>
-        /// <response code="401">The user was not authorized to access this resource</response>
+
+        /// <response code="200">Successfully retrieved all the users</response>
         [HttpGet]
         [Route("/1.0.0/users")]
-        [SwaggerOperation("GetAllUsers")]
-        [SwaggerResponse(200, type: typeof(List<UserDTO>))]
+        [ValidateModelState]
+        [SwaggerOperation("UsersGetAllUsers")]
+        [SwaggerResponse(200, typeof(List<UserDTO>), "Successfully retrieved all the users")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual IActionResult GetAllUsers()
+        public virtual IActionResult UsersGetAllUsers()
         {
             int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
             IEnumerable<UserModel> users = userManager.GetAllUsers();
             IEnumerable<UserDTO> dtoResponse = users.Select(u => UserMapper.MapUserToUserDTO(u, callerId));
-           
+
             return new ObjectResult(dtoResponse);
         }
 
         /// <summary>
-        /// Get the available groups to a user.
+        /// Get the the groups that a user is a member of
         /// </summary>
-        /// <remarks>Get the available groups to the user with the specified ID.</remarks>
+
         /// <response code="200">Successfully retrieved the user&#39;s groups</response>
-        /// <response code="401">The user was not authorized to access this resource</response>
         [HttpGet]
         [Route("/1.0.0/users/me/groups")]
-        [SwaggerOperation("GetGroupsForUser")]
-        [SwaggerResponse(200, type: typeof(List<GroupDTO>))]
+        [ValidateModelState]
+        [SwaggerOperation("UsersGetGroupsForUser")]
+        [SwaggerResponse(200, typeof(List<GroupDTO>), "Successfully retrieved the user&#39;s groups")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual IActionResult GetGroupsForUser()
+        public virtual IActionResult UsersGetGroupsForUser()
         {
             int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
 
@@ -90,54 +92,49 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Login a user
+        /// Sign into the system
         /// </summary>
-        /// <remarks>Login the user with the specified e-mail</remarks>
+
         /// <param name="userEmail">The user&#39;s email</param>
-        /// <response code="200">The user was successfully logged in</response>
-        /// <response code="401">No user with the specified e-mail was found</response>
+        /// <response code="200">The user was successfully logged in and an authentication token was generated</response>
         [HttpGet]
         [Route("/1.0.0/users/login")]
-        [SwaggerOperation("Login")]
-        [SwaggerResponse(200, type: typeof(string))]
-        public virtual IActionResult Login([FromQuery]string userEmail)
+        [ValidateModelState]
+        [SwaggerOperation("UsersLogin")]
+        [SwaggerResponse(200, typeof(string), "The user was successfully logged in and an authentication token was generated")]
+        public virtual IActionResult UsersLogin([FromQuery]string userEmail)
         {
-            if (string.IsNullOrWhiteSpace(userEmail))
+            if (userEmail.Length == 0)
             {
-                return BadRequest("An email must be specified!");
+                return BadRequest("An email must be specified");
             }
 
             string token = userManager.Login(userEmail);
 
-            if (string.IsNullOrWhiteSpace(token))
-            {   
+            if (string.IsNullOrEmpty(token))
+            {
                 HttpContext.Response.StatusCode = 403;
                 return new ObjectResult("No user with the specified email was found!");
             }
-            
+
             return new JsonResult(token);
         }
 
         /// <summary>
-        /// Update a user
+        /// Update the information of a user in the system
         /// </summary>
-        /// <remarks>Update an existing user in the database</remarks>
-        /// <param name="userId">User id of user to update</param>
-        /// <param name="updateUserDTO">The name of the user</param>
-        /// <response code="200">The user was successfully updated</response>
-        /// <response code="404">No user with the specified id was found</response>
+
+        /// <param name="userId">The id of the user to update</param>
+        /// <param name="updateUserDTO">The new user information. All internal null values are ignored by the server</param>
+        /// <response code="204">The user was successfully updated</response>
         [HttpPut]
         [Route("/1.0.0/users/{userId}")]
-        [SwaggerOperation("UpdateUser")]
+        [ValidateModelState]
+        [SwaggerOperation("UsersUpdateUser")]
         [ServiceFilter(typeof(ChaTexAuthorization))]
-        public virtual IActionResult UpdateUser([FromRoute]int? userId, [FromBody]UpdateUserDTO updateUserDTO)
+        public virtual IActionResult UsersUpdateUser([FromRoute]int? userId, [FromBody]UpdateUserDTO updateUserDTO)
         {
             int callerId = (int)HttpContext.Items[ChaTexAuthorization.UserIdKey];
-            
-            if(userId == null || updateUserDTO == null)
-            {
-                return BadRequest("No userId or updateUserDTO specified");
-            }
 
             try
             {
