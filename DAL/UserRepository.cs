@@ -57,7 +57,7 @@ namespace DAL
             {
                 return context.User
                     .Where(u => u.Email.Equals(email))
-                    .Select(u => u.UserId)
+                    .Select(u => (int?)u.UserId)
                     .SingleOrDefault();
             }
         }
