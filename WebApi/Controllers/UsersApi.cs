@@ -95,26 +95,21 @@ namespace IO.Swagger.Controllers
         /// Sign into the system
         /// </summary>
 
-        /// <param name="userEmail">The user&#39;s email</param>
+        /// <param name="userCredentials">The user&#39;s email and password</param>
         /// <response code="200">The user was successfully logged in and an authentication token was generated</response>
-        [HttpGet]
+        [HttpPost]
         [Route("/1.0.0/users/login")]
         [ValidateModelState]
         [SwaggerOperation("UsersLogin")]
         [SwaggerResponse(200, typeof(string), "The user was successfully logged in and an authentication token was generated")]
-        public virtual IActionResult UsersLogin([FromQuery]string userEmail)
+        public virtual IActionResult UsersLogin([FromBody]UserCredentials userCredentials)
         {
-            if (userEmail.Length == 0)
-            {
-                return BadRequest("An email must be specified");
-            }
-
-            string token = userManager.Login(userEmail);
+            string token = userManager.Login(userCredentials.Email, userCredentials.Password);
 
             if (string.IsNullOrEmpty(token))
             {
                 HttpContext.Response.StatusCode = 403;
-                return new ObjectResult("No user with the specified email was found!");
+                return new ObjectResult("The email or password was incorrect!");
             }
 
             return new JsonResult(token);

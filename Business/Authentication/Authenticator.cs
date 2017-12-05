@@ -1,50 +1,49 @@
 ﻿using Business;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 
 [assembly: InternalsVisibleTo("ChaTexTest")]
 namespace Business.Authentication
 {
     class Authenticator : IAuthenticator
     {
-        private readonly IUserRepository users;
+        private readonly IUserRepository userRepository;
 
-        public Authenticator(IUserRepository users)
+        public Authenticator(IUserRepository userRepository)
         {
-            this.users = users;
+            this.userRepository = userRepository;
         }
 
         /// <summary>
-        /// Logs in the user with the specified email and generates a token for future authentication. The token will
+        /// Logs in the user with the specified email and password and generates a token for future authentication. The token will
         /// expire after 1 hour.
         /// </summary>
         /// <param name="email">The email of the user to log in</param>
+        /// <param name="password">The password of the user to log in</param>
         /// <returns>The generated token, or null if the user could not be authorized</returns>
-        public string Login(string email)
+        public string Login(string email, string password)
         {
+            if (!areCredentialsValid(email, password)) return null;
+
             //Attempt to get existing token
-            string token = users.GetSessionToken(email);
+            int userId = (int)userRepository.GetUserIdFromEmail(email);
+            string token = userRepository.GetSessionToken(userId);
 
             //If the token is expired, it must be removed from the database
-            if (token != null && IsTokenExpired(token))
+            if (token != null && isTokenExpired(token))
             {
-                users.DeleteUserToken(email);
+                userRepository.DeleteUserToken(userId);
                 token = null;
             }
 
             //If there is no existing token at this point, a new one is generated
             if (token == null)
             {
-                token = GenerateToken(DateTime.Now.ToUniversalTime().AddDays(1));
-
-                if (users.SaveUserToken(email, token))
-                {
-                    return token;
-                }
-
-                //For some reason the token could not be generated, and the login failed
-                return null;
+                token = generateToken(DateTime.Now.ToUniversalTime().AddDays(1));
+                userRepository.SaveUserToken(userId, token);
             }
 
             return token;
@@ -52,12 +51,26 @@ namespace Business.Authentication
 
         public int? GetUserIdFromToken(string token)
         {
-            if (!IsTokenExpired(token))
+            if (!isTokenExpired(token))
             {
-                return users.GetUserIdFromToken(token);
+                return userRepository.GetUserIdFromToken(token);
             }
 
             return null;
+        }
+
+        private bool areCredentialsValid(string email, string password)
+        {
+            int? userId = userRepository.GetUserIdFromEmail(email);
+
+            if (userId == null) return false;
+
+            byte[] salt = userRepository.GetUserSalt((int)userId);
+            string correctHash = userRepository.GetUserPasswordHash((int)userId);
+
+            //Generate hash based on the provided password and the retrieved salt
+            string passwordHash = Convert.ToBase64String(KeyDerivation.Pbkdf2(password, salt, KeyDerivationPrf.HMACSHA512, 65536, 32));
+            return passwordHash.Equals(correctHash);
         }
 
         /// <summary>
@@ -65,7 +78,7 @@ namespace Business.Authentication
         /// </summary>
         /// <param name="expiration">The expiraiton date of the token</param>
         /// <returns>The generated token in base 64</returns>
-        private string GenerateToken(DateTime expiration)
+        private string generateToken(DateTime expiration)
         {
             //From:
             //https://stackoverflow.com/questions/14643735/how-to-generate-a-unique-token-which-expires-after-24-hours
@@ -79,7 +92,7 @@ namespace Business.Authentication
         /// </summary>
         /// <param name="token">The token to check</param>
         /// <returns>True if the token is expired, false otherwise</returns>
-        private Boolean IsTokenExpired(string token)
+        private Boolean isTokenExpired(string token)
         {
             try
             {

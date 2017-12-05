@@ -253,6 +253,12 @@ namespace DAL.Models
                 entity.Property(e => e.LastName).IsRequired();
 
                 entity.Property(e => e.MiddleInitial).HasColumnType("char(4)");
+
+                entity.Property(e => e.PasswordHash)
+                    .HasMaxLength(128)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Salt).HasColumnType("binary(16)");
             });
 
             modelBuilder.Entity<UserRole>(entity =>

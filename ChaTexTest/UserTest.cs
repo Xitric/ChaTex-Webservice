@@ -24,7 +24,7 @@ namespace ChaTexTest
             var userRepository = new UserRepository();
             var authenticator = new Authenticator(userRepository);
             var userManager = new UserManager(userRepository, authenticator);
-            var actual = userManager.Login("anthy17@student.sdu.dk");
+            var actual = userManager.Login("anthy17@student.sdu.dk", "abc123");
             Assert.IsTrue(!string.IsNullOrWhiteSpace(actual), "Login didn't work.");
         }
 
