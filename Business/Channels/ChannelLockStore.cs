@@ -49,6 +49,20 @@ namespace Business.Channels
         }
 
         /// <summary>
+        /// Get the lock for the channel with the specified id if the lock exists. Acquiring a channel lock using this method is useful if the the caller already acquired the lock earlier and wants to ensure that the reference count to the lock is not increased again. An additional call to DropLockForChannel() is thus not required after calling this method. This method is entirely thread safe.
+        /// </summary>
+        /// <param name="channelId">The id of the channel to get the lock for</param>
+        /// <returns>The lock for the channel with the specified id, or null if no such lock exists</returns>
+        public ReaderWriterLock PeekLockForChannel(int channelId)
+        {
+            lock (channelLocks)
+            {
+                channelLocks.TryGetValue(channelId, out ReaderWriterLock channelLock);
+                return channelLock;
+            }
+        }
+
+        /// <summary>
         /// Get the ManualResetEvent that is currently used for notifying threads of new events in the channel with the specified id. This method will not necessarily return the same wait handle every time it is called, as a new wait handle is provided every time an event happens. The purpose of this wait handle is that it allows the caller to wait for events in the channel that happened after the wait handle was acquired, but possible before it was waited on.
         /// This method should be called after the calling thread has acquired at least a read lock on the channel. If the method DropLockForChannel() is called, this wait handle might never be informed of a new channel event before a new event handle is provided. The channel lock should thus not be dropped before the wait handle has been put to use.
         /// </summary>

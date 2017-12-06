@@ -32,10 +32,15 @@ namespace Business.Channels
         {
             Console.WriteLine($"New event in channel {channelId}");
 
-            ReaderWriterLock channelLock = lockStore.GetLockForChannel(channelId);
+            ReaderWriterLock channelLock = lockStore.PeekLockForChannel(channelId);
+            if (channelLock == null)
+            {
+                //The calling thread did certainly not own the write lock
+                return;
+            }
+
             lockStore.BroadcastChannelEvent(channelId);
             channelLock.ReleaseWriterLock();
-            lockStore.DropLockForChannel(channelId);//TODO: Should probably make another method for acquiring the lock without reference counting
             lockStore.DropLockForChannel(channelId);
         }
 
