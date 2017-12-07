@@ -1,0 +1,424 @@
+{
+	"info": {
+		"name": "ChaTex Services Test",
+		"_postman_id": "00e1d734-aeae-b526-c900-f6a22407fc5a",
+		"description": "Tests of the ChaTex API. This test ensures that all web services return the correct status codes when receiving both good and bad requests.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Channels",
+			"description": "Tests for the ChannelsApi",
+			"item": []
+		},
+		{
+			"name": "Chats",
+			"description": "Tests for the ChatsApi",
+			"item": []
+		},
+		{
+			"name": "Groups",
+			"description": "Tests for the GroupsApi",
+			"item": []
+		},
+		{
+			"name": "Messages",
+			"description": "Tests for the MessagesApi",
+			"item": []
+		},
+		{
+			"name": "Roles",
+			"description": "Tests for the RolesApi",
+			"item": []
+		},
+		{
+			"name": "Users",
+			"description": "Tests for the UsersApi",
+			"item": [
+				{
+					"name": "LoginInvalid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "08e2c0ab-ba1a-4358-8140-2fdfde6f93d2",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"amhof16@student.sdu.dk\",\r\n  \"password\": \"abc\"\r\n}"
+						},
+						"url": {
+							"raw": "{{chatex}}/users/login",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						},
+						"description": "Tests that a user cannot login when providing invalid credentials. In this case the user should receive a status code 403."
+					},
+					"response": []
+				},
+				{
+					"name": "LoginValid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "7d7ee8db-3b18-4a4f-a0f4-96c4ccecf2c9",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"//Ensure that the response body contains the correct token",
+									"pm.test(\"Body contains a token\", function () {",
+									"    pm.expect(pm.response.text()).to.include(pm.environment.get(\"token\"));",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"amhof16@student.sdu.dk\",\r\n  \"password\": \"abc123\"\r\n}"
+						},
+						"url": {
+							"raw": "{{chatex}}/users/login",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						},
+						"description": "Tests that a user can log in when providing valid credentials."
+					},
+					"response": []
+				},
+				{
+					"name": "LoginEmpty",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "976403fc-8bb4-43ec-a582-1ce4c5d3f30d",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{chatex}}/users/login",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						},
+						"description": "Tests that a request with an empty body results in a bad request."
+					},
+					"response": []
+				},
+				{
+					"name": "AllUserRolesAuthenticated",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "2619dd9c-6fcb-45ec-8f39-db8927d9a960",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"//Ensure that the response has the correct schema",
+									"var schema = {",
+									"    \"type\" : \"array\",",
+									"    \"items\" : {",
+									"        \"type\" : \"object\",",
+									"        \"required\" : [ \"id\", \"name\", \"isDeleted\" ],",
+									"        \"properties\" : {",
+									"            \"id\" : {",
+									"                \"type\" : \"integer\",",
+									"                \"format\" : \"int32\"",
+									"            },",
+									"            \"name\" : {",
+									"                \"type\" : \"string\"",
+									"            },",
+									"            \"isDeleted\" : {",
+									"                \"type\" : \"boolean\"",
+									"            }",
+									"        }",
+									"    }",
+									"}",
+									"",
+									"pm.test('Schema is valid', function() {",
+									"  pm.expect(tv4.validate(pm.response.json(), schema)).to.be.true;",
+									"});",
+									"console.log(tv4.error);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/users/5",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"users",
+								"5"
+							]
+						},
+						"description": "Tests that it is possible to retrieve roles on a user when requesting from an authorized client."
+					},
+					"response": []
+				},
+				{
+					"name": "AllUserRolesAuthenticatedBadId",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "35d8bb52-2e15-4033-a4f5-ae459627fed2",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/users/4",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"users",
+								"4"
+							]
+						},
+						"description": "Tests that requesting roles on a nonexisting user results in the status code 403."
+					},
+					"response": []
+				},
+				{
+					"name": "AllUserRolesNoToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "98493e43-d4ea-4cba-9f56-704dc704b62a",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/users/5",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"users",
+								"5"
+							]
+						},
+						"description": "Tests that requesting roles on a user without providing a token results in the status code 401."
+					},
+					"response": []
+				},
+				{
+					"name": "UserGroups",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b9c71b22-c8c4-47d3-bd72-58d23842de8f",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"//Ensure that the response has the correct schema",
+									"var schema = {",
+									"    \"type\" : \"array\",",
+									"    \"items\" : {",
+									"        \"type\" : \"object\",",
+									"        \"required\" : [ \"id\", \"name\" ],",
+									"        \"properties\" : {",
+									"            \"id\" : {",
+									"                \"type\" : \"integer\",",
+									"                \"format\" : \"int32\"",
+									"            },",
+									"            \"name\" : {",
+									"                \"type\" : \"string\"",
+									"            },",
+									"            \"channels\" : {",
+									"                \"type\" : \"array\",",
+									"                \"items\" : {",
+									"                    \"type\" : \"object\",",
+									"                    \"required\" : [ \"id\", \"name\" ],",
+									"                    \"properties\" : {",
+									"                        \"id\" : {",
+									"                            \"type\" : \"integer\",",
+									"                            \"format\" : \"int32\"",
+									"                        },",
+									"                        \"name\" : {",
+									"                            \"type\" : \"string\"",
+									"                        }",
+									"                    }",
+									"                }",
+									"            }",
+									"        }",
+									"    }",
+									"}",
+									"",
+									"pm.test('Schema is valid', function() {",
+									"  pm.expect(tv4.validate(pm.response.json(), schema)).to.be.true;",
+									"});",
+									"console.log(tv4.error);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/users/me/groups",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"users",
+								"me",
+								"groups"
+							]
+						},
+						"description": "Tests that it is possible to request a user's own groups when providing a valid token."
+					},
+					"response": []
+				},
+				{
+					"name": "UserGroupsNoToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "81ecdf6e-48ab-436c-b2f0-ffd86851fd28",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/users/me/groups",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"users",
+								"me",
+								"groups"
+							]
+						},
+						"description": "Tests that requesting groups without a valid token results in the status code 401."
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
