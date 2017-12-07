@@ -26,7 +26,7 @@ namespace Business.Messages
         private bool isUserInChannel(int userId, int channelId)
         {
             return groupRepository.GetGroupsForUser(userId)
-                .Select(g => g.Channels.Any(c => c.Id == channelId))
+                .Where(g => g.Channels.Any(c => c.Id == channelId))
                 .Any();
         }
 
