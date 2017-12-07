@@ -7,13 +7,19 @@ namespace Business
 {
     public interface IUserRepository
     {
-        string GetSessionToken(string email);
+        string GetSessionToken(int userId);
 
-        bool SaveUserToken(string email, string token);
+        void SaveUserToken(int userId, string token);
 
-        void DeleteUserToken(string email);
+        void DeleteUserToken(int userId);
 
         int? GetUserIdFromToken(string token);
+
+        int? GetUserIdFromEmail(string email);
+
+        string GetUserPasswordHash(int userId);
+
+        byte[] GetUserSalt(int userId);
 
         IEnumerable<UserModel> GetAllUsers();
 

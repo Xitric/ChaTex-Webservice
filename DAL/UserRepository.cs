@@ -12,75 +12,38 @@ namespace DAL
 {
     class UserRepository : IUserRepository
     {
-        public string GetSessionToken(string email)
+        public string GetSessionToken(int userId)
         {
             using (var context = new ChatexdbContext())
             {
-                int? userID = GetUserIdFromEmail(email);
-
-                if (userID == null)
-                {
-                    return null;
-                }
-
-                UserToken userToken = context.UserToken
-                    .Find(userID);
-
-                if (userToken != null)
-                {
-                    return userToken.Token;
-                }
-
-                return null;
+                return context.UserToken
+                    .Find(userId)?
+                    .Token;
             }
         }
 
-        public IEnumerable<UserModel> GetAllUsers()
+        public void SaveUserToken(int userId, string token)
         {
             using (var context = new ChatexdbContext())
             {
-                return context.User.Select(u => UserMapper.MapUserEntityToModel(u)).ToList();
-            }
-        }
-
-        public bool SaveUserToken(string email, string token)
-        {
-            using (var context = new ChatexdbContext())
-            {
-                int? userID = GetUserIdFromEmail(email);
-
-                if (userID == null)
-                {
-                    return false;
-                }
-
                 UserToken userToken = new UserToken()
                 {
-                    UserId = (int)userID,
+                    UserId = userId,
                     Token = token
                 };
 
                 context.UserToken.Add(userToken);
                 context.SaveChanges();
             }
-
-            return true;
         }
 
-        public void DeleteUserToken(string email)
+        public void DeleteUserToken(int userId)
         {
             using (var context = new ChatexdbContext())
             {
-                int? userID = GetUserIdFromEmail(email);
-
-                if (userID == null)
-                {
-                    return;
-                }
-
                 UserToken userToken = new UserToken()
                 {
-                    UserId = (int)userID
+                    UserId = userId
                 };
 
                 context.UserToken.Remove(userToken);
@@ -88,22 +51,34 @@ namespace DAL
             }
         }
 
-        private int? GetUserIdFromEmail(string email)
+        public int? GetUserIdFromEmail(string email)
         {
             using (var context = new ChatexdbContext())
             {
-                var matchingUserIds = context.User
+                return context.User
                     .Where(u => u.Email.Equals(email))
-                    .Select(u => u.UserId);
+                    .Select(u => (int?)u.UserId)
+                    .SingleOrDefault();
+            }
+        }
 
-                if (matchingUserIds.Count() == 1)
-                {
-                    return matchingUserIds.Single();
-                }
-                else
-                {
-                    return null;
-                }
+        public string GetUserPasswordHash(int userId)
+        {
+            using (var context = new ChatexdbContext())
+            {
+                return context.User
+                    .Find(userId)?
+                    .PasswordHash;
+            }
+        }
+
+        public byte[] GetUserSalt(int userId)
+        {
+            using (var context = new ChatexdbContext())
+            {
+                return context.User
+                    .Find(userId)?
+                    .Salt;
             }
         }
 
@@ -115,6 +90,14 @@ namespace DAL
                 .Where(u => u.Token.Equals(token))
                 .Select(u => u.UserId)
                 .FirstOrDefault();
+            }
+        }
+
+        public IEnumerable<UserModel> GetAllUsers()
+        {
+            using (var context = new ChatexdbContext())
+            {
+                return context.User.Select(u => UserMapper.MapUserEntityToModel(u)).ToList();
             }
         }
 

@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -63,6 +65,12 @@ namespace WebAPI
                     c.IncludeXmlComments($"{AppContext.BaseDirectory}{Path.DirectorySeparatorChar}{_hostingEnv.ApplicationName}.xml");
                 });
 
+            //Ensure that all requests use HTTPS
+            services.Configure<MvcOptions>(options =>
+            {
+                options.Filters.Add(new RequireHttpsAttribute());
+            });
+
             //Register authorization
             services.AddScoped<ChaTexAuthorization>();
 
@@ -82,6 +90,8 @@ namespace WebAPI
             loggerFactory
                 .AddConsole(Configuration.GetSection("Logging"))
                 .AddDebug();
+
+            app.UseRewriter(new RewriteOptions().AddRedirectToHttps());
 
             app
                 .UseMvc()

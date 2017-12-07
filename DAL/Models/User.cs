@@ -21,6 +21,8 @@ namespace DAL.Models
         public string LastName { get; set; }
         public string Email { get; set; }
         public bool? IsDeleted { get; set; }
+        public string PasswordHash { get; set; }
+        public byte[] Salt { get; set; }
 
         public SystemAdministrator SystemAdministrator { get; set; }
         public UserToken UserToken { get; set; }

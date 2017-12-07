@@ -20,10 +20,10 @@ namespace Business.Users
             this.authenticator = authenticator;
         }
 
-        public string Login(string email)
+        public string Login(string email, string password)
         {
             //Forward to authenticator
-            return authenticator.Login(email);
+            return authenticator.Login(email, password);
         }
 
         public IEnumerable<UserModel> GetAllUsers()

@@ -5,7 +5,7 @@ namespace Business.Users
 {
     public interface IUserManager
     {
-        string Login(string email);
+        string Login(string email, string password);
 
         IEnumerable<UserModel> GetAllUsers();
 
