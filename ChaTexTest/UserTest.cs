@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Business;
 using Business.Authentication;
 using Business.Channels;
+using Business.Errors;
 using Business.Groups;
 using Business.Messages;
 using Business.Models;
@@ -16,7 +18,8 @@ namespace ChaTexTest
     [TestClass]
     public class UserTest
     {
-        private readonly int callerId = 10;
+        private readonly int workingCallerId = 10;
+        private readonly int failingCallerId = 0;
 
         [TestMethod]
         public void TestLogin()
@@ -44,8 +47,8 @@ namespace ChaTexTest
             var channelId = 2;
             var content = "This is a unit test message.";
             // act
-            var messageId = messageManager.CreateMessage(callerId, channelId, content);
-            var message = messageManager.GetMessage(callerId, messageId);
+            var messageId = messageManager.CreateMessage(workingCallerId, channelId, content);
+            var message = messageManager.GetMessage(workingCallerId, messageId);
             // assert
             Assert.IsTrue(message != null);
             Assert.IsTrue(message.Id == messageId);
@@ -60,8 +63,8 @@ namespace ChaTexTest
             var groupRepository = new GroupRepository();
             var groupManager = new GroupManager(groupRepository);
             // act
-            var groupId = groupManager.CreateGroup(callerId, "UnitTestGroup");
-            var groups = groupManager.GetGroupsForUser(callerId);
+            var groupId = groupManager.CreateGroup(workingCallerId, "UnitTestGroup");
+            var groups = groupManager.GetGroupsForUser(workingCallerId);
             var groupInGroup = groups.FirstOrDefault(x => x.Id == groupId);
             // assert
             Assert.IsTrue(groupId != null);
@@ -73,33 +76,68 @@ namespace ChaTexTest
             var channelEventManager = new ChannelEventManager(messageRepository, channelRepository);
             var channelManager = new ChannelManager(channelRepository, groupRepository, channelEventManager);
             // act
-            var channelId = channelManager.CreateChannel((int) groupId, callerId, "UnitTestChannel");
+            var channelId = channelManager.CreateChannel((int) groupId, workingCallerId, "UnitTestChannel");
             var channel = channelRepository.GetChannel(channelId);
             // assert
             Assert.IsTrue(channel != null);
         }
 
         [TestMethod]
-        public void TestForUserExceptions()
+        public void TestForChannelInvalidArgumentExceptions()
         {
-            var userRepository = new UserRepository();
-            var authenticator = new Authenticator(userRepository);
-            var userManager = new UserManager(userRepository, authenticator); 
+            // arrange
+            var groupRepository = new GroupRepository();
+            var groupId = 0;
+            var channelId = 0;
+
+            // arrange
+            var messageRepository = new MessageRepository();
+            var channelRepository = new ChannelRepository();
+            var channelEventManager = new ChannelEventManager(messageRepository, channelRepository);
+            var channelManager = new ChannelManager(channelRepository, groupRepository, channelEventManager);
+           
+            // assert
+            Assert.ThrowsException<InvalidArgumentException>(() => channelManager.CreateChannel(groupId,failingCallerId, "UnitTestChannel"));
+            Assert.ThrowsException<InvalidArgumentException>(() => channelManager.DeleteChannel(failingCallerId, channelId));
+            Assert.ThrowsException<InvalidArgumentException>(() => channelManager.UpdateChannel(failingCallerId, channelId, "UnitTestChannel"));
+            Assert.ThrowsException<InvalidArgumentException>(() => channelManager.GetChannelEvents(channelId, failingCallerId, DateTime.Now, CancellationToken.None));
         }
 
         [TestMethod]
-        public void TestForChannelExceptions()
+        public void TestForGroupInvalidArgumentExceptions()
         {
+            // arrange
+            var groupRepository = new GroupRepository();
+            var groupManager = new GroupManager(groupRepository);
+            int groupId = 0;
+
+            // act & assert
+            Assert.ThrowsException<InvalidArgumentException>(() => groupManager.CreateGroup(failingCallerId, "UnitTestGroup"));
+            Assert.ThrowsException<InvalidArgumentException>(() => groupManager.GetGroupsForUser(failingCallerId));
+            Assert.ThrowsException<InvalidArgumentException>(() => groupManager.AddRolesToGroup(groupId, failingCallerId, new List<int>()));
+            Assert.ThrowsException<InvalidArgumentException>(() => groupManager.AddUsersToGroup(groupId, new List<int>(), failingCallerId));
+            Assert.ThrowsException<InvalidArgumentException>(() => groupManager.DeleteGroup(groupId, failingCallerId));
         }
 
         [TestMethod]
-        public void TestForGroupExceptions()
+        public void TestForMessageInvalidArgumentExceptions()
         {
-        }
+            // arrange
+            var messageRepository = new MessageRepository();
+            var groupRepository = new GroupRepository();
+            var channelRepository = new ChannelRepository();
+            var channelEventManager = new ChannelEventManager(messageRepository, channelRepository);
+            var messageManager = new MessageManager(messageRepository, groupRepository, channelRepository, channelEventManager);
+            var channelId = 2;
+            var messageId = 1;
+            var content = "This is a unit test message.";
 
-        [TestMethod]
-        public void TestForMessageExceptions()
-        {
+            // act & assert
+            Assert.ThrowsException<InvalidArgumentException>(() => messageManager.CreateMessage(failingCallerId, channelId, content));
+            Assert.ThrowsException<InvalidArgumentException>(() => messageManager.GetMessage(failingCallerId, messageId));
+            Assert.ThrowsException<InvalidArgumentException>(() => messageManager.DeleteMessage(failingCallerId, messageId));
+            Assert.ThrowsException<InvalidArgumentException>(() => messageManager.EditMessage(failingCallerId, messageId, content));
+            Assert.ThrowsException<InvalidArgumentException>(() => messageManager.GetMessages(channelId, failingCallerId, DateTime.Now, 10));
         }
     }
 }
