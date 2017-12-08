@@ -103,6 +103,7 @@ namespace Business.Messages
             }
 
             var channel = channelRepository.GetChannel(message.ChannelId);
+            if (channel == null) throw new InvalidArgumentException("This message no longer exists", ParamNameType.MessageId);
 
             channelEventManager.LockChannelForWrite((int)channel.Id);
             try
@@ -132,6 +133,7 @@ namespace Business.Messages
             if (message == null) throw new InvalidArgumentException("Message with the specified id does not exist", ParamNameType.MessageId);
 
             var channel = channelRepository.GetChannel(message.ChannelId);
+            if (channel == null) throw new InvalidArgumentException("This message no longer exists", ParamNameType.MessageId);
 
             channelEventManager.LockChannelForWrite((int)channel.Id);
             try
@@ -144,7 +146,7 @@ namespace Business.Messages
                 }
                 else
                 {
-                    throw new InvalidArgumentException("User does not have the rights to delete the specified message", ParamNameType.CallerId);
+                    throw new InvalidArgumentException("User does not have the rights to edit the specified message", ParamNameType.CallerId);
                 }
             }
             finally

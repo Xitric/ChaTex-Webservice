@@ -1,0 +1,2617 @@
+{
+	"info": {
+		"name": "ChaTex Services Test",
+		"_postman_id": "00e1d734-aeae-b526-c900-f6a22407fc5a",
+		"description": "Tests of the ChaTex API. This test ensures that all web services return the correct status codes when receiving both good and bad requests.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Channels",
+			"description": "Tests for the ChannelsApi",
+			"item": [
+				{
+					"name": "Channels/Groups/Channels-AuthenticatedGroupAdministrator",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "b4840a5f-23fa-4ddc-a569-2d765125d4bc",
+								"type": "text/javascript",
+								"exec": [
+									"//Create a temporary group for this tets run",
+									"const createGroupRequest = {",
+									"  url:      pm.environment.get(\"chatex\") + \"/groups\",",
+									"  method:   \"POST\",",
+									"  header:   [ \"token:\" + pm.environment.get(\"token\"), \"Content-Type:application/json\"],",
+									"  body: {",
+									"      mode: \"raw\",",
+									"      raw: JSON.stringify({",
+									"          groupName: \"Postman test group\",",
+									"          allowEmployeeSticky: true,",
+									"          allowEmployeeAcknowledgeable: true,",
+									"          allowEmployeeBookmark: true",
+									"      })",
+									"  }",
+									"};",
+									"",
+									"pm.sendRequest(createGroupRequest, function(err, res) {",
+									"    if (err) {",
+									"        console.log(err);",
+									"    } else {",
+									"        pm.environment.set(\"testGroupId\", res.json().id);",
+									"    }",
+									"});"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "9a497fb8-6ac6-485f-a72d-f00a2f81c252",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});",
+									"",
+									"//Ensure that the channel exists in the group",
+									"const getGroupInfoRequest = {",
+									"  url:      pm.environment.get(\"chatex\") + \"/users/me/groups\",",
+									"  method:   \"GET\",",
+									"  header:   \"token:\" + pm.environment.get(\"token\"),",
+									"};",
+									"",
+									"pm.sendRequest(getGroupInfoRequest, function(err, res) {",
+									"    var channel;",
+									"    ",
+									"    if (err) {",
+									"        console.log(err);",
+									"    } else {",
+									"        for (i = 0; i < res.json().length; i++) {",
+									"            if (res.json()[i].id === pm.environment.get(\"testGroupId\")) {",
+									"                channel = res.json()[i].channels[0];",
+									"            }",
+									"        }",
+									"    }",
+									"    ",
+									"    pm.test(\"Channel was successfully created\", function() {",
+									"        pm.expect(channel).to.not.be.null;",
+									"        pm.expect(channel.name).to.equal(\"Test channel name\");",
+									"        ",
+									"        pm.environment.set(\"testChannelId\", channel.id);",
+									"    });",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "\"Test channel name\""
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/{{testGroupId}}/channels",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"{{testGroupId}}",
+								"channels"
+							]
+						},
+						"description": "Tests that it is possible to create a channel in a group that the client is an administrator of."
+					},
+					"response": []
+				},
+				{
+					"name": "Channels/Groups/Channels-AuthenticatedGroupNotAdministrator",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "3f11c40d-a664-4249-83b2-55cf375a5932",
+								"type": "text/javascript",
+								"exec": [
+									"//Get member token",
+									"const getTokenRequest = {",
+									"  url:      pm.environment.get(\"chatex\") + \"/users/login\",",
+									"  method:   \"Post\",",
+									"  header:   \"Content-Type:application/json\",",
+									"  body: {",
+									"      mode: \"raw\",",
+									"      raw: JSON.stringify({ email: \"kdavi16@student.sdu.dk\", password: \"abc123\"})",
+									"  }",
+									"};",
+									"",
+									"pm.sendRequest(getTokenRequest, function(err, res) {",
+									"    if (err) {",
+									"        console.log(err);",
+									"    } else {",
+									"        pm.environment.set(\"memberToken\", res.json());",
+									"    }",
+									"});"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "6ec55b36-9b34-48d7-aa3f-8ea12958a87f",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{memberToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "\"Test channel name\""
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/{{testGroupId}}/channels",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"{{testGroupId}}",
+								"channels"
+							]
+						},
+						"description": "Tests that it is not possible to create a channel in a group that the client is just a member of."
+					},
+					"response": []
+				},
+				{
+					"name": "Channels/Groups/Channels-AuthenticatedGroupBadId",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "da2972fc-7ddd-4ca9-ab99-14f0b3bbec86",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "578ec4db-4e12-4023-afd6-a4b280c1e60b",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "\"Test channel name\""
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/0/channels",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"0",
+								"channels"
+							]
+						},
+						"description": "Tests that it is not possible to create a channel in a group that does not exist."
+					},
+					"response": []
+				},
+				{
+					"name": "Channels-AuthenticatedNotAdministrator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "9a3390d6-132c-4ef8-b7ca-a1fcc980d0eb",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "token",
+								"value": "{{memberToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "\"New channel name from Postman here\""
+						},
+						"url": {
+							"raw": "{{chatex}}/channels/{{testChannelId}}",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"channels",
+								"{{testChannelId}}"
+							]
+						},
+						"description": "Tests that it is not possible for a group member to edit names of channels."
+					},
+					"response": []
+				},
+				{
+					"name": "Channels-AuthenticatedAdministrator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ad84a279-dc9a-4617-99c4-bc577cb828fa",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});",
+									"",
+									"//Ensure that the channel was actually renamed",
+									"const getGroupInfoRequest = {",
+									"  url:      pm.environment.get(\"chatex\") + \"/users/me/groups\",",
+									"  method:   \"GET\",",
+									"  header:   \"token:\" + pm.environment.get(\"token\"),",
+									"};",
+									"",
+									"pm.sendRequest(getGroupInfoRequest, function(err, res) {",
+									"    var channel;",
+									"    ",
+									"    if (err) {",
+									"        console.log(err);",
+									"    } else {",
+									"        for (i = 0; i < res.json().length; i++) {",
+									"            if (res.json()[i].id == pm.environment.get(\"testGroupId\")) {",
+									"                channel = res.json()[i].channels[0];",
+									"            }",
+									"        }",
+									"    }",
+									"    ",
+									"    pm.test(\"Channel was successfully renamed\", function() {",
+									"        pm.expect(channel.name).to.equal(\"New channel name from Postman\");",
+									"    });",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "\"New channel name from Postman\""
+						},
+						"url": {
+							"raw": "{{chatex}}/channels/{{testChannelId}}",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"channels",
+								"{{testChannelId}}"
+							]
+						},
+						"description": "Tests that it is possible for a group administrator to edit names of channels."
+					},
+					"response": []
+				},
+				{
+					"name": "Channels-AuthenticatedBadId",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "34ac8fe0-1418-4b29-a60c-67ccc0c8e5cd",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/channels/0",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"channels",
+								"0"
+							]
+						},
+						"description": "Tests that it is not possible to delete a channel that does not exist."
+					},
+					"response": []
+				},
+				{
+					"name": "Channels-AuthenticatedNotAdministrator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "9fbbdd7c-1a26-4647-9519-8a0415799115",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{memberToken}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/channels/{{testChannelId}}",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"channels",
+								"{{testChannelId}}"
+							]
+						},
+						"description": "Tests that it is not possible to delete a channel in a group that the client is not an administrator of."
+					},
+					"response": []
+				},
+				{
+					"name": "Channels-AuthenticatedAdministrator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c253fd32-d9df-4ef1-bab0-c90403b201d8",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});",
+									"",
+									"//Ensure that the channel no longer exists",
+									"const getGroupInfoRequest = {",
+									"  url:      pm.environment.get(\"chatex\") + \"/users/me/groups\",",
+									"  method:   \"GET\",",
+									"  header:   \"token:\" + pm.environment.get(\"token\"),",
+									"};",
+									"",
+									"pm.sendRequest(getGroupInfoRequest, function(err, res) {",
+									"    var channels;",
+									"    ",
+									"    if (err) {",
+									"        console.log(err);",
+									"    } else {",
+									"        for (i = 0; i < res.json().length; i++) {",
+									"            if (res.json()[i].id == pm.environment.get(\"testGroupId\")) {",
+									"                channels = res.json()[i].channels;",
+									"            }",
+									"        }",
+									"    }",
+									"    ",
+									"    pm.test(\"Channel was successfully deleted\", function() {",
+									"        pm.expect(channels.length).to.equal(0);",
+									"    });",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/channels/{{testChannelId}}",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"channels",
+								"{{testChannelId}}"
+							]
+						},
+						"description": "Tests that it is possible for a group administrator to delete a channel in a group that the client is an administrator of."
+					},
+					"response": []
+				},
+				{
+					"name": "Channels-AuthenticatedBadId",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "423b378e-4e15-47af-ac22-5669c92a55cc",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "\"New channel name from Postman here again\""
+						},
+						"url": {
+							"raw": "{{chatex}}/channels/0",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"channels",
+								"0"
+							]
+						},
+						"description": "Tests that it is not possible to rename a channel that does not exist."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Chats",
+			"description": "Tests for the ChatsApi",
+			"item": []
+		},
+		{
+			"name": "Groups",
+			"description": "Tests for the GroupsApi",
+			"item": []
+		},
+		{
+			"name": "Messages",
+			"description": "Tests for the MessagesApi",
+			"item": [
+				{
+					"name": "Messages/Channels/Messages-Authenticated",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"//Ensure that the response has the correct schema",
+									"var schema = {",
+									"    \"type\" : \"array\",",
+									"    \"items\" : {",
+									"        \"required\": [",
+									"    \t\t\"id\",",
+									"    \t\t\"creationTime\",",
+									"    \t\t\"content\",",
+									"    \t\t\"sender\"",
+									"    \t],",
+									"    \t\"type\": \"object\",",
+									"    \t\"properties\": {",
+									"    \t\t\"id\": {",
+									"    \t\t\t\"format\": \"int32\",",
+									"    \t\t\t\"type\": \"integer\"",
+									"    \t\t},",
+									"    \t\t\"creationTime\": {",
+									"    \t\t\t\"format\": \"date-time\",",
+									"    \t\t\t\"type\": \"string\"",
+									"    \t\t},",
+									"    \t\t\"content\": {",
+									"    \t\t\t\"type\": \"string\"",
+									"    \t\t},",
+									"    \t\t\"deletionDate\": {",
+									"    \t\t\t\"format\": \"date-time\",",
+									"    \t\t\t\"type\": [ \"string\", \"null\" ]",
+									"    \t\t},",
+									"    \t\t\"lastEdited\": {",
+									"    \t\t\t\"format\": \"date-time\",",
+									"    \t\t\t\"type\": [ \"string\", \"null\" ]",
+									"    \t\t},",
+									"    \t\t\"sender\": {",
+									"    \t\t\t\"required\": [ \"id\", \"firstName\", \"lastName\", \"email\", \"me\" ],",
+									"                \"type\": \"object\",",
+									"                \"properties\": {",
+									"                    \"id\": {",
+									"                        \"format\": \"int32\",",
+									"                        \"type\": \"integer\"",
+									"                    },",
+									"                    \"firstName\": {",
+									"                        \"type\": \"string\"",
+									"                    },",
+									"                    \"middleInitial\": {",
+									"                        \"type\": [ \"string\", \"null\" ]",
+									"                    },",
+									"                    \"lastName\": {",
+									"                        \"type\": \"string\"",
+									"                    },",
+									"                    \"email\": {",
+									"                        \"type\": \"string\"",
+									"                    },",
+									"                    \"me\": {",
+									"                        \"type\": \"boolean\"",
+									"                    },",
+									"                    \"isDeleted\": {",
+									"                        \"type\": \"boolean\"",
+									"                    }",
+									"                }",
+									"    \t\t}",
+									"    \t}",
+									"    }",
+									"};",
+									"",
+									"pm.test('Schema is valid', function() {",
+									"  pm.expect(tv4.validate(pm.response.json(), schema)).to.be.true;",
+									"});",
+									"console.log(tv4.error);",
+									"",
+									"//Ensure that the messages come before the specified time stamp",
+									"pm.test('Messages were created before the specified timestamp', function() {",
+									"    var beforeDate = new Date(pm.environment.get(\"beforeDate\"));",
+									"    ",
+									"    for (i = 0; i < pm.response.json().length; i++) {",
+									"        var creationDate = new Date(pm.response.json()[i].creationTime);",
+									"        pm.expect(creationDate < beforeDate).to.be.true;",
+									"    }",
+									"});",
+									"",
+									"//Ensure that the messages are received in the correct order (oldest to newest)",
+									"pm.test('Messages were received in the correct order', function() {",
+									"    var lastDate = new Date(pm.response.json()[0].creationTime);",
+									"    ",
+									"    for (i = 1; i < pm.response.json().length; i++) {",
+									"        var nowDate = new Date(pm.response.json()[i].creationTime);",
+									"        pm.expect(lastDate < nowDate).to.be.true;",
+									"        lastDate = nowDate;",
+									"    }",
+									"});",
+									"",
+									"//Ensure that 10 messages were fetched",
+									"pm.test('Received the correct number of messages', function() {",
+									"    pm.expect(pm.response.json().length).to.equal(10);",
+									"});"
+								],
+								"id": "4fcabc6d-2e90-4d07-b9df-d060077eb08f",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/channels/1/messages?before={{beforeDate}}&count=10",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"channels",
+								"1",
+								"messages"
+							],
+							"query": [
+								{
+									"key": "before",
+									"value": "{{beforeDate}}",
+									"equals": true
+								},
+								{
+									"key": "count",
+									"value": "10",
+									"equals": true
+								}
+							]
+						},
+						"description": "Tests that it is possible to retrieve messages from a channel."
+					},
+					"response": []
+				},
+				{
+					"name": "Messages/Channels/Messages-AuthenticatedDefault",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"//Ensure that the response has the correct schema",
+									"var schema = {",
+									"    \"type\" : \"array\",",
+									"    \"items\" : {",
+									"        \"required\": [",
+									"    \t\t\"id\",",
+									"    \t\t\"creationTime\",",
+									"    \t\t\"content\",",
+									"    \t\t\"sender\"",
+									"    \t],",
+									"    \t\"type\": \"object\",",
+									"    \t\"properties\": {",
+									"    \t\t\"id\": {",
+									"    \t\t\t\"format\": \"int32\",",
+									"    \t\t\t\"type\": \"integer\"",
+									"    \t\t},",
+									"    \t\t\"creationTime\": {",
+									"    \t\t\t\"format\": \"date-time\",",
+									"    \t\t\t\"type\": \"string\"",
+									"    \t\t},",
+									"    \t\t\"content\": {",
+									"    \t\t\t\"type\": \"string\"",
+									"    \t\t},",
+									"    \t\t\"deletionDate\": {",
+									"    \t\t\t\"format\": \"date-time\",",
+									"    \t\t\t\"type\": [ \"string\", \"null\" ]",
+									"    \t\t},",
+									"    \t\t\"lastEdited\": {",
+									"    \t\t\t\"format\": \"date-time\",",
+									"    \t\t\t\"type\": [ \"string\", \"null\" ]",
+									"    \t\t},",
+									"    \t\t\"sender\": {",
+									"    \t\t\t\"required\": [ \"id\", \"firstName\", \"lastName\", \"email\", \"me\" ],",
+									"                \"type\": \"object\",",
+									"                \"properties\": {",
+									"                    \"id\": {",
+									"                        \"format\": \"int32\",",
+									"                        \"type\": \"integer\"",
+									"                    },",
+									"                    \"firstName\": {",
+									"                        \"type\": \"string\"",
+									"                    },",
+									"                    \"middleInitial\": {",
+									"                        \"type\": [ \"string\", \"null\" ]",
+									"                    },",
+									"                    \"lastName\": {",
+									"                        \"type\": \"string\"",
+									"                    },",
+									"                    \"email\": {",
+									"                        \"type\": \"string\"",
+									"                    },",
+									"                    \"me\": {",
+									"                        \"type\": \"boolean\"",
+									"                    },",
+									"                    \"isDeleted\": {",
+									"                        \"type\": \"boolean\"",
+									"                    }",
+									"                }",
+									"    \t\t}",
+									"    \t}",
+									"    }",
+									"};",
+									"",
+									"pm.test('Schema is valid', function() {",
+									"  pm.expect(tv4.validate(pm.response.json(), schema)).to.be.true;",
+									"});",
+									"console.log(tv4.error);",
+									"",
+									"//Ensure that 25 messages were fetched",
+									"pm.test('Received the correct number of messages', function() {",
+									"    pm.expect(pm.response.json().length).to.equal(25);",
+									"});"
+								],
+								"id": "831fce89-55c7-4ed7-907b-2f48afd7b19e",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/channels/1/messages",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"channels",
+								"1",
+								"messages"
+							]
+						},
+						"description": "Tests that it is possible to retrieve messages from a channel using the default parameters."
+					},
+					"response": []
+				},
+				{
+					"name": "Messages/Channels/Messages-AuthenticatedBadId",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								],
+								"id": "f43b769f-3b70-4ffe-812f-b4effad31a45",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/channels/0/messages",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"channels",
+								"0",
+								"messages"
+							]
+						},
+						"description": "Tests that it is not possible to retrieve messages from a nonexisting channel."
+					},
+					"response": []
+				},
+				{
+					"name": "Messages/Channels/Messages-AuthenticatedNotMember",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								],
+								"id": "b00099d2-42e0-47c5-bb33-29341a1e3878",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/channels/37/messages",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"channels",
+								"37",
+								"messages"
+							]
+						},
+						"description": "Tests that it is not possible to retrieve messages from a channel that the client does not have access to."
+					},
+					"response": []
+				},
+				{
+					"name": "Messages/Channels/Messages-AuthenticatedDeletedChannel",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								],
+								"id": "b00099d2-42e0-47c5-bb33-29341a1e3878",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/channels/4/messages",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"channels",
+								"4",
+								"messages"
+							]
+						},
+						"description": "Tests that it is not possible to retrieve messages from a channel that has been deleted."
+					},
+					"response": []
+				},
+				{
+					"name": "Messages-AuthenticatedMine",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"//Ensure that the response has the correct schema",
+									"var schema = {",
+									"    \"required\": [",
+									"\t\t\"id\",",
+									"\t\t\"creationTime\",",
+									"\t\t\"content\",",
+									"\t\t\"sender\"",
+									"\t],",
+									"\t\"type\": \"object\",",
+									"\t\"properties\": {",
+									"\t\t\"id\": {",
+									"\t\t\t\"format\": \"int32\",",
+									"\t\t\t\"type\": \"integer\"",
+									"\t\t},",
+									"\t\t\"creationTime\": {",
+									"\t\t\t\"format\": \"date-time\",",
+									"\t\t\t\"type\": \"string\"",
+									"\t\t},",
+									"\t\t\"content\": {",
+									"\t\t\t\"type\": \"string\"",
+									"\t\t},",
+									"\t\t\"deletionDate\": {",
+									"\t\t\t\"format\": \"date-time\",",
+									"\t\t\t\"type\": [ \"string\", \"null\" ]",
+									"\t\t},",
+									"\t\t\"lastEdited\": {",
+									"\t\t\t\"format\": \"date-time\",",
+									"\t\t\t\"type\": [ \"string\", \"null\" ]",
+									"\t\t},",
+									"\t\t\"sender\": {",
+									"\t\t\t\"required\": [ \"id\", \"firstName\", \"lastName\", \"email\", \"me\" ],",
+									"            \"type\": \"object\",",
+									"            \"properties\": {",
+									"                \"id\": {",
+									"                    \"format\": \"int32\",",
+									"                    \"type\": \"integer\"",
+									"                },",
+									"                \"firstName\": {",
+									"                    \"type\": \"string\"",
+									"                },",
+									"                \"middleInitial\": {",
+									"                    \"type\": [ \"string\", \"null\" ]",
+									"                },",
+									"                \"lastName\": {",
+									"                    \"type\": \"string\"",
+									"                },",
+									"                \"email\": {",
+									"                    \"type\": \"string\"",
+									"                },",
+									"                \"me\": {",
+									"                    \"type\": \"boolean\"",
+									"                },",
+									"                \"isDeleted\": {",
+									"                    \"type\": \"boolean\"",
+									"                }",
+									"            }",
+									"\t\t}",
+									"\t}",
+									"};",
+									"",
+									"pm.test('Schema is valid', function() {",
+									"  pm.expect(tv4.validate(pm.response.json(), schema)).to.be.true;",
+									"});",
+									"console.log(tv4.error);",
+									"",
+									"//Ensure that the message is correctly marked as written by this client",
+									"pm.test('Message marked as written by this client', function() {",
+									"    pm.expect(pm.response.json().sender.me).to.be.true;",
+									"});"
+								],
+								"id": "ce4acecc-76be-4ee5-9e9d-9de0fb015cf1",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/messages/125",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"messages",
+								"125"
+							]
+						},
+						"description": "Tests that it is possible to retrieve a message by its id if the client has access to the channel containing the message. Also tests that the message is marked as written by the calling client."
+					},
+					"response": []
+				},
+				{
+					"name": "Messages-AuthenticatedNotMine",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"//Ensure that the message is not marked as written by this client",
+									"pm.test('Message is not marked as written by this client', function() {",
+									"    pm.expect(pm.response.json().sender.me).to.be.false;",
+									"});"
+								],
+								"id": "6612a90f-a057-4492-a2f4-f2e1eb80a274",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/messages/128",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"messages",
+								"128"
+							]
+						},
+						"description": "Tests that it is possible to retrieve a message by its id if the client has access to the channel containing the message. Also tests that the message is not marked as written by the calling client."
+					},
+					"response": []
+				},
+				{
+					"name": "Messages-AuthenticatedNoAccess",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								],
+								"id": "aee27d7e-9e25-41e6-ae02-256ef80e2cb4",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/messages/560",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"messages",
+								"560"
+							]
+						},
+						"description": "Tests that it is not possible to retrieve a message in a channel that the client does not have access to."
+					},
+					"response": []
+				},
+				{
+					"name": "Messages-AuthenticatedBadId",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"id": "d0b75ea1-e90c-4bca-a626-ddbf67ba81a9",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/messages/0",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"messages",
+								"0"
+							]
+						},
+						"description": "Tests that requesting a nonexistent message returns the status code 404."
+					},
+					"response": []
+				},
+				{
+					"name": "Messages-AuthenticatedDeletedChannel",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								],
+								"id": "239928b9-6b21-4799-bf5d-4b43712b50b9",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/messages/123",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"messages",
+								"123"
+							]
+						},
+						"description": "Tests that requesting a message from a deleted channel returns the status code 404."
+					},
+					"response": []
+				},
+				{
+					"name": "Messages/Channels/Messages-AuthenticatedValid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"id": "c606ae18-1a04-4e04-b421-bf35888261d0",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "\"This is a test message from Postman!\""
+						},
+						"url": {
+							"raw": "{{chatex}}/channels/45/messages",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"channels",
+								"45",
+								"messages"
+							]
+						},
+						"description": "Tests that it is possible to post a message to a channel that the client has access to."
+					},
+					"response": []
+				},
+				{
+					"name": "Messages/Channels/Messages-AuthenticatedEmptyBody",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"id": "d45ceef1-177e-473d-a8e5-f7c6ed6ad6d1",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{chatex}}/channels/45/messages",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"channels",
+								"45",
+								"messages"
+							]
+						},
+						"description": "Tests that it is not possible to post an empty message to a channel."
+					},
+					"response": []
+				},
+				{
+					"name": "Messages/Channels/Messages-AuthenticatedNoAccess",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								],
+								"id": "bb7dbd53-d35b-49d2-bda1-fb21b6a4d92f",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "\"This is a test message from Postman!\""
+						},
+						"url": {
+							"raw": "{{chatex}}/channels/37/messages",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"channels",
+								"37",
+								"messages"
+							]
+						},
+						"description": "Tests that it is not possible to post a message to a channel that the client does not have access to."
+					},
+					"response": []
+				},
+				{
+					"name": "Messages/Channels/Messages-AuthenticatedInvalid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"id": "c8f85421-8c4a-4045-9c75-0caa1c92625c",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "\"This is a test message from Postman!\""
+						},
+						"url": {
+							"raw": "{{chatex}}/channels/0/messages",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"channels",
+								"0",
+								"messages"
+							]
+						},
+						"description": "Tests that it is not possible to post a message to a nonexistent channel."
+					},
+					"response": []
+				},
+				{
+					"name": "Messages/Channels/Messages-AuthenticatedDeletedChannel",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"id": "016fa0fd-829d-4f49-9e75-5837629f979f",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "\"This is a test message from Postman!\""
+						},
+						"url": {
+							"raw": "{{chatex}}/channels/4/messages",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"channels",
+								"4",
+								"messages"
+							]
+						},
+						"description": "Tests that it is not possible to post a message to a channel that has been deleted."
+					},
+					"response": []
+				},
+				{
+					"name": "Messages/Channels/Messages-AuthenticatedMine",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});",
+									"",
+									"//Ensure that the message was actually marked as deleted",
+									"pm.test(\"Message was successfully deleted\", function () {",
+									"   const getMessageRequest = {",
+									"      url:      pm.environment.get(\"chatex\") + \"/messages/\" + pm.environment.get(\"ownMessageId\"),",
+									"      method:   \"GET\",",
+									"      header:   \"token:\" + pm.environment.get(\"token\")",
+									"    };",
+									"    ",
+									"    pm.sendRequest(getMessageRequest, function(err, res) {",
+									"        if (err) {",
+									"            console.log(err);",
+									"        } else {",
+									"            pm.environment.set(\"deletionDate\", res.json().deletionDate);",
+									"        }",
+									"    });",
+									"    ",
+									"    pm.expect(pm.environment.get(\"deletionDate\")).to.not.be.null;",
+									"    postman.clearEnvironmentVariable(\"deletionDate\"); //Not working?",
+									"    //pm.environment.unset(\"deletionDate\"); This does not work either",
+									"});"
+								],
+								"id": "0e4ea11b-cc5a-465d-849b-68077dc8636f",
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//Get the id of the message to delete",
+									"const getMessageRequest = {",
+									"  url:      pm.environment.get(\"chatex\") + \"/channels/45/messages?count=1\",",
+									"  method:   \"GET\",",
+									"  header:   \"token:\" + pm.environment.get(\"token\")",
+									"};",
+									"",
+									"pm.sendRequest(getMessageRequest, function(err, res) {",
+									"    if (err) {",
+									"        console.log(err);",
+									"    } else {",
+									"        pm.environment.set(\"ownMessageId\", res.json()[0].id);",
+									"    }",
+									"});"
+								],
+								"id": "c3005acd-6c82-4ce3-9ae8-2da33196d6d7",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/messages/{{ownMessageId}}",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"messages",
+								"{{ownMessageId}}"
+							]
+						},
+						"description": "Tests that it is possible for at client to delete its own messages."
+					},
+					"response": []
+				},
+				{
+					"name": "Messages/Channels/Messages-AuthenticatedNotMine",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								],
+								"id": "94a54172-a462-48cf-957d-bd8f74dc513c",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/messages/593",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"messages",
+								"593"
+							]
+						},
+						"description": "Tests that it is not possible to delete others' messages."
+					},
+					"response": []
+				},
+				{
+					"name": "Messages/Channels/Messages-AuthenticatedMineNoChannelAccess",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});",
+									"",
+									"//Ensure that the message was actually marked as deleted",
+									"pm.test(\"Message was successfully deleted\", function () {",
+									"   const getMessageRequest = {",
+									"      url:      pm.environment.get(\"chatex\") + \"/messages/594\",",
+									"      method:   \"GET\",",
+									"      header:   \"token:\" + pm.environment.get(\"adminToken\")",
+									"    };",
+									"    ",
+									"    pm.sendRequest(getMessageRequest, function(err, res) {",
+									"        if (err) {",
+									"            console.log(err);",
+									"        } else {",
+									"            pm.environment.set(\"deletionDate\", res.json().deletionDate);",
+									"        }",
+									"    });",
+									"    ",
+									"    pm.expect(pm.environment.get(\"deletionDate\")).to.not.be.null;",
+									"    postman.clearEnvironmentVariable(\"deletionDate\"); //Not working?",
+									"    //pm.environment.unset(\"deletionDate\"); This does not work either",
+									"});"
+								],
+								"id": "7c3a87ea-121f-4c75-b594-700b49a4a5da",
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//Get administrator token",
+									"const getTokenRequest = {",
+									"  url:      pm.environment.get(\"chatex\") + \"/users/login\",",
+									"  method:   \"Post\",",
+									"  header:   \"Content-Type:application/json\",",
+									"  body: {",
+									"      mode: \"raw\",",
+									"      raw: JSON.stringify({ email: \"kdavi16@student.sdu.dk\", password: \"abc123\"})",
+									"  }",
+									"};",
+									"",
+									"pm.sendRequest(getTokenRequest, function(err, res) {",
+									"    if (err) {",
+									"        console.log(err);",
+									"    } else {",
+									"        pm.environment.set(\"adminToken\", res.json());",
+									"    }",
+									"});"
+								],
+								"id": "831d3660-2566-4153-bf76-13beaec02f24",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/messages/594",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"messages",
+								"594"
+							]
+						},
+						"description": "Tests that a client can delete its own message, even if it is in a channel that the client does not have access to."
+					},
+					"response": []
+				},
+				{
+					"name": "Messages/Channels/Messages-AuthenticatedNotMineAdministrator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"id": "8798ca7f-587e-45b1-b3d9-835225e8dec0",
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//Get id of message to delete",
+									"const getMessageRequest = {",
+									"  url:      pm.environment.get(\"chatex\") + \"/channels/45/messages?count=1\",",
+									"  method:   \"GET\",",
+									"  header:   \"token:\" + pm.environment.get(\"token\")",
+									"};",
+									"",
+									"pm.sendRequest(getMessageRequest, function(err, res) {",
+									"    if (err) {",
+									"        console.log(err);",
+									"    } else {",
+									"        pm.environment.set(\"otherMessageId\", res.json()[0].id);",
+									"    }",
+									"});",
+									"",
+									"//Get administrator token",
+									"const getTokenRequest = {",
+									"  url:      pm.environment.get(\"chatex\") + \"/users/login\",",
+									"  method:   \"Post\",",
+									"  header:   \"Content-Type:application/json\",",
+									"  body: {",
+									"      mode: \"raw\",",
+									"      raw: JSON.stringify({ email: \"kdavi16@student.sdu.dk\", password: \"abc123\"})",
+									"  }",
+									"};",
+									"",
+									"pm.sendRequest(getTokenRequest, function(err, res) {",
+									"    if (err) {",
+									"        console.log(err);",
+									"    } else {",
+									"        pm.environment.set(\"adminToken\", res.json());",
+									"    }",
+									"});"
+								],
+								"id": "86925c11-e76c-42b7-be03-d3c4b3788345",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{adminToken}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/messages/{{otherMessageId}}",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"messages",
+								"{{otherMessageId}}"
+							]
+						},
+						"description": "Tests that it is possible for a group administrator to delete other's messages in the group's channels."
+					},
+					"response": []
+				},
+				{
+					"name": "Messages/Channels/Messages-AuthenticatedDeletedChannel",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"id": "60136a7d-1c26-49d0-81af-f542ea44873d",
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"id": "67c78ae9-e244-4f24-b624-8e489b701f44",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{adminToken}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/messages/123",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"messages",
+								"123"
+							]
+						},
+						"description": "Tests that it is not possible to delete a message in a deleted channel."
+					},
+					"response": []
+				},
+				{
+					"name": "Messages-AuthenticatedMine",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});",
+									"",
+									"//Tests that the message was in fact edited",
+									"pm.test(\"Message was succesfully edited\", function() {",
+									"    const getMessageRequest = {",
+									"      url:      pm.environment.get(\"chatex\") + \"/messages/592\",",
+									"      method:   \"GET\",",
+									"      header:   \"token:\" + pm.environment.get(\"token\")",
+									"    };",
+									"    ",
+									"    pm.sendRequest(getMessageRequest, function(err, res) {",
+									"        if (err) {",
+									"            console.log(err);",
+									"        } else {",
+									"            pm.environment.set(\"editDate\", res.json().lastEdited);",
+									"        }",
+									"    });",
+									"    ",
+									"    pm.expect(pm.environment.get(\"editDate\")).to.not.be.null;",
+									"    postman.clearEnvironmentVariable(\"editDate\"); //Not working?",
+									"    //pm.environment.unset(\"editDate\"); This does not work either",
+									"});"
+								],
+								"id": "47d09f5c-119e-40df-88c9-dd8a4dbc8d9b",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "\"New text here\""
+						},
+						"url": {
+							"raw": "{{chatex}}/messages/592",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"messages",
+								"592"
+							]
+						},
+						"description": "Tests that it is possible for a client to edit its own message."
+					},
+					"response": []
+				},
+				{
+					"name": "Messages-AuthenticatedNotMine",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								],
+								"id": "190ebb3e-8158-4668-8d20-2efe59cc6c3a",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "\"New text here\""
+						},
+						"url": {
+							"raw": "{{chatex}}/messages/593",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"messages",
+								"593"
+							]
+						},
+						"description": "Tests that it is not possible for a client to edit others' messages."
+					},
+					"response": []
+				},
+				{
+					"name": "Messages-AuthenticatedNotMineAdministrator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"id": "c98510b6-050b-4aa3-b79e-804207d8034e",
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//Get administrator token",
+									"const getTokenRequest = {",
+									"  url:      pm.environment.get(\"chatex\") + \"/users/login\",",
+									"  method:   \"Post\",",
+									"  header:   \"Content-Type:application/json\",",
+									"  body: {",
+									"      mode: \"raw\",",
+									"      raw: JSON.stringify({ email: \"kdavi16@student.sdu.dk\", password: \"abc123\"})",
+									"  }",
+									"};",
+									"",
+									"pm.sendRequest(getTokenRequest, function(err, res) {",
+									"    if (err) {",
+									"        console.log(err);",
+									"    } else {",
+									"        pm.environment.set(\"adminToken\", res.json());",
+									"    }",
+									"});"
+								],
+								"id": "153f2ab4-9780-4a61-a6ad-282035dc99af",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "token",
+								"value": "{{adminToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "\"New text here\""
+						},
+						"url": {
+							"raw": "{{chatex}}/messages/592",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"messages",
+								"592"
+							]
+						},
+						"description": "Tests that it is possible for a group administrator to edit others' messages."
+					},
+					"response": []
+				},
+				{
+					"name": "Messages-AuthenticatedMineDeletedChannel",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "980ba2d1-9adc-4df6-89b9-b094d6cc42ed",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "60d57412-2d4f-4133-acb2-f523ab63c3a0",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "\"New text here\""
+						},
+						"url": {
+							"raw": "{{chatex}}/messages/123",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"messages",
+								"123"
+							]
+						},
+						"description": "Tests that it is not possible to edit a message in a deleted channel."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Roles",
+			"description": "Tests for the RolesApi",
+			"item": [
+				{
+					"name": "Roles-Authenticated",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"//Ensure that the response has the correct schema",
+									"var schema = {",
+									"    \"type\" : \"array\",",
+									"    \"items\" : {",
+									"        \"required\": [",
+									"\t\t\t\"id\",",
+									"\t\t\t\"name\",",
+									"\t\t\t\"isDeleted\"",
+									"\t\t],",
+									"\t\t\"type\": \"object\",",
+									"\t\t\"properties\": {",
+									"\t\t\t\"id\": {",
+									"\t\t\t\t\"format\": \"int32\",",
+									"\t\t\t\t\"type\": \"integer\"",
+									"\t\t\t},",
+									"\t\t\t\"name\": {",
+									"\t\t\t\t\"type\": \"string\"",
+									"\t\t\t},",
+									"\t\t\t\"isDeleted\": {",
+									"\t\t\t\t\"type\": \"boolean\"",
+									"\t\t\t}",
+									"\t\t}",
+									"    }",
+									"};",
+									"",
+									"pm.test('Schema is valid', function() {",
+									"  pm.expect(tv4.validate(pm.response.json(), schema)).to.be.true;",
+									"});",
+									"console.log(tv4.error);"
+								],
+								"id": "7a28b1e0-50eb-4b18-96e7-6a805c5ad45e",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/roles",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"roles"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"description": "Tests for the UsersApi",
+			"item": [
+				{
+					"name": "Users/Login-Invalid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								],
+								"id": "08e2c0ab-ba1a-4358-8140-2fdfde6f93d2",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"amhof16@student.sdu.dk\",\r\n  \"password\": \"abc\"\r\n}"
+						},
+						"url": {
+							"raw": "{{chatex}}/users/login",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						},
+						"description": "Tests that a user cannot login when providing invalid credentials. In this case the user should receive a status code 403."
+					},
+					"response": []
+				},
+				{
+					"name": "Users/Login-Valid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"//Ensure that the response body contains the correct token",
+									"pm.test(\"Body contains a token\", function () {",
+									"    pm.expect(pm.response.text()).to.include(pm.environment.get(\"token\"));",
+									"});"
+								],
+								"id": "7d7ee8db-3b18-4a4f-a0f4-96c4ccecf2c9",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"amhof16@student.sdu.dk\",\r\n  \"password\": \"abc123\"\r\n}"
+						},
+						"url": {
+							"raw": "{{chatex}}/users/login",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						},
+						"description": "Tests that a user can log in when providing valid credentials."
+					},
+					"response": []
+				},
+				{
+					"name": "Users/Login-Empty",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"id": "976403fc-8bb4-43ec-a582-1ce4c5d3f30d",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{chatex}}/users/login",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						},
+						"description": "Tests that a request with an empty body results in a bad request."
+					},
+					"response": []
+				},
+				{
+					"name": "Users/Roles-Authenticated",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"//Ensure that the response has the correct schema",
+									"var schema = {",
+									"    \"type\" : \"array\",",
+									"    \"items\" : {",
+									"        \"type\" : \"object\",",
+									"        \"required\" : [ \"id\", \"name\", \"isDeleted\" ],",
+									"        \"properties\" : {",
+									"            \"id\" : {",
+									"                \"type\" : \"integer\",",
+									"                \"format\" : \"int32\"",
+									"            },",
+									"            \"name\" : {",
+									"                \"type\" : \"string\"",
+									"            },",
+									"            \"isDeleted\" : {",
+									"                \"type\" : \"boolean\"",
+									"            }",
+									"        }",
+									"    }",
+									"};",
+									"",
+									"pm.test('Schema is valid', function() {",
+									"  pm.expect(tv4.validate(pm.response.json(), schema)).to.be.true;",
+									"});",
+									"console.log(tv4.error);"
+								],
+								"id": "d801ee4f-2206-4c05-b4c1-c325d4f83806",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/users/5",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"users",
+								"5"
+							]
+						},
+						"description": "Tests that it is possible to retrieve roles on a user when requesting from an authorized client."
+					},
+					"response": []
+				},
+				{
+					"name": "Users/Roles-AuthenticatedBadId",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "3d4ef256-9e97-4396-bb1c-1103aabf827e",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"//Ensure that no roles were retrieved",
+									"pm.test(\"No roles retrieved\", function () {",
+									"    pm.expect(pm.response.json().length).to.equal(0);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/users/4",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"users",
+								"4"
+							]
+						},
+						"description": "Tests that requesting roles on a nonexisting user results in the status code 404."
+					},
+					"response": []
+				},
+				{
+					"name": "Users/Roles-NoToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"id": "98493e43-d4ea-4cba-9f56-704dc704b62a",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/users/5",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"users",
+								"5"
+							]
+						},
+						"description": "Tests that requesting roles on a user without providing a token results in the status code 401."
+					},
+					"response": []
+				},
+				{
+					"name": "Users/Me/Groups-Authenticated",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"//Ensure that the response has the correct schema",
+									"var schema = {",
+									"    \"type\" : \"array\",",
+									"    \"items\" : {",
+									"        \"type\" : \"object\",",
+									"        \"required\" : [ \"id\", \"name\" ],",
+									"        \"properties\" : {",
+									"            \"id\" : {",
+									"                \"type\" : \"integer\",",
+									"                \"format\" : \"int32\"",
+									"            },",
+									"            \"name\" : {",
+									"                \"type\" : \"string\"",
+									"            },",
+									"            \"channels\" : {",
+									"                \"type\" : \"array\",",
+									"                \"items\" : {",
+									"                    \"type\" : \"object\",",
+									"                    \"required\" : [ \"id\", \"name\" ],",
+									"                    \"properties\" : {",
+									"                        \"id\" : {",
+									"                            \"type\" : \"integer\",",
+									"                            \"format\" : \"int32\"",
+									"                        },",
+									"                        \"name\" : {",
+									"                            \"type\" : \"string\"",
+									"                        }",
+									"                    }",
+									"                }",
+									"            }",
+									"        }",
+									"    }",
+									"};",
+									"",
+									"pm.test('Schema is valid', function() {",
+									"  pm.expect(tv4.validate(pm.response.json(), schema)).to.be.true;",
+									"});",
+									"console.log(tv4.error);"
+								],
+								"id": "434cf702-faa1-4653-bf3d-1001704144fe",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/users/me/groups",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"users",
+								"me",
+								"groups"
+							]
+						},
+						"description": "Tests that it is possible to request a user's own groups when providing a valid token."
+					},
+					"response": []
+				},
+				{
+					"name": "Users/Me/Groups-NoToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"id": "81ecdf6e-48ab-436c-b2f0-ffd86851fd28",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/users/me/groups",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"users",
+								"me",
+								"groups"
+							]
+						},
+						"description": "Tests that requesting groups without a valid token results in the status code 401."
+					},
+					"response": []
+				},
+				{
+					"name": "Users-Authenticated",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"//Ensure that the response has the correct schema",
+									"var schema = {",
+									"    \"type\" : \"array\",",
+									"    \"items\" : {",
+									"        \"required\": [ \"id\", \"firstName\", \"lastName\", \"email\", \"me\" ],",
+									"        \"type\": \"object\",",
+									"        \"properties\": {",
+									"            \"id\": {",
+									"                \"format\": \"int32\",",
+									"                \"type\": \"integer\"",
+									"            },",
+									"            \"firstName\": {",
+									"                \"type\": \"string\"",
+									"            },",
+									"            \"middleInitial\": {",
+									"                \"type\": [ \"string\", \"null\" ]",
+									"            },",
+									"            \"lastName\": {",
+									"                \"type\": \"string\"",
+									"            },",
+									"            \"email\": {",
+									"                \"type\": \"string\"",
+									"            },",
+									"            \"me\": {",
+									"                \"type\": \"boolean\"",
+									"            },",
+									"            \"isDeleted\": {",
+									"                \"type\": \"boolean\"",
+									"            }",
+									"        }",
+									"    }",
+									"};",
+									"",
+									"pm.test('Schema is valid', function() {",
+									"  pm.expect(tv4.validate(pm.response.json(), schema)).to.be.true;",
+									"});",
+									"console.log(tv4.error);"
+								],
+								"id": "db45c596-d243-45b3-bebe-815b885fac3c",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/users",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Tests that it is possible to retrieve a list of all users from an authenticated client."
+					},
+					"response": []
+				},
+				{
+					"name": "Users-NoToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"id": "2ce2b699-383d-4f5e-ab6a-50e6ad06a76b",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/users",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Tests that requesting users without a valid token results in the status code 401."
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
