@@ -354,7 +354,7 @@ namespace IO.Swagger.Controllers
             {
                 switch (e.ParamName)
                 {
-                    case ParamNameType.GroupId:
+                    case ParamNameType.CallerId:
                         HttpContext.Response.StatusCode = 403;
                         return new ObjectResult(e.Message);
                 }

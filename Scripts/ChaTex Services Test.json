@@ -16,8 +16,6 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "b4840a5f-23fa-4ddc-a569-2d765125d4bc",
-								"type": "text/javascript",
 								"exec": [
 									"//Create a temporary group for this tets run",
 									"const createGroupRequest = {",
@@ -42,14 +40,14 @@
 									"        pm.environment.set(\"testGroupId\", res.json().id);",
 									"    }",
 									"});"
-								]
+								],
+								"id": "b4840a5f-23fa-4ddc-a569-2d765125d4bc",
+								"type": "text/javascript"
 							}
 						},
 						{
 							"listen": "test",
 							"script": {
-								"id": "9a497fb8-6ac6-485f-a72d-f00a2f81c252",
-								"type": "text/javascript",
 								"exec": [
 									"pm.test(\"Status code is 204\", function () {",
 									"    pm.response.to.have.status(204);",
@@ -82,7 +80,9 @@
 									"        pm.environment.set(\"testChannelId\", channel.id);",
 									"    });",
 									"});"
-								]
+								],
+								"id": "9a497fb8-6ac6-485f-a72d-f00a2f81c252",
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -123,8 +123,6 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "3f11c40d-a664-4249-83b2-55cf375a5932",
-								"type": "text/javascript",
 								"exec": [
 									"//Get member token",
 									"const getTokenRequest = {",
@@ -144,19 +142,21 @@
 									"        pm.environment.set(\"memberToken\", res.json());",
 									"    }",
 									"});"
-								]
+								],
+								"id": "3f11c40d-a664-4249-83b2-55cf375a5932",
+								"type": "text/javascript"
 							}
 						},
 						{
 							"listen": "test",
 							"script": {
-								"id": "6ec55b36-9b34-48d7-aa3f-8ea12958a87f",
-								"type": "text/javascript",
 								"exec": [
 									"pm.test(\"Status code is 403\", function () {",
 									"    pm.response.to.have.status(403);",
 									"});"
-								]
+								],
+								"id": "6ec55b36-9b34-48d7-aa3f-8ea12958a87f",
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -197,23 +197,23 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "da2972fc-7ddd-4ca9-ab99-14f0b3bbec86",
-								"type": "text/javascript",
 								"exec": [
 									""
-								]
+								],
+								"id": "da2972fc-7ddd-4ca9-ab99-14f0b3bbec86",
+								"type": "text/javascript"
 							}
 						},
 						{
 							"listen": "test",
 							"script": {
-								"id": "578ec4db-4e12-4023-afd6-a4b280c1e60b",
-								"type": "text/javascript",
 								"exec": [
 									"pm.test(\"Status code is 403\", function () {",
 									"    pm.response.to.have.status(403);",
 									"});"
-								]
+								],
+								"id": "578ec4db-4e12-4023-afd6-a4b280c1e60b",
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -254,13 +254,13 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "9a3390d6-132c-4ef8-b7ca-a1fcc980d0eb",
-								"type": "text/javascript",
 								"exec": [
 									"pm.test(\"Status code is 403\", function () {",
 									"    pm.response.to.have.status(403);",
 									"});"
-								]
+								],
+								"id": "9a3390d6-132c-4ef8-b7ca-a1fcc980d0eb",
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -295,13 +295,57 @@
 					"response": []
 				},
 				{
+					"name": "Channels-AuthenticatedBadId",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"id": "423b378e-4e15-47af-ac22-5669c92a55cc",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "\"New channel name from Postman here again\""
+						},
+						"url": {
+							"raw": "{{chatex}}/channels/0",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"channels",
+								"0"
+							]
+						},
+						"description": "Tests that it is not possible to rename a channel that does not exist."
+					},
+					"response": []
+				},
+				{
 					"name": "Channels-AuthenticatedAdministrator",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
-								"id": "ad84a279-dc9a-4617-99c4-bc577cb828fa",
-								"type": "text/javascript",
 								"exec": [
 									"pm.test(\"Status code is 204\", function () {",
 									"    pm.response.to.have.status(204);",
@@ -331,7 +375,9 @@
 									"        pm.expect(channel.name).to.equal(\"New channel name from Postman\");",
 									"    });",
 									"});"
-								]
+								],
+								"id": "ad84a279-dc9a-4617-99c4-bc577cb828fa",
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -371,13 +417,13 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "34ac8fe0-1418-4b29-a60c-67ccc0c8e5cd",
-								"type": "text/javascript",
 								"exec": [
 									"pm.test(\"Status code is 404\", function () {",
 									"    pm.response.to.have.status(404);",
 									"});"
-								]
+								],
+								"id": "34ac8fe0-1418-4b29-a60c-67ccc0c8e5cd",
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -410,13 +456,13 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "9fbbdd7c-1a26-4647-9519-8a0415799115",
-								"type": "text/javascript",
 								"exec": [
 									"pm.test(\"Status code is 403\", function () {",
 									"    pm.response.to.have.status(403);",
 									"});"
-								]
+								],
+								"id": "9fbbdd7c-1a26-4647-9519-8a0415799115",
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -449,8 +495,6 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "c253fd32-d9df-4ef1-bab0-c90403b201d8",
-								"type": "text/javascript",
 								"exec": [
 									"pm.test(\"Status code is 204\", function () {",
 									"    pm.response.to.have.status(204);",
@@ -480,7 +524,9 @@
 									"        pm.expect(channels.length).to.equal(0);",
 									"    });",
 									"});"
-								]
+								],
+								"id": "c253fd32-d9df-4ef1-bab0-c90403b201d8",
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -506,50 +552,1839 @@
 						"description": "Tests that it is possible for a group administrator to delete a channel in a group that the client is an administrator of."
 					},
 					"response": []
-				},
+				}
+			]
+		},
+		{
+			"name": "Groups",
+			"description": "Tests for the GroupsApi",
+			"item": [
 				{
-					"name": "Channels-AuthenticatedBadId",
+					"name": "Groups-AuthenticatedInvalid",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
-								"id": "423b378e-4e15-47af-ac22-5669c92a55cc",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"id": "f0a79ec2-9d3e-4e38-8b02-28626861f9d9",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"groupName\": \"Postman dedicated test group\",\r\n  \"allowEmployeeAcknowledgeable\": false,\r\n  \"allowEmployeeBookmark\": true\r\n}"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups"
+							]
+						},
+						"description": "Tests that it is not possible to create a group when specifying invalid information."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups-AuthenticatedEmpty",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"id": "32e5eb6d-268f-4c70-af71-25e0f92a3ec7",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/groups",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups"
+							]
+						},
+						"description": "Tests that it is not possible to create a group when specifying an empty body."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups-AuthenticatedValid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"testGroupId\", pm.response.json().id);",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"//Ensure that the response has the correct schema",
+									"var schema = {",
+									"    \"required\": [",
+									"\t\t\"id\",",
+									"\t\t\"name\"",
+									"\t],",
+									"\t\"type\": \"object\",",
+									"\t\"properties\": {",
+									"\t\t\"id\": {",
+									"\t\t\t\"format\": \"int32\",",
+									"\t\t\t\"description\": \"Gets or Sets Id\",",
+									"\t\t\t\"type\": \"integer\"",
+									"\t\t},",
+									"\t\t\"name\": {",
+									"\t\t\t\"description\": \"Gets or Sets Name\",",
+									"\t\t\t\"type\": \"string\"",
+									"\t\t},",
+									"\t\t\"channels\": {",
+									"\t\t\t\"description\": \"Gets or Sets Channels\",",
+									"\t\t\t\"type\": \"array\",",
+									"\t\t\t\"items\": {",
+									"\t\t\t\t\"required\": [",
+									"    \t\t\t\t\"id\",",
+									"    \t\t\t\t\"name\"",
+									"    \t\t\t],",
+									"    \t\t\t\"type\": \"object\",",
+									"    \t\t\t\"properties\": {",
+									"    \t\t\t\t\"id\": {",
+									"    \t\t\t\t\t\"format\": \"int32\",",
+									"    \t\t\t\t\t\"description\": \"Gets or Sets Id\",",
+									"    \t\t\t\t\t\"type\": \"integer\"",
+									"    \t\t\t\t},",
+									"    \t\t\t\t\"name\": {",
+									"    \t\t\t\t\t\"description\": \"Gets or Sets Name\",",
+									"    \t\t\t\t\t\"type\": \"string\"",
+									"    \t\t\t\t}",
+									"    \t\t\t}",
+									"\t\t\t}",
+									"\t\t}",
+									"\t}",
+									"}",
+									"",
+									"pm.test('Schema is valid', function() {",
+									"  pm.expect(tv4.validate(pm.response.json(), schema)).to.be.true;",
+									"});",
+									"console.log(tv4.error);",
+									"",
+									"//Ensure that the created group has the correct name",
+									"pm.test(\"Group name is correct\", function () {",
+									"    pm.expect(pm.response.json().name).to.equal(\"Postman dedicated test group\");",
+									"});"
+								],
+								"id": "524fc433-2744-454b-943a-81af233ff0a3",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"groupName\": \"Postman dedicated test group\",\r\n  \"allowEmployeeSticky\": true,\r\n  \"allowEmployeeAcknowledgeable\": false,\r\n  \"allowEmployeeBookmark\": true\r\n}"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups"
+							]
+						},
+						"description": "Tests that it is possible to create a group when specifying valid information."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups-NoToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"id": "b7d7b1f3-7001-43c3-8e35-ca6203f07b20",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"groupName\": \"Postman dedicated test group\",\r\n  \"allowEmployeeSticky\": true,\r\n  \"allowEmployeeAcknowledgeable\": false,\r\n  \"allowEmployeeBookmark\": true\r\n}"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups"
+							]
+						},
+						"description": "Tests that it is possible to create a group when not logged in."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Roles-AuthenticatedBadId",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								],
+								"id": "aa113369-256d-483b-ad59-f1e1a753be1c",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[ 1, 2 ]"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/0/roles",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"0",
+								"roles"
+							]
+						},
+						"description": "Tests that it is not possible to add roles to a nonexistent group."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Roles-AuthenticatedNotAdministrator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								],
+								"id": "aa113369-256d-483b-ad59-f1e1a753be1c",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[ 1, 2 ]"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/70/roles",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"70",
+								"roles"
+							]
+						},
+						"description": "Tests that it is not possible to add roles to a group that the client is not an administrator of."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Roles-AuthenticatedAdministrator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"id": "ebe8c392-0f10-4b65-a272-ee6a8933a3e0",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[ 1, 2 ]"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/{{testGroupId}}/roles",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"{{testGroupId}}",
+								"roles"
+							]
+						},
+						"description": "Tests that it is possible to add roles to a group that the client is an administrator of."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Roles-AuthenticatedAdministratorDuplicates",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"id": "ebe8c392-0f10-4b65-a272-ee6a8933a3e0",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[ 1 ]"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/{{testGroupId}}/roles",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"{{testGroupId}}",
+								"roles"
+							]
+						},
+						"description": "Tests that it is possible to add roles to a group that the client is an administrator of, even if those roles are already in the group."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Roles-Authenticated",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"//Ensure that the response has the correct schema",
+									"var schema = {",
+									"    \"type\": \"array\",",
+									"    \"items\": {",
+									"        \"required\": [",
+									"    \t\t\"id\",",
+									"    \t\t\"name\",",
+									"    \t\t\"isDeleted\"",
+									"    \t],",
+									"    \t\"type\": \"object\",",
+									"    \t\"properties\": {",
+									"    \t\t\"id\": {",
+									"    \t\t\t\"format\": \"int32\",",
+									"    \t\t\t\"description\": \"Gets or Sets Id\",",
+									"    \t\t\t\"type\": \"integer\"",
+									"    \t\t},",
+									"    \t\t\"name\": {",
+									"    \t\t\t\"description\": \"Gets or Sets Name\",",
+									"    \t\t\t\"type\": \"string\"",
+									"    \t\t},",
+									"    \t\t\"isDeleted\": {",
+									"    \t\t\t\"description\": \"Gets or Sets IsDeleted\",",
+									"    \t\t\t\"type\": \"boolean\"",
+									"    \t\t}",
+									"    \t}",
+									"    }",
+									"}",
+									"",
+									"pm.test('Schema is valid', function() {",
+									"  pm.expect(tv4.validate(pm.response.json(), schema)).to.be.true;",
+									"});",
+									"console.log(tv4.error);",
+									"",
+									"//Ensure that the correct roles were retrieved",
+									"var expectedRoleIds = [ 1, 2 ];",
+									"var actualRoleIds = [];",
+									"",
+									"for (i = 0; i < pm.response.json().length; i++) {",
+									"    actualRoleIds.push(pm.response.json()[i].id);",
+									"}",
+									"",
+									"pm.test('Correct roles retrieved', function() {",
+									"    var noUnmatchedRole = true;",
+									"    for (var role in expectedRoleIds) {",
+									"        if (actualRoleIds.indexOf(role) === -1) {",
+									"            unmatchedRole = false;",
+									"        }",
+									"    }",
+									"    ",
+									"    var sameNumber = (expectedRoleIds.length === actualRoleIds.length);",
+									"    ",
+									"    pm.expect(noUnmatchedRole && sameNumber).to.be.true;",
+									"});"
+								],
+								"id": "982354f4-66ee-4d93-9616-ef8144e1e480",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[ 1, 2 ]"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/{{testGroupId}}/roles",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"{{testGroupId}}",
+								"roles"
+							]
+						},
+						"description": "Tests that it is possible to retrieve roles from a group."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Roles-AuthenticatedBadId",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"//Ensure that no roles were retrieved",
+									"pm.test(\"No roles were retrieved\", function () {",
+									"    pm.expect(pm.response.json().length).to.equal(0);",
+									"});"
+								],
+								"id": "6dcad496-83a6-40aa-9015-ca6b195284e1",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[ 1, 2 ]"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/0/roles",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"0",
+								"roles"
+							]
+						},
+						"description": "Tests that it is not possible to retrieve roles from a nonexistent group."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Roles-AuthenticatedGroupDeleted",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"//Ensure that no roles were retrieved",
+									"pm.test(\"No roles were retrieved\", function () {",
+									"    pm.expect(pm.response.json().length).to.equal(0);",
+									"});"
+								],
+								"id": "b219bcdd-09cf-41c4-b6f3-57a2498ca534",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[ 1, 2 ]"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/126/roles",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"126",
+								"roles"
+							]
+						},
+						"description": "Tests that it is not possible to retrieve roles from a deleted group."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Roles-AuthenticatedBadId",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8ed70c3c-9e08-40ba-a626-9139450f22ab",
 								"type": "text/javascript",
 								"exec": [
-									"pm.test(\"Status code is 404\", function () {",
-									"    pm.response.to.have.status(404);",
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
 									"});"
 								]
 							}
 						}
 					],
 					"request": {
-						"method": "PUT",
+						"method": "DELETE",
 						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
 							{
 								"key": "Content-Type",
 								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[ 2 ]"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/0/roles",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"0",
+								"roles"
+							]
+						},
+						"description": "Tests that it is not possible to remove roles from a nonexistent group."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Roles-AuthenticatedNotAdministrator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								],
+								"id": "8ed70c3c-9e08-40ba-a626-9139450f22ab",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
 							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[ 2 ]"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/70/roles",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"70",
+								"roles"
+							]
+						},
+						"description": "Tests that it is not possible to remove roles from a group that the client is not an administrator of."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Roles-AuthenticatedAdministrator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"id": "e301462d-1503-44d0-94d7-280092e36cf9",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[ 2 ]"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/{{testGroupId}}/roles",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"{{testGroupId}}",
+								"roles"
+							]
+						},
+						"description": "Tests that it is possible to remove roles from a group that the client is an administrator of, if those roles are in the group."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Roles-AuthenticatedAdministratorBadRole",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"id": "e301462d-1503-44d0-94d7-280092e36cf9",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[ 2 ]"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/{{testGroupId}}/roles",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"{{testGroupId}}",
+								"roles"
+							]
+						},
+						"description": "Tests that it is possible to request removal of roles from a group that the client is an administrator of, even if those roles are not in the group."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Roles-AuthenticatedAfterDelete",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "dd419ce2-c39c-4ec3-9f34-804fc8c7798a",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"//Ensure that the response has the correct schema",
+									"var schema = {",
+									"    \"type\": \"array\",",
+									"    \"items\": {",
+									"        \"required\": [",
+									"    \t\t\"id\",",
+									"    \t\t\"name\",",
+									"    \t\t\"isDeleted\"",
+									"    \t],",
+									"    \t\"type\": \"object\",",
+									"    \t\"properties\": {",
+									"    \t\t\"id\": {",
+									"    \t\t\t\"format\": \"int32\",",
+									"    \t\t\t\"description\": \"Gets or Sets Id\",",
+									"    \t\t\t\"type\": \"integer\"",
+									"    \t\t},",
+									"    \t\t\"name\": {",
+									"    \t\t\t\"description\": \"Gets or Sets Name\",",
+									"    \t\t\t\"type\": \"string\"",
+									"    \t\t},",
+									"    \t\t\"isDeleted\": {",
+									"    \t\t\t\"description\": \"Gets or Sets IsDeleted\",",
+									"    \t\t\t\"type\": \"boolean\"",
+									"    \t\t}",
+									"    \t}",
+									"    }",
+									"}",
+									"",
+									"pm.test('Schema is valid', function() {",
+									"  pm.expect(tv4.validate(pm.response.json(), schema)).to.be.true;",
+									"});",
+									"console.log(tv4.error);",
+									"",
+									"//Ensure that the correct roles were retrieved",
+									"var expectedRoleIds = [ 1 ];",
+									"var actualRoleIds = [];",
+									"",
+									"for (i = 0; i < pm.response.json().length; i++) {",
+									"    actualRoleIds.push(pm.response.json()[i].id);",
+									"}",
+									"",
+									"pm.test('Correct roles retrieved', function() {",
+									"    var noUnmatchedRole = true;",
+									"    for (var role in expectedRoleIds) {",
+									"        if (actualRoleIds.indexOf(role) === -1) {",
+									"            unmatchedRole = false;",
+									"        }",
+									"    }",
+									"    ",
+									"    var sameNumber = (expectedRoleIds.length === actualRoleIds.length);",
+									"    ",
+									"    pm.expect(noUnmatchedRole && sameNumber).to.be.true;",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[ 1, 2 ]"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/{{testGroupId}}/roles",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"{{testGroupId}}",
+								"roles"
+							]
+						},
+						"description": "Tests that it is possible to retrieve roles from a group, and that previous operations with deleting roles were successful."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Users-AuthenticatedBadId",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "71fba700-dba0-4e2f-bc53-18b9afa6578c",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[ 11 ]"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/0/users",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"0",
+								"users"
+							]
+						},
+						"description": "Tests that it is not possible to add users to a nonexistent group."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Users-AuthenticatedNotAdministrator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcf40c3f-51c8-414a-a802-9cd1077970a3",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[ 11 ]"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/70/users",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"70",
+								"users"
+							]
+						},
+						"description": "Tests that it is not possible to add users to a group that the client is not an administrator of."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Users-AuthenticatedAdministrator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"id": "ebe8c392-0f10-4b65-a272-ee6a8933a3e0",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[ 11 ]"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/{{testGroupId}}/users",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"{{testGroupId}}",
+								"users"
+							]
+						},
+						"description": "Tests that it is possible to add users to a group that the client is an administrator of."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Users-AuthenticatedAdministratorDuplicates",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"id": "ebe8c392-0f10-4b65-a272-ee6a8933a3e0",
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[ 11 ]"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/{{testGroupId}}/users",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"{{testGroupId}}",
+								"users"
+							]
+						},
+						"description": "Tests that it is possible to add users to a group that the client is an administrator of, even if those users are already in the group."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Users/GroupUsers-Authenticated",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f927d39a-179c-4c41-9854-651e400634cf",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"//Ensure that the response has the correct schema",
+									"var schema = {",
+									"    \"type\": \"array\",",
+									"    \"items\": {",
+									"        \"required\": [",
+									"\t\t\t\"id\",",
+									"\t\t\t\"firstName\",",
+									"\t\t\t\"lastName\",",
+									"\t\t\t\"email\",",
+									"\t\t\t\"me\"",
+									"\t\t],",
+									"\t\t\"type\": \"object\",",
+									"\t\t\"properties\": {",
+									"\t\t\t\"id\": {",
+									"\t\t\t\t\"format\": \"int32\",",
+									"\t\t\t\t\"description\": \"Gets or Sets Id\",",
+									"\t\t\t\t\"type\": \"integer\"",
+									"\t\t\t},",
+									"\t\t\t\"firstName\": {",
+									"\t\t\t\t\"description\": \"Gets or Sets FirstName\",",
+									"\t\t\t\t\"type\": \"string\"",
+									"\t\t\t},",
+									"\t\t\t\"middleInitial\": {",
+									"\t\t\t\t\"description\": \"Gets or Sets MiddleInitial\",",
+									"\t\t\t\t\"type\": [ \"string\", \"null\" ]",
+									"\t\t\t},",
+									"\t\t\t\"lastName\": {",
+									"\t\t\t\t\"description\": \"Gets or Sets LastName\",",
+									"\t\t\t\t\"type\": \"string\"",
+									"\t\t\t},",
+									"\t\t\t\"email\": {",
+									"\t\t\t\t\"description\": \"Gets or Sets Email\",",
+									"\t\t\t\t\"type\": \"string\"",
+									"\t\t\t},",
+									"\t\t\t\"me\": {",
+									"\t\t\t\t\"description\": \"Gets or Sets Me\",",
+									"\t\t\t\t\"type\": \"boolean\"",
+									"\t\t\t},",
+									"\t\t\t\"isDeleted\": {",
+									"\t\t\t\t\"description\": \"Gets or Sets IsDeleted\",",
+									"\t\t\t\t\"type\": \"boolean\"",
+									"\t\t\t}",
+									"\t\t}",
+									"    }",
+									"}",
+									"",
+									"pm.test('Schema is valid', function() {",
+									"  pm.expect(tv4.validate(pm.response.json(), schema)).to.be.true;",
+									"});",
+									"console.log(tv4.error);",
+									"",
+									"//Ensure that the correct users were retrieved",
+									"var expectedUserIds = [ 6, 11 ];",
+									"var actualUserIds = [];",
+									"",
+									"for (i = 0; i < pm.response.json().length; i++) {",
+									"    actualUserIds.push(pm.response.json()[i].id);",
+									"}",
+									"",
+									"pm.test('Correct users retrieved', function() {",
+									"    var noUnmatchedUser = true;",
+									"    for (var user in expectedUserIds) {",
+									"        if (actualUserIds.indexOf(user) === -1) {",
+									"            unmatchedUser = false;",
+									"        }",
+									"    }",
+									"    ",
+									"    var sameNumber = (expectedUserIds.length === actualUserIds.length);",
+									"    ",
+									"    pm.expect(noUnmatchedUser && sameNumber).to.be.true;",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[ 11 ]"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/{{testGroupId}}/groupUsers",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"{{testGroupId}}",
+								"groupUsers"
+							]
+						},
+						"description": "Tests that it is possible to retrieve users from a group."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Users/GroupUsers-AuthenticatedBadId",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "d9a0b045-680a-4891-ac8b-e88259c10870",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"//Ensure that no users were retrieved",
+									"pm.test(\"No users were retrieved\", function () {",
+									"    pm.expect(pm.response.json().length).to.equal(0);",
+									"});"
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "0149ab12-2088-4be9-b373-c049f805552f",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[ 11 ]"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/0/groupUsers",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"0",
+								"groupUsers"
+							]
+						},
+						"description": "Tests that it is not possible to retrieve users from a nonexistent group."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Users/GroupUsers-AuthenticatedGroupDeleted",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "d9a0b045-680a-4891-ac8b-e88259c10870",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"//Ensure that no users were retrieved",
+									"pm.test(\"No users were retrieved\", function () {",
+									"    pm.expect(pm.response.json().length).to.equal(0);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[ 11 ]"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/126/groupUsers",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"126",
+								"groupUsers"
+							]
+						},
+						"description": "Tests that it is not possible to retrieve users from a deleted group."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Users-AuthenticatedBadId",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "508dfe70-bc9e-4e5b-91d9-cc4e33429730",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[ 11 ]"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/0/users",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"0",
+								"users"
+							]
+						},
+						"description": "Tests that it is not possible to remove users from a nonexistent group."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Users-AuthenticatedNotAdministrator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "508dfe70-bc9e-4e5b-91d9-cc4e33429730",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[ 11 ]"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/70/users",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"70",
+								"users"
+							]
+						},
+						"description": "Tests that it is not possible to remove users from a group that the client is not an administrator of."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Users-AuthenticatedAdministrator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "05f1ad2f-619a-4e76-95ab-e80a6b448197",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[ 11 ]"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/{{testGroupId}}/users",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"{{testGroupId}}",
+								"users"
+							]
+						},
+						"description": "Tests that it is possible to remove users from a group that the client is an administrator of."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Users-AuthenticatedAdministratorBadUser",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "05f1ad2f-619a-4e76-95ab-e80a6b448197",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[ 11 ]"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/{{testGroupId}}/users",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"{{testGroupId}}",
+								"users"
+							]
+						},
+						"description": "Tests that it is possible to remove users from a group that the client is an administrator of, even if the users are not in the group."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Users/GroupUsers-AuthenticatedAfterDelete",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "813bbe25-5a94-44b9-8e59-80482d79745c",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"//Ensure that the response has the correct schema",
+									"var schema = {",
+									"    \"type\": \"array\",",
+									"    \"items\": {",
+									"        \"required\": [",
+									"\t\t\t\"id\",",
+									"\t\t\t\"firstName\",",
+									"\t\t\t\"lastName\",",
+									"\t\t\t\"email\",",
+									"\t\t\t\"me\"",
+									"\t\t],",
+									"\t\t\"type\": \"object\",",
+									"\t\t\"properties\": {",
+									"\t\t\t\"id\": {",
+									"\t\t\t\t\"format\": \"int32\",",
+									"\t\t\t\t\"description\": \"Gets or Sets Id\",",
+									"\t\t\t\t\"type\": \"integer\"",
+									"\t\t\t},",
+									"\t\t\t\"firstName\": {",
+									"\t\t\t\t\"description\": \"Gets or Sets FirstName\",",
+									"\t\t\t\t\"type\": \"string\"",
+									"\t\t\t},",
+									"\t\t\t\"middleInitial\": {",
+									"\t\t\t\t\"description\": \"Gets or Sets MiddleInitial\",",
+									"\t\t\t\t\"type\": [ \"string\", \"null\" ]",
+									"\t\t\t},",
+									"\t\t\t\"lastName\": {",
+									"\t\t\t\t\"description\": \"Gets or Sets LastName\",",
+									"\t\t\t\t\"type\": \"string\"",
+									"\t\t\t},",
+									"\t\t\t\"email\": {",
+									"\t\t\t\t\"description\": \"Gets or Sets Email\",",
+									"\t\t\t\t\"type\": \"string\"",
+									"\t\t\t},",
+									"\t\t\t\"me\": {",
+									"\t\t\t\t\"description\": \"Gets or Sets Me\",",
+									"\t\t\t\t\"type\": \"boolean\"",
+									"\t\t\t},",
+									"\t\t\t\"isDeleted\": {",
+									"\t\t\t\t\"description\": \"Gets or Sets IsDeleted\",",
+									"\t\t\t\t\"type\": \"boolean\"",
+									"\t\t\t}",
+									"\t\t}",
+									"    }",
+									"}",
+									"",
+									"pm.test('Schema is valid', function() {",
+									"  pm.expect(tv4.validate(pm.response.json(), schema)).to.be.true;",
+									"});",
+									"console.log(tv4.error);",
+									"",
+									"//Ensure that the correct users were retrieved",
+									"var expectedUserIds = [ 6 ];",
+									"var actualUserIds = [];",
+									"",
+									"for (i = 0; i < pm.response.json().length; i++) {",
+									"    actualUserIds.push(pm.response.json()[i].id);",
+									"}",
+									"",
+									"pm.test('Correct users retrieved', function() {",
+									"    var noUnmatchedUser = true;",
+									"    for (var user in expectedUserIds) {",
+									"        if (actualUserIds.indexOf(user) === -1) {",
+									"            unmatchedUser = false;",
+									"        }",
+									"    }",
+									"    ",
+									"    var sameNumber = (expectedUserIds.length === actualUserIds.length);",
+									"    ",
+									"    pm.expect(noUnmatchedUser && sameNumber).to.be.true;",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[ 11 ]"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/{{testGroupId}}/groupUsers",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"{{testGroupId}}",
+								"groupUsers"
+							]
+						},
+						"description": "Tests that it is possible to retrieve users from a group, and that previous operations with deleting users were successful."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Users-Authenticated",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "676622e2-a2ae-4f5e-9ca7-b81914afc530",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"//Ensure that the response has the correct schema",
+									"var schema = {",
+									"    \"type\": \"array\",",
+									"    \"items\": {",
+									"        \"required\": [",
+									"\t\t\t\"id\",",
+									"\t\t\t\"firstName\",",
+									"\t\t\t\"lastName\",",
+									"\t\t\t\"email\",",
+									"\t\t\t\"me\"",
+									"\t\t],",
+									"\t\t\"type\": \"object\",",
+									"\t\t\"properties\": {",
+									"\t\t\t\"id\": {",
+									"\t\t\t\t\"format\": \"int32\",",
+									"\t\t\t\t\"description\": \"Gets or Sets Id\",",
+									"\t\t\t\t\"type\": \"integer\"",
+									"\t\t\t},",
+									"\t\t\t\"firstName\": {",
+									"\t\t\t\t\"description\": \"Gets or Sets FirstName\",",
+									"\t\t\t\t\"type\": \"string\"",
+									"\t\t\t},",
+									"\t\t\t\"middleInitial\": {",
+									"\t\t\t\t\"description\": \"Gets or Sets MiddleInitial\",",
+									"\t\t\t\t\"type\": [ \"string\", \"null\" ]",
+									"\t\t\t},",
+									"\t\t\t\"lastName\": {",
+									"\t\t\t\t\"description\": \"Gets or Sets LastName\",",
+									"\t\t\t\t\"type\": \"string\"",
+									"\t\t\t},",
+									"\t\t\t\"email\": {",
+									"\t\t\t\t\"description\": \"Gets or Sets Email\",",
+									"\t\t\t\t\"type\": \"string\"",
+									"\t\t\t},",
+									"\t\t\t\"me\": {",
+									"\t\t\t\t\"description\": \"Gets or Sets Me\",",
+									"\t\t\t\t\"type\": \"boolean\"",
+									"\t\t\t},",
+									"\t\t\t\"isDeleted\": {",
+									"\t\t\t\t\"description\": \"Gets or Sets IsDeleted\",",
+									"\t\t\t\t\"type\": \"boolean\"",
+									"\t\t\t}",
+									"\t\t}",
+									"    }",
+									"}",
+									"",
+									"pm.test('Schema is valid', function() {",
+									"  pm.expect(tv4.validate(pm.response.json(), schema)).to.be.true;",
+									"});",
+									"console.log(tv4.error);",
+									"",
+									"//Ensure that the correct users were retrieved",
+									"var expectedUserIds = [ 6, 11 ];",
+									"var actualUserIds = [];",
+									"",
+									"for (i = 0; i < pm.response.json().length; i++) {",
+									"    actualUserIds.push(pm.response.json()[i].id);",
+									"}",
+									"",
+									"pm.test('Correct users retrieved', function() {",
+									"    var noUnmatchedUser = true;",
+									"    for (var user in expectedUserIds) {",
+									"        if (actualUserIds.indexOf(user) === -1) {",
+									"            unmatchedUser = false;",
+									"        }",
+									"    }",
+									"    ",
+									"    var sameNumber = (expectedUserIds.length === actualUserIds.length);",
+									"    ",
+									"    pm.expect(noUnmatchedUser && sameNumber).to.be.true;",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
 							{
 								"key": "token",
 								"value": "{{token}}"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": "\"New channel name from Postman here again\""
-						},
+						"body": {},
 						"url": {
-							"raw": "{{chatex}}/channels/0",
+							"raw": "{{chatex}}/groups/{{testGroupId}}/users",
 							"host": [
 								"{{chatex}}"
 							],
 							"path": [
-								"channels",
-								"0"
+								"groups",
+								"{{testGroupId}}",
+								"users"
 							]
 						},
-						"description": "Tests that it is not possible to rename a channel that does not exist."
+						"description": "Tests that it is possible to retrieve users in a group both based on direct group members and group roles."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Users-AuthenticatedBadID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f99fce94-f28a-4289-9b38-4812f6e47b54",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/groups/0/users",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"0",
+								"users"
+							]
+						},
+						"description": "Tests that it is not possible to retrieve users in a nonexistent group based on direct group members and group roles."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Users-AuthenticatedGroupDeleted",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "5598ca05-19e9-432c-9869-f660c9fd927c",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/groups/126/users",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"126",
+								"users"
+							]
+						},
+						"description": "Tests that it is not possible to retrieve users in a deleted group based on direct group members and group roles."
 					},
 					"response": []
 				}
@@ -558,11 +2393,6 @@
 		{
 			"name": "Chats",
 			"description": "Tests for the ChatsApi",
-			"item": []
-		},
-		{
-			"name": "Groups",
-			"description": "Tests for the GroupsApi",
 			"item": []
 		},
 		{
@@ -1984,23 +3814,23 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "980ba2d1-9adc-4df6-89b9-b094d6cc42ed",
-								"type": "text/javascript",
 								"exec": [
 									"pm.test(\"Status code is 404\", function () {",
 									"    pm.response.to.have.status(404);",
 									"});"
-								]
+								],
+								"id": "980ba2d1-9adc-4df6-89b9-b094d6cc42ed",
+								"type": "text/javascript"
 							}
 						},
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "60d57412-2d4f-4133-acb2-f523ab63c3a0",
-								"type": "text/javascript",
 								"exec": [
 									""
-								]
+								],
+								"id": "60d57412-2d4f-4133-acb2-f523ab63c3a0",
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -2316,8 +4146,6 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "3d4ef256-9e97-4396-bb1c-1103aabf827e",
-								"type": "text/javascript",
 								"exec": [
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
@@ -2327,7 +4155,9 @@
 									"pm.test(\"No roles retrieved\", function () {",
 									"    pm.expect(pm.response.json().length).to.equal(0);",
 									"});"
-								]
+								],
+								"id": "3d4ef256-9e97-4396-bb1c-1103aabf827e",
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -2464,6 +4294,277 @@
 							]
 						},
 						"description": "Tests that it is possible to request a user's own groups when providing a valid token."
+					},
+					"response": []
+				},
+				{
+					"name": "Users/Me/Groups-AuthenticatedConsiderRole",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "52626cea-6269-48b3-87a4-a14d5ef95b14",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"//Ensure that the response has the correct schema",
+									"var schema = {",
+									"    \"type\" : \"array\",",
+									"    \"items\" : {",
+									"        \"type\" : \"object\",",
+									"        \"required\" : [ \"id\", \"name\" ],",
+									"        \"properties\" : {",
+									"            \"id\" : {",
+									"                \"type\" : \"integer\",",
+									"                \"format\" : \"int32\"",
+									"            },",
+									"            \"name\" : {",
+									"                \"type\" : \"string\"",
+									"            },",
+									"            \"channels\" : {",
+									"                \"type\" : \"array\",",
+									"                \"items\" : {",
+									"                    \"type\" : \"object\",",
+									"                    \"required\" : [ \"id\", \"name\" ],",
+									"                    \"properties\" : {",
+									"                        \"id\" : {",
+									"                            \"type\" : \"integer\",",
+									"                            \"format\" : \"int32\"",
+									"                        },",
+									"                        \"name\" : {",
+									"                            \"type\" : \"string\"",
+									"                        }",
+									"                    }",
+									"                }",
+									"            }",
+									"        }",
+									"    }",
+									"};",
+									"",
+									"pm.test('Schema is valid', function() {",
+									"  pm.expect(tv4.validate(pm.response.json(), schema)).to.be.true;",
+									"});",
+									"console.log(tv4.error);",
+									"",
+									"//Ensure that the correct groups were retrieved",
+									"var expectedGroupIds = [ 1, pm.environment.get(\"testGroupId\") ];",
+									"var actualGroupIds = [];",
+									"",
+									"for (i = 0; i < pm.response.json().length; i++) {",
+									"    actualGroupIds.push(pm.response.json()[i].id);",
+									"}",
+									"",
+									"pm.test('Correct groups retrieved', function() {",
+									"    var noUnmatchedGroup = true;",
+									"    for (var group in expectedGroupIds) {",
+									"        if (actualGroupIds.indexOf(group) === -1) {",
+									"            unmatchedGroup = false;",
+									"        }",
+									"    }",
+									"    ",
+									"    var sameNumber = (expectedGroupIds.length === actualGroupIds.length);",
+									"    ",
+									"    pm.expect(noUnmatchedGroup && sameNumber).to.be.true;",
+									"});"
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "53b35d27-0116-4929-bf4c-c92e4582f45d",
+								"type": "text/javascript",
+								"exec": [
+									"//Get postman token",
+									"const getTokenRequest = {",
+									"  url:      pm.environment.get(\"chatex\") + \"/users/login\",",
+									"  method:   \"Post\",",
+									"  header:   \"Content-Type:application/json\",",
+									"  body: {",
+									"      mode: \"raw\",",
+									"      raw: JSON.stringify({ email: \"postman@pm.com\", password: \"abc123\"})",
+									"  }",
+									"};",
+									"",
+									"pm.sendRequest(getTokenRequest, function(err, res) {",
+									"    if (err) {",
+									"        console.log(err);",
+									"    } else {",
+									"        pm.environment.set(\"postmanToken\", res.json());",
+									"    }",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{postmanToken}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/users/me/groups",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"users",
+								"me",
+								"groups"
+							]
+						},
+						"description": "Tests that it is possible to request a user's own groups when providing a valid token, and when considering the user's roles."
+					},
+					"response": []
+				},
+				{
+					"name": "Users/Me/Groups-AuthenticatedConsiderMix",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "85bcd822-e7bc-4617-bf16-c09337dcd161",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"//Ensure that the response has the correct schema",
+									"var schema = {",
+									"    \"type\" : \"array\",",
+									"    \"items\" : {",
+									"        \"type\" : \"object\",",
+									"        \"required\" : [ \"id\", \"name\" ],",
+									"        \"properties\" : {",
+									"            \"id\" : {",
+									"                \"type\" : \"integer\",",
+									"                \"format\" : \"int32\"",
+									"            },",
+									"            \"name\" : {",
+									"                \"type\" : \"string\"",
+									"            },",
+									"            \"channels\" : {",
+									"                \"type\" : \"array\",",
+									"                \"items\" : {",
+									"                    \"type\" : \"object\",",
+									"                    \"required\" : [ \"id\", \"name\" ],",
+									"                    \"properties\" : {",
+									"                        \"id\" : {",
+									"                            \"type\" : \"integer\",",
+									"                            \"format\" : \"int32\"",
+									"                        },",
+									"                        \"name\" : {",
+									"                            \"type\" : \"string\"",
+									"                        }",
+									"                    }",
+									"                }",
+									"            }",
+									"        }",
+									"    }",
+									"};",
+									"",
+									"pm.test('Schema is valid', function() {",
+									"  pm.expect(tv4.validate(pm.response.json(), schema)).to.be.true;",
+									"});",
+									"console.log(tv4.error);",
+									"",
+									"//Ensure that the correct groups were retrieved",
+									"var expectedGroupIds = [ 1 ];",
+									"var actualGroupIds = [];",
+									"",
+									"for (i = 0; i < pm.response.json().length; i++) {",
+									"    actualGroupIds.push(pm.response.json()[i].id);",
+									"}",
+									"",
+									"pm.test('Correct groups retrieved', function() {",
+									"    var noUnmatchedGroup = true;",
+									"    for (var group in expectedGroupIds) {",
+									"        if (actualGroupIds.indexOf(group) === -1) {",
+									"            unmatchedGroup = false;",
+									"        }",
+									"    }",
+									"    ",
+									"    var sameNumber = (expectedGroupIds.length === actualGroupIds.length);",
+									"    ",
+									"    pm.expect(noUnmatchedGroup && sameNumber).to.be.true;",
+									"});"
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "d45ae83d-9980-4067-b4de-14bd4198db38",
+								"type": "text/javascript",
+								"exec": [
+									"//Get postman token",
+									"const getTokenRequest = {",
+									"  url:      pm.environment.get(\"chatex\") + \"/users/login\",",
+									"  method:   \"Post\",",
+									"  header:   \"Content-Type:application/json\",",
+									"  body: {",
+									"      mode: \"raw\",",
+									"      raw: JSON.stringify({ email: \"postman@pm.com\", password: \"abc123\"})",
+									"  }",
+									"};",
+									"",
+									"pm.sendRequest(getTokenRequest, function(err, res) {",
+									"    if (err) {",
+									"        console.log(err);",
+									"    } else {",
+									"        pm.environment.set(\"postmanToken\", res.json());",
+									"    }",
+									"});",
+									"",
+									"//Remove group role",
+									"const removeRoleRequest = {",
+									"  url:      pm.environment.get(\"chatex\") + \"/groups/\" + pm.environment.get(\"testGroupId\") + \"/roles\",",
+									"  method:   \"DELETE\",",
+									"  header:   [ \"Content-Type:application/json\", \"token:\" + pm.environment.get(\"token\") ],",
+									"  body: {",
+									"      mode: \"raw\",",
+									"      raw: \"[1]\"",
+									"  }",
+									"};",
+									"",
+									"pm.sendRequest(removeRoleRequest, function(err, res) {",
+									"    if (err) {",
+									"        console.log(err);",
+									"    }",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{postmanToken}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/users/me/groups",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"users",
+								"me",
+								"groups"
+							]
+						},
+						"description": "Tests that it is possible to request a user's own groups when providing a valid token, and when considering a mix of role- and direct memberships."
 					},
 					"response": []
 				},
@@ -2608,6 +4709,367 @@
 							]
 						},
 						"description": "Tests that requesting users without a valid token results in the status code 401."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "GroupsLast",
+			"description": "",
+			"item": [
+				{
+					"name": "Groups/Admins-AuthenticatedAddNotAdmin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b6cb0d20-7564-4863-9330-29d7356ed9ab",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{postmanToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "true"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/{{testGroupId}}/5",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"{{testGroupId}}",
+								"5"
+							]
+						},
+						"description": "Tests that it is not possible to add an administrator to a group if the client is not an administrator."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Admins-AuthenticatedAdd",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ba05e884-1bc8-40d5-a51c-738e2d848ccc",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});",
+									"",
+									"//Ensure that the user is now an admin",
+									"const getAdminsRequest = {",
+									"  url:      pm.environment.get(\"chatex\") + \"/groups/\" + pm.environment.get(\"testGroupId\") + \"/admins\",",
+									"  method:   \"GET\",",
+									"  header:   \"token:\" + pm.environment.get(\"token\")",
+									"};",
+									"",
+									"pm.sendRequest(getAdminsRequest, function(err, res) {",
+									"    if (err) {",
+									"        console.log(err);",
+									"    } else {",
+									"        var adminAdded = false;",
+									"        ",
+									"        for (var i = 0; i < res.json().length; i++) {",
+									"            if (res.json()[i].id == 5) {",
+									"                adminAdded = true;",
+									"            }",
+									"        }",
+									"        ",
+									"        pm.test(\"Admin was added\", function () {",
+									"            pm.expect(adminAdded).to.be.true;",
+									"        });",
+									"    }",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "true"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/{{testGroupId}}/5",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"{{testGroupId}}",
+								"5"
+							]
+						},
+						"description": "Tests that it is possible to add an administrator to a group if the client is also an administrator."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Admins-AuthenticatedRemoveNotAdmin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b6cb0d20-7564-4863-9330-29d7356ed9ab",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{postmanToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "false"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/{{testGroupId}}/5",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"{{testGroupId}}",
+								"5"
+							]
+						},
+						"description": "Tests that it is not possible to remove an administrator from a group if the client is not an administrator."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups/Admins-AuthenticatedRemove",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "729c4198-7eee-4e94-bc7a-12e45e373dcd",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});",
+									"",
+									"//Ensure that the user is now an admin",
+									"const getAdminsRequest = {",
+									"  url:      pm.environment.get(\"chatex\") + \"/groups/\" + pm.environment.get(\"testGroupId\") + \"/admins\",",
+									"  method:   \"GET\",",
+									"  header:   \"token:\" + pm.environment.get(\"token\")",
+									"};",
+									"",
+									"pm.sendRequest(getAdminsRequest, function(err, res) {",
+									"    if (err) {",
+									"        console.log(err);",
+									"    } else {",
+									"        var adminRemoved = true;",
+									"        ",
+									"        for (var i = 0; i < res.json().length; i++) {",
+									"            if (res.json()[i].id == 5) {",
+									"                adminRemoved = false;",
+									"            }",
+									"        }",
+									"        ",
+									"        pm.test(\"Admin was removed\", function () {",
+									"            pm.expect(adminRemoved).to.be.true;",
+									"        });",
+									"    }",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "false"
+						},
+						"url": {
+							"raw": "{{chatex}}/groups/{{testGroupId}}/5",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"{{testGroupId}}",
+								"5"
+							]
+						},
+						"description": "Tests that it is possible to remove an administrator from a group if the client is also an administrator."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups-AuthenticatedBadId",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "45b6df32-f6ac-4889-a76d-38ba12f520b1",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/groups/0",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"0"
+							]
+						},
+						"description": "Tests that it is not possible to delete a group that does not exist."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups-AuthenticatedNotAdministrator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "45b6df32-f6ac-4889-a76d-38ba12f520b1",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{postmanToken}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/groups/{{testGroupId}}",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"{{testGroupId}}"
+							]
+						},
+						"description": "Tests that it is not possible to delete a group that the client is not an administrator of."
+					},
+					"response": []
+				},
+				{
+					"name": "Groups-Authenticated",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "1d554501-f7b5-4581-b816-2730770c3c80",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{chatex}}/groups/{{testGroupId}}",
+							"host": [
+								"{{chatex}}"
+							],
+							"path": [
+								"groups",
+								"{{testGroupId}}"
+							]
+						},
+						"description": "Tests that it is possible to delete a group if the client is a group administrator."
 					},
 					"response": []
 				}

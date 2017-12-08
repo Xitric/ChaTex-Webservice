@@ -3,6 +3,7 @@ using Business.Models;
 using System.Linq;
 using System;
 using Business.Errors;
+using System.Collections;
 
 namespace Business.Groups
 {

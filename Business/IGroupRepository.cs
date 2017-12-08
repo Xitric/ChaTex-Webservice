@@ -21,7 +21,7 @@ namespace Business
 
         void RemoveRolesFromGroup(IEnumerable<GroupRoleModel> groupRoleModel);
 
-        bool SetUserAdministratorOnGroup(GroupUserModel groupUserModel);
+        void SetUserAdministratorOnGroup(GroupUserModel groupUserModel);
 
         GroupMembershipDetails GetGroupMembershipDetailsForUser(int groupId, int userId);
 
