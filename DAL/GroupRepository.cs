@@ -138,19 +138,20 @@ namespace DAL
                         return new List<UserModel>();
                     }
 
-                    IQueryable<User> groupUsers = context.GroupUser
+                    List<User> groupUsers = context.GroupUser
                         .Where(gu => gu.GroupId == groupId)
-                        .Select(gu => gu.User);
+                        .Select(gu => gu.User)
+                        .ToList();
 
-                    IQueryable<User> userMatchingGroupRole = context.UserRole
+                    List<User> userMatchingGroupRole = context.UserRole
                         .Where(ur => context.GroupRole
                             .Where(gr => gr.GroupId == groupId)
                             .Select(gr => gr.Role.RoleId)
                             .Contains(ur.RoleId))
-                        .Select(ur => ur.User);
+                        .Select(ur => ur.User)
+                        .ToList();
 
-                    List<UserModel> users = groupUsers
-                        .Union(userMatchingGroupRole)
+                    List<UserModel> users = groupUsers.Union(userMatchingGroupRole)
                         .Where(u => u.IsDeleted == false)
                         .Select(u => UserMapper.MapUserEntityToModel(u))
                         .ToList();
@@ -196,10 +197,10 @@ namespace DAL
                     foreach (Group group in unionGroups)
                     {
                         context.Entry(group)
-                        .Collection(g => g.Channel)
-                        .Query()
-                        .Where(c => c.IsDeleted == false)
-                        .ToList();
+                            .Collection(g => g.Channel)
+                            .Query()
+                            .Where(c => c.IsDeleted == false)
+                            .ToList();
                     }
 
                     //Convert to group models
