@@ -86,9 +86,9 @@ namespace DAL
             using (var context = new ChatexdbContext())
             {
                 return context.UserToken
-                .Where(u => u.Token.Equals(token))
-                .Select(u => u.UserId)
-                .FirstOrDefault();
+                    .Where(u => u.Token.Equals(token))
+                    .Select(u => u.UserId)
+                    .FirstOrDefault();
             }
         }
 
@@ -120,9 +120,8 @@ namespace DAL
         {
             using (var context = new ChatexdbContext())
             {
-                var user = context.User.Where(i => i.UserId == userId).FirstOrDefault();
-
-                return UserMapper.MapUserEntityToModel(user);
+                return UserMapper.MapUserEntityToModel(
+                    context.User.Where(i => i.UserId == userId).FirstOrDefault());
             }
         }
 
@@ -137,11 +136,10 @@ namespace DAL
         {
             using (var context = new ChatexdbContext())
             {
-                List<RoleModel> userRoles = context.UserRole
-                .Where(ur => ur.UserId == userId)
-                .Select(ur => RoleMapper.MapRoleEntityToModel(ur.Role))
-                .ToList();
-                return userRoles;
+                return context.UserRole
+                    .Where(ur => ur.UserId == userId)
+                    .Select(ur => RoleMapper.MapRoleEntityToModel(ur.Role))
+                    .ToList();
             }
         }
     }
