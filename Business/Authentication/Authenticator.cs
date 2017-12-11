@@ -1,9 +1,8 @@
-﻿using Business;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
+using System.Threading;
 
 [assembly: InternalsVisibleTo("ChaTexTest")]
 namespace Business.Authentication
@@ -11,15 +10,18 @@ namespace Business.Authentication
     class Authenticator : IAuthenticator
     {
         private readonly IUserRepository userRepository;
+        private readonly ReaderWriterLock userLock;
 
         public Authenticator(IUserRepository userRepository)
         {
             this.userRepository = userRepository;
+
+            userLock = new ReaderWriterLock();
         }
 
         /// <summary>
         /// Logs in the user with the specified email and password and generates a token for future authentication. The token will
-        /// expire after 1 hour.
+        /// expire after 1 day. This method is thread safe.
         /// </summary>
         /// <param name="email">The email of the user to log in</param>
         /// <param name="password">The password of the user to log in</param>
@@ -28,8 +30,41 @@ namespace Business.Authentication
         {
             if (!areCredentialsValid(email, password)) return null;
 
-            //Attempt to get existing token
             int userId = (int)userRepository.GetUserIdFromEmail(email);
+
+            try
+            {
+                //Attempt to get existing token
+                //This must be protected against other threads, as we need to ensure that other threads do not acquire an outdated token while this thread updates it
+                //Ideally, we would lock only on the specific user id, but it was uncertain if such a locking mechanism exists
+                userLock.AcquireWriterLock(Timeout.Infinite);
+                return loginInternal(userId);
+            }
+            finally
+            {
+                userLock.ReleaseLock();
+            }
+        }
+
+        /// <summary>
+        /// Get the id of the user with the specified token, if such a token exists. This method is entirely thread safe.
+        /// </summary>
+        /// <param name="token">The user's token</param>
+        /// <returns>The id of the user with the specified token, or null if the token is not recognized</returns>
+        public int? GetUserIdFromToken(string token)
+        {
+            //The following check does not need to be synchronized, as the token will not be updated if it is not expired
+            if (!isTokenExpired(token))
+            {
+                return userRepository.GetUserIdFromToken(token);
+            }
+
+            return null;
+        }
+
+        private string loginInternal(int userId)
+        {
+            //This implementation is not thread safe, but it is expected that the caller handles synchronization
             string token = userRepository.GetSessionToken(userId);
 
             //If the token is expired, it must be removed from the database
@@ -49,18 +84,9 @@ namespace Business.Authentication
             return token;
         }
 
-        public int? GetUserIdFromToken(string token)
-        {
-            if (!isTokenExpired(token))
-            {
-                return userRepository.GetUserIdFromToken(token);
-            }
-
-            return null;
-        }
-
         private bool areCredentialsValid(string email, string password)
         {
+            //No need to synchronize this as user emails, ids, passwords etc. are never changed
             int? userId = userRepository.GetUserIdFromEmail(email);
 
             if (userId == null) return false;
