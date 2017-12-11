@@ -149,10 +149,14 @@ namespace DAL
                             .Contains(ur.RoleId))
                         .Select(ur => ur.User);
 
-                    return groupUsers.Union(userMatchingGroupRole)
+                    List<UserModel> users = groupUsers
+                        .Union(userMatchingGroupRole)
                         .Where(u => u.IsDeleted == false)
                         .Select(u => UserMapper.MapUserEntityToModel(u))
                         .ToList();
+
+                    transaction.Commit();
+                    return users;
                 }
             }
         }
@@ -199,8 +203,12 @@ namespace DAL
                     }
 
                     //Convert to group models
-                    return unionGroups.Select(g => GroupMapper.MapGroupEntityToModel(g))
+                    List<GroupModel> groups = unionGroups
+                        .Select(g => GroupMapper.MapGroupEntityToModel(g))
                         .ToList();
+
+                    transaction.Commit();
+                    return groups;
                 }
             }
         }
@@ -242,10 +250,13 @@ namespace DAL
                         return new List<UserModel>();
                     }
 
-                    return context.GroupUser
+                    List<UserModel> users = context.GroupUser
                         .Where(gu => gu.GroupId == groupId)
                         .Select(gu => UserMapper.MapUserEntityToModel(gu.User))
                         .ToList();
+
+                    transaction.Commit();
+                    return users;
                 }
             }
         }
@@ -262,10 +273,13 @@ namespace DAL
                         return new List<RoleModel>();
                     }
 
-                    return context.GroupRole
+                    List<RoleModel> roles = context.GroupRole
                         .Where(gr => gr.GroupId == groupId)
                         .Select(gr => RoleMapper.MapRoleEntityToModel(gr.Role))
                         .ToList();
+
+                    transaction.Commit();
+                    return roles;
                 }
             }
         }
