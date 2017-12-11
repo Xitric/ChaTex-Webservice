@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using Business.Models;
 using System.Linq;
-using System;
-using Business.Errors;
 using System.Threading;
 
 namespace Business.Groups
