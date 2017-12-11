@@ -28,6 +28,7 @@ namespace Business.Messages
             throwIfNoAccessToChannel(channelId, callerId);
 
             //There is no reason to use any locks in this method, as it does not matter if something happens in the channel while simply getting messages - it only matters when listening for events
+            //Also, each method in the repository is expected to be threadsafe
             return messageRepository.GetMessages(channelId, before.ToUniversalTime(), count);
         }
 
@@ -47,6 +48,23 @@ namespace Business.Messages
 
         public int CreateMessage(int callerId, int channelId, string messageContent)
         {
+            //We lock here to ensure that messages are not added until the channel is ready, and to ensure that the channel is not deleted while we add a message
+            try
+            {
+                channelEventManager.LockChannelForWrite(channelId);
+                return createMessageInternal(callerId, channelId, messageContent);
+            }
+            finally
+            {
+                channelEventManager.UnlockChannelForWrite(channelId);
+            }
+        }
+
+        /// <summary>
+        /// Internal, non-threadsafe method for creating a new message. This method expects synchronization to happen elsewhere.
+        /// </summary>
+        private int createMessageInternal(int callerId, int channelId, string messageContent)
+        {
             if (channelRepository.GetChannel(channelId) == null)
             {
                 throw new InvalidArgumentException("The specified channel does not exist. Maybe it has been deleted.", ParamNameType.ChannelId);
@@ -60,21 +78,86 @@ namespace Business.Messages
                 Content = messageContent,
             };
 
-            //Wait until we are allowed to add new messages
-            channelEventManager.LockChannelForWrite(channelId);
-            try
-            {
-                return messageRepository.CreateMessage(message, channelId);
-            }
-            finally
-            {
-                channelEventManager.UnlockChannelForWrite(channelId);
-            }
+            return messageRepository.CreateMessage(message, channelId);
         }
 
         public void DeleteMessage(int callerId, int messageId)
         {
-            //Since message ids are fixed and messages don't change channels, these operations did not need to be within the lock
+            //This is threadsafe, as messages don't change channel ids over time
+            var channel = getChannelForMessage(messageId);
+
+            try
+            {
+                channelEventManager.LockChannelForWrite((int)channel.Id);
+                deleteMessageInternal(callerId, messageId);
+            }
+            finally
+            {
+                channelEventManager.UnlockChannelForWrite((int)channel.Id);
+            }
+        }
+
+        /// <summary>
+        /// Internal, non-threadsafe method for deleting a message. This method expects synchronization to happen elsewhere.
+        /// </summary>
+        private void deleteMessageInternal(int callerId, int messageId)
+        {
+            throwIfNotAllowedToModifyMessage(callerId, messageId);
+
+            messageRepository.DeleteMessage(messageId);
+        }
+
+        public void EditMessage(int callerId, int messageId, string newContent)
+        {
+            var channel = getChannelForMessage(messageId);
+
+            try
+            {
+                channelEventManager.LockChannelForWrite((int)channel.Id);
+                editMessageInternal(callerId, messageId, newContent);
+            }
+            finally
+            {
+                channelEventManager.UnlockChannelForWrite((int)channel.Id);
+            }
+        }
+
+        /// <summary>
+        /// Internal, non-threadsafe method for editing a message. This method expects synchronization to happen elsewhere.
+        /// </summary>
+        private void editMessageInternal(int callerId, int messageId, string newContent)
+        {
+            throwIfNotAllowedToModifyMessage(callerId, messageId);
+
+            messageRepository.EditMessage(messageId, newContent);
+        }
+
+        /// <summary>
+        /// Throw an InvalidArgumentException if the user with the specified id does not have the rights to modify the message with the specified id. This method should only be used inside a synchronized context.
+        /// </summary>
+        /// <param name="callerId">The id of the user to test for</param>
+        /// <param name="messageId">The id of the message to test for</param>
+        /// <exception cref="InvalidArgumentException">If the user does not have the rights to modify the message</exception>
+        private void throwIfNotAllowedToModifyMessage(int callerId, int messageId)
+        {
+            var channel = getChannelForMessage(messageId);
+            var membershipDetails = groupRepository.GetGroupMembershipDetailsForUser(channel.GroupId, callerId);
+            var author = getAuthorForMessage(messageId);
+
+            if (!membershipDetails.IsAdministrator && author.Id != callerId)
+            {
+                throw new InvalidArgumentException("User does not have the rights to modify the specified message", ParamNameType.CallerId);
+            }
+        }
+
+        /// <summary>
+        /// Get the channel that contains the specified message. This method should only be used inside a synchronized context.
+        /// </summary>
+        /// <param name="messageId">The id of the message</param>
+        /// <returns>The channel that contains the specified message</returns>
+        /// <exception cref="InvalidArgumentException">If the message does not exist</exception>
+        private ChannelModel getChannelForMessage(int messageId)
+        {
             MessageModel message = messageRepository.GetMessage(messageId);
 
             if (message == null)
@@ -83,56 +166,30 @@ namespace Business.Messages
             }
 
             var channel = channelRepository.GetChannel(message.ChannelId);
-            if (channel == null) throw new InvalidArgumentException("This message no longer exists", ParamNameType.MessageId);
-
-            channelEventManager.LockChannelForWrite((int)channel.Id);
-            try
+            if (channel == null)
             {
-                GroupMembershipDetails membershipDetails = groupRepository.GetGroupMembershipDetailsForUser(channel.GroupId, callerId);
+                throw new InvalidArgumentException("This message no longer exists", ParamNameType.MessageId);
+            }
 
-                if (membershipDetails.IsAdministrator || message.Author.Id == callerId)
-                {
-                    messageRepository.DeleteMessage(messageId);
-                }
-                else
-                {
-                    throw new InvalidArgumentException("User does not have the rights to delete the specified message", ParamNameType.CallerId);
-                }
-            }
-            finally
-            {
-                channelEventManager.UnlockChannelForWrite((int)channel.Id);
-            }
+            return channel;
         }
 
-        public void EditMessage(int callerId, int messageId, string newContent)
+        /// <summary>
+        /// Get the author of the specified message. This method should only be used inside a synchronized context.
+        /// </summary>
+        /// <param name="messageId">The id of the message</param>
+        /// <returns>The author of the message with the specified id</returns>
+        /// <exception cref="InvalidArgumentException">If the message does not exist</exception>
+        private UserModel getAuthorForMessage(int messageId)
         {
-            //Since message ids are fixed and messages don't change channels, these operations did not need to be within the lock
             MessageModel message = messageRepository.GetMessage(messageId);
 
-            if (message == null) throw new InvalidArgumentException("Message with the specified id does not exist", ParamNameType.MessageId);
-
-            var channel = channelRepository.GetChannel(message.ChannelId);
-            if (channel == null) throw new InvalidArgumentException("This message no longer exists", ParamNameType.MessageId);
-
-            channelEventManager.LockChannelForWrite((int)channel.Id);
-            try
+            if (message == null)
             {
-                GroupMembershipDetails membershipDetails = groupRepository.GetGroupMembershipDetailsForUser(channel.GroupId, callerId);
+                throw new InvalidArgumentException("The message with the specified id does not exist", ParamNameType.MessageId);
+            }
 
-                if (membershipDetails.IsAdministrator || message.Author.Id == callerId)
-                {
-                    messageRepository.EditMessage(messageId, newContent);
-                }
-                else
-                {
-                    throw new InvalidArgumentException("User does not have the rights to edit the specified message", ParamNameType.CallerId);
-                }
-            }
-            finally
-            {
-                channelEventManager.UnlockChannelForWrite((int)channel.Id);
-            }
+            return message.Author;
         }
     }
 }
