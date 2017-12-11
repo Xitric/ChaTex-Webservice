@@ -8,14 +8,14 @@ using Business.Errors;
 
 namespace Business.Messages
 {
-    class MessageManager : IMessageManager
+    class MessageManager : AuthenticatedManager, IMessageManager
     {
         private readonly IMessageRepository messageRepository;
         private readonly IGroupRepository groupRepository;
         private readonly IChannelRepository channelRepository;
         private readonly ChannelEventManager channelEventManager;
 
-        public MessageManager(IMessageRepository messageRepository, IGroupRepository groupRepository, IChannelRepository channelRepository, ChannelEventManager channelEventManager)
+        public MessageManager(IMessageRepository messageRepository, IGroupRepository groupRepository, IChannelRepository channelRepository, ChannelEventManager channelEventManager) : base(groupRepository)
         {
             this.messageRepository = messageRepository;
             this.groupRepository = groupRepository;
@@ -23,21 +23,9 @@ namespace Business.Messages
             this.channelEventManager = channelEventManager;
         }
 
-        private bool isUserInChannel(int userId, int channelId)
-        {
-            return groupRepository.GetGroupsForUser(userId)
-                .Where(g => g.Channels.Any(c => c.Id == channelId))
-                .Any();
-        }
-
         public IEnumerable<MessageModel> GetMessages(int channelId, int callerId, DateTime before, int count)
         {
-            bool hasAccess = isUserInChannel(callerId, channelId);
-
-            if (!hasAccess)
-            {
-                throw new InvalidArgumentException("User does not have access to the specified channel", ParamNameType.CallerId);
-            }
+            throwIfNoAccessToChannel(channelId, callerId);
 
             //There is no reason to use any locks in this method, as it does not matter if something happens in the channel while simply getting messages - it only matters when listening for events
             return messageRepository.GetMessages(channelId, before.ToUniversalTime(), count);
@@ -52,14 +40,9 @@ namespace Business.Messages
                 throw new InvalidArgumentException("The requested message does not exist", ParamNameType.MessageId);
             }
 
-            if (isUserInChannel(callerId, message.ChannelId))
-            {
-                return message;
-            }
-            else
-            {
-                throw new InvalidArgumentException("Message could not be retrieved because the user does not have access to the channel containing the message", ParamNameType.CallerId);
-            }
+            throwIfNoAccessToChannel(message.ChannelId, callerId);
+
+            return message;
         }
 
         public int CreateMessage(int callerId, int channelId, string messageContent)
@@ -69,10 +52,7 @@ namespace Business.Messages
                 throw new InvalidArgumentException("The specified channel does not exist. Maybe it has been deleted.", ParamNameType.ChannelId);
             }
 
-            if (!isUserInChannel(callerId, channelId))
-            {
-                throw new InvalidArgumentException("User does not have access to the specified channel", ParamNameType.CallerId);
-            }
+            throwIfNoAccessToChannel(channelId, callerId);
 
             MessageModel message = new MessageModel()
             {

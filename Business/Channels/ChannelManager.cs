@@ -6,33 +6,17 @@ using System.Threading;
 
 namespace Business.Channels
 {
-    class ChannelManager : IChannelManager
+    class ChannelManager : AuthenticatedManager, IChannelManager
     {
         private readonly IChannelRepository channelRepository;
         private readonly IGroupRepository groupRepository;
         private readonly ChannelEventManager channelEventManager;
 
-        public ChannelManager(IChannelRepository channelRepository, IGroupRepository groupRepository, ChannelEventManager channelEventManager)
+        public ChannelManager(IChannelRepository channelRepository, IGroupRepository groupRepository, ChannelEventManager channelEventManager) : base(groupRepository)
         {
             this.channelRepository = channelRepository;
             this.groupRepository = groupRepository;
             this.channelEventManager = channelEventManager;
-        }
-
-        /// <summary>
-        /// Throw an InvalidArgumentException if the user with the specified id is not an administrator for the group with the specified id.
-        /// </summary>
-        /// <param name="groupId">The id of the group to test for</param>
-        /// <param name="callerId">The id of the user to test for</param>
-        /// <exception cref="InvalidArgumentException">If the user is not an administrator of the specified group</exception>
-        private void throwIfNotAdministrator(int groupId, int callerId)
-        {
-            GroupMembershipDetails membershipDetails = groupRepository.GetGroupMembershipDetailsForUser(groupId, callerId);
-
-            if (!membershipDetails.IsAdministrator)
-            {
-                throw new InvalidArgumentException("The user must be an administrator of the group to perform this action", ParamNameType.CallerId);
-            }
         }
 
         public int CreateChannel(int groupId, int callerId, string channelName)
@@ -115,7 +99,7 @@ namespace Business.Channels
 
         public IEnumerable<ChannelEventModel> GetChannelEvents(int channelId, int callerId, DateTime since, CancellationToken cancellation)
         {
-            //TODO: Test if user has access to the channel
+            throwIfNoAccessToChannel(channelId, callerId);
 
             return channelEventManager.GetChannelEvents(channelId, since, cancellation);
         }

@@ -3,37 +3,16 @@ using Business.Models;
 using System.Linq;
 using System;
 using Business.Errors;
-using System.Collections;
 
 namespace Business.Groups
 {
-    class GroupManager : IGroupManager
+    class GroupManager : AuthenticatedManager, IGroupManager
     {
         private readonly IGroupRepository groupRepository;
 
-        public GroupManager(IGroupRepository groupRepository)
+        public GroupManager(IGroupRepository groupRepository) : base(groupRepository)
         {
             this.groupRepository = groupRepository;
-        }
-
-        private void throwIfNotAdministrator(int groupId, int callerId)
-        {
-            GroupMembershipDetails membershipDetails = groupRepository.GetGroupMembershipDetailsForUser(groupId, callerId);
-
-            if (!membershipDetails.IsAdministrator)
-            {
-                throw new InvalidArgumentException("The user must be an administrator of the group to perform this action", ParamNameType.CallerId);
-            }
-        }
-
-        private void throwIfNotMember(int groupId, int callerId)
-        {
-            GroupMembershipDetails membershipDetails = groupRepository.GetGroupMembershipDetailsForUser(groupId, callerId);
-
-            if (!membershipDetails.IsMember)
-            {
-                throw new InvalidArgumentException("The user is not a member of the specified group", ParamNameType.CallerId);
-            }
         }
 
         public void AddUsersToGroup(int groupId, List<int> userIds, int callerId)
