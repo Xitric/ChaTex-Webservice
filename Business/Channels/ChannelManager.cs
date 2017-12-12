@@ -6,31 +6,22 @@ using System.Threading;
 
 namespace Business.Channels
 {
-    class ChannelManager : IChannelManager
+    class ChannelManager : AuthenticatedManager, IChannelManager
     {
         private readonly IChannelRepository channelRepository;
         private readonly IGroupRepository groupRepository;
         private readonly ChannelEventManager channelEventManager;
 
-        public ChannelManager(IChannelRepository channelRepository, IGroupRepository groupRepository, ChannelEventManager channelEventManager)
+        public ChannelManager(IChannelRepository channelRepository, IGroupRepository groupRepository, ChannelEventManager channelEventManager) : base(groupRepository)
         {
             this.channelRepository = channelRepository;
             this.groupRepository = groupRepository;
             this.channelEventManager = channelEventManager;
         }
-        
-        private void throwIfNotAdministrator(int groupId, int callerId)
-        {
-            GroupMembershipDetails membershipDetails = groupRepository.GetGroupMembershipDetailsForUser(groupId, callerId);
-
-            if (!membershipDetails.IsAdministrator)
-            {
-                throw new InvalidArgumentException("The user must be an administrator of the group to perform this action", ParamNameType.CallerId);
-            }
-        }
 
         public int CreateChannel(int groupId, int callerId, string channelName)
         {
+            //If the user is an administrator of the group when the method was called, we allow the operation to finish, even if the administrator status is revoked during method execution. Alternatively, we would block attempts at revoking administrator status, which has the same effect while being slower.
             throwIfNotAdministrator(groupId, callerId);
 
             return channelRepository.CreateChannel(groupId, channelName);
@@ -38,21 +29,24 @@ namespace Business.Channels
 
         public void DeleteChannel(int callerId, int channelId)
         {
-            ChannelModel channel = channelRepository.GetChannel(channelId);
-
-            if (channel == null)
+            //We use a write lock to ensure that others do not delete the channel while this thread makes an attempt to do so
+            try
             {
-                throw new InvalidArgumentException("Channel does not exist", ParamNameType.ChannelId);
+                channelEventManager.LockChannelForWrite(channelId);
+                deleteChannelInternal(callerId, channelId);
             }
-
-            throwIfNotAdministrator(channel.GroupId, callerId);
-
-            channelEventManager.LockChannelForWrite(channelId);
-            channelRepository.DeleteChannel(channelId);
-            channelEventManager.UnlockChannelForWrite(channelId);
+            finally
+            {
+                channelEventManager.UnlockChannelForWrite(channelId);
+            }
         }
 
-        public void UpdateChannel(int callerId, int channelId, string channelName)
+        /// <summary>
+        /// Internal, non-threadsafe method for deleting a channel. Synchronization is expected to happen elsewhere.
+        /// </summary>
+        /// <param name="callerId">The id of the user who made this request</param>
+        /// <param name="channelId">The id of the channel to delete</param>
+        private void deleteChannelInternal(int callerId, int channelId)
         {
             ChannelModel channel = channelRepository.GetChannel(channelId);
 
@@ -63,18 +57,49 @@ namespace Business.Channels
 
             throwIfNotAdministrator(channel.GroupId, callerId);
 
-            channelEventManager.LockChannelForWrite(channelId);
+            channelRepository.DeleteChannel(channelId);
+        }
+
+        public void UpdateChannel(int callerId, int channelId, string channelName)
+        {
+            try
+            {
+                channelEventManager.LockChannelForWrite(channelId);
+                updateChannelInternal(callerId, channelId, channelName);
+            }
+            finally
+            {
+                channelEventManager.UnlockChannelForWrite(channelId);
+            }
+        }
+
+        /// <summary>
+        /// Internal, non-threadsafe method for renaming a channel. Synchronization is expected to happen elsewhere.
+        /// </summary>
+        /// <param name="callerId">The id of the user who made this request</param>
+        /// <param name="channelId">The id of the channel to rename</param>
+        /// <param name="channelName">The new name for the channel</param>
+        private void updateChannelInternal(int callerId, int channelId, string channelName)
+        {
+            ChannelModel channel = channelRepository.GetChannel(channelId);
+
+            if (channel == null)
+            {
+                throw new InvalidArgumentException("Channel does not exist", ParamNameType.ChannelId);
+            }
+
+            throwIfNotAdministrator(channel.GroupId, callerId);
+
             channelRepository.UpdateChannel(new ChannelModel()
             {
                 Id = channelId,
                 Name = channelName
             });
-            channelEventManager.UnlockChannelForWrite(channelId);
         }
 
         public IEnumerable<ChannelEventModel> GetChannelEvents(int channelId, int callerId, DateTime since, CancellationToken cancellation)
         {
-            //TODO: Test if user has access to the channel
+            throwIfNoAccessToChannel(channelId, callerId);
 
             return channelEventManager.GetChannelEvents(channelId, since, cancellation);
         }

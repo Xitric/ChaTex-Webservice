@@ -26,7 +26,7 @@ namespace Business.Groups
         /// <param name="groupId">the Id of the specific group</param>
         /// <param name="userIds">A list of Users to be added to the Group</param>
         /// <param name="callerId">The id of the user who triggered this method</param>
-        void AddUsersToGroup(int groupId, List<int> userIds, int callerId);
+        void AddUsersToGroup(int groupId, IEnumerable<int> userIds, int callerId);
 
         /// <summary>
         /// Remove Users from a specific group. the CallerId must be a group administrator.
@@ -34,23 +34,23 @@ namespace Business.Groups
         /// <param name="groupId">the Id of the specific group</param>
         /// <param name="userIds">A list of Users to be removed to the Group</param>
         /// <param name="callerId">The id of the user who triggered this method</param>
-        void RemoveUsersFromGroup(int groupId, List<int> userIds, int callerId);
+        void RemoveUsersFromGroup(int groupId, IEnumerable<int> userIds, int callerId);
 
         /// <summary>
         /// Add useres with a specific role to a specific group. the callerId must be a group administrator
         /// </summary>
         /// <param name="groupId">The Id of the specific group</param>
+        /// <param name="roleIds">A collection of the users with a spcific role </param>
         /// <param name="callerId">The id of the user who triggered this method</param>
-        /// <param name="roleIds">A ... of the users with a spcific role </param>
-        void AddRolesToGroup(int groupId, int callerId, IEnumerable<int> roleIds);
+        void AddRolesToGroup(int groupId, IEnumerable<int> roleIds, int callerId);
 
         /// <summary>
         /// Removes useres with a specific role to a specific group. the callerId must be a group administrator
         /// </summary>
         /// <param name="groupId">The Id of the specific group</param>
-        /// <param name="callerId">The id of the user who triggered this method</param>
         /// <param name="roleIds">A collection of the users with a spcific role </param>
-        void RemoveRolesFromGroup(int groupId, int callerId, IEnumerable<int> roleIds);
+        /// <param name="callerId">The id of the user who triggered this method</param>
+        void RemoveRolesFromGroup(int groupId, IEnumerable<int> roleIds, int callerId);
 
         /// <summary>
         /// Sets useres with a specific id to be administrators of a specific group. the callerid must be a group administrator.
@@ -67,7 +67,7 @@ namespace Business.Groups
 
         IEnumerable<GroupModel> GetGroupsForUser(int userId);
 
-        void UpdateGroup(int groupId, string groupName);
+        void UpdateGroup(int groupId, string groupName, int callerId);
 
         IEnumerable<UserModel> GetAllDirectGroupUsers(int groupId, int callerId);
 

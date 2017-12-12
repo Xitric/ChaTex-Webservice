@@ -69,7 +69,7 @@ namespace IO.Swagger.Controllers
             }
             try
             {
-                groupManager.AddRolesToGroup((int)groupId, callerId, roleIds.Select(r => r.Value).ToList());
+                groupManager.AddRolesToGroup((int)groupId, roleIds.Select(r => r.Value).ToList(), callerId);
             }
             catch (InvalidArgumentException e)
             {
@@ -227,7 +227,7 @@ namespace IO.Swagger.Controllers
 
             try
             {
-                groupManager.RemoveRolesFromGroup((int)groupId, callerId, roleIds.Select(r => r.Value).ToList());
+                groupManager.RemoveRolesFromGroup((int)groupId, roleIds.Select(r => r.Value).ToList(), callerId);
             }
             catch (InvalidArgumentException e)
             {
@@ -354,7 +354,7 @@ namespace IO.Swagger.Controllers
             {
                 switch (e.ParamName)
                 {
-                    case ParamNameType.GroupId:
+                    case ParamNameType.CallerId:
                         HttpContext.Response.StatusCode = 403;
                         return new ObjectResult(e.Message);
                 }
@@ -420,8 +420,7 @@ namespace IO.Swagger.Controllers
 
             try
             {
-                //TODO: WTF? Don't we need to check if the user is a group admin???
-                groupManager.UpdateGroup((int)groupId, groupName);
+                groupManager.UpdateGroup((int)groupId, groupName, callerId);
             }
             catch (InvalidArgumentException e)
             {

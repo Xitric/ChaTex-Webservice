@@ -92,28 +92,24 @@ namespace DAL
 
         public int CreateMessage(MessageModel message, int channelId)
         {
-            if (message != null)
+            using (var context = new ChatexdbContext())
             {
-                using (var context = new ChatexdbContext())
+                Message messageEntity = MessageMapper.MapMessageModelToEntity(message);
+                messageEntity.CreationDate = DateTime.UtcNow;
+
+                context.Message.Add(messageEntity);
+                context.SaveChanges();
+
+                ChannelMessages channelMessageEntity = new ChannelMessages()
                 {
-                    Message messageEntity = MessageMapper.MapMessageModelToEntity(message);
-                    messageEntity.CreationDate = DateTime.UtcNow;
+                    ChannelId = channelId,
+                    MessageId = messageEntity.MessageId,
+                };
 
-                    context.Message.Add(messageEntity);
-                    context.SaveChanges();
-
-                    ChannelMessages channelMessageEntity = new ChannelMessages()
-                    {
-                        ChannelId = channelId,
-                        MessageId = messageEntity.MessageId,
-                    };
-
-                    context.ChannelMessages.Add(channelMessageEntity);
-                    context.SaveChanges();
-                    return messageEntity.MessageId;
-                }
+                context.ChannelMessages.Add(channelMessageEntity);
+                context.SaveChanges();
+                return messageEntity.MessageId;
             }
-            return 0;
         }
 
         public void DeleteMessage(int messageId)

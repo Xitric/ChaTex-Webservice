@@ -66,10 +66,10 @@ namespace WebAPI
                 });
 
             //Ensure that all requests use HTTPS
-            services.Configure<MvcOptions>(options =>
-            {
-                options.Filters.Add(new RequireHttpsAttribute());
-            });
+            //services.Configure<MvcOptions>(options =>
+            //{
+            //    options.Filters.Add(new RequireHttpsAttribute());
+            //});
 
             //Register authorization
             services.AddScoped<ChaTexAuthorization>();
@@ -91,7 +91,7 @@ namespace WebAPI
                 .AddConsole(Configuration.GetSection("Logging"))
                 .AddDebug();
 
-            app.UseRewriter(new RewriteOptions().AddRedirectToHttps());
+            //app.UseRewriter(new RewriteOptions().AddRedirectToHttps());
 
             app
                 .UseMvc()

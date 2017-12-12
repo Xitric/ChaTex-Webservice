@@ -21,7 +21,9 @@ namespace Business
 
         void RemoveRolesFromGroup(IEnumerable<GroupRoleModel> groupRoleModel);
 
-        bool SetUserAdministratorOnGroup(GroupUserModel groupUserModel);
+        void SetUserAdministratorOnGroup(GroupUserModel groupUserModel);
+
+        void UpdateGroup(int groupId, string groupName);
 
         GroupMembershipDetails GetGroupMembershipDetailsForUser(int groupId, int userId);
 
@@ -30,8 +32,6 @@ namespace Business
         IEnumerable<UserModel> GetAllGroupUsers(int groupId);
 
         IEnumerable<UserModel> GetAllGroupAdmins(int groupId);
-
-        void UpdateGroup(int groupId, string groupName, int callerId);
 
         IEnumerable<UserModel> GetAllDirectGroupUsers(int groupId);
 
