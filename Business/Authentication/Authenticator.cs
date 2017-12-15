@@ -53,7 +53,19 @@ namespace Business.Authentication
         /// <returns>The id of the user with the specified token, or null if the token is not recognized</returns>
         public int? GetUserIdFromToken(string token)
         {
-            //The following check does not need to be synchronized, as the token will not be updated if it is not expired
+            try
+            {
+                userLock.AcquireReaderLock(Timeout.Infinite);
+                return getUserIdFromTokenInternal(token);
+            }
+            finally
+            {
+                userLock.ReleaseLock();
+            }
+        }
+
+        private int? getUserIdFromTokenInternal(string token)
+        {
             if (!isTokenExpired(token))
             {
                 return userRepository.GetUserIdFromToken(token);
