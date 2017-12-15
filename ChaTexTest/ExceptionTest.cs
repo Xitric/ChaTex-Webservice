@@ -44,7 +44,7 @@ namespace ChaTexTest
             int groupId = 0;
 
             // act & assert
-            Assert.ThrowsException<InvalidArgumentException>(() => groupManager.AddRolesToGroup(groupId, failingCallerId, new List<int>()));
+            Assert.ThrowsException<InvalidArgumentException>(() => groupManager.AddRolesToGroup(groupId, new List<int>(), failingCallerId));
             Assert.ThrowsException<InvalidArgumentException>(() => groupManager.AddUsersToGroup(groupId, new List<int>(), failingCallerId));
             Assert.ThrowsException<InvalidArgumentException>(() => groupManager.DeleteGroup(groupId, failingCallerId));
         }
