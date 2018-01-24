@@ -8,6 +8,7 @@ namespace Business.Models
     {
         public MessageEventType Type { get; set; }
         public MessageModel Message { get; set; }
+        public ChannelModel Channel { get; set; }
     }
 
     public enum MessageEventType

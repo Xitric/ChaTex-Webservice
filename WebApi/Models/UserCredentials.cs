@@ -27,41 +27,29 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
-namespace WebAPI.Models
-{
+namespace IO.Swagger.Models
+{ 
     /// <summary>
     /// 
     /// </summary>
     [DataContract]
-    public partial class MessageContentDTO :  IEquatable<MessageContentDTO>
-    {
+    public partial class UserCredentials :  IEquatable<UserCredentials>
+    { 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MessageContentDTO" /> class.
+        /// Gets or Sets Email
         /// </summary>
-        /// <param name="Message">Message (required).</param>
-        public MessageContentDTO(string Message = null)
-        {
-            // to ensure "Message" is required (not null)
-            if (Message == null)
-            {
-                throw new InvalidDataException("Message is a required property for MessageContentDTO and cannot be null");
-            }
-            else
-            {
-                this.Message = Message;
-            }
-            
-        }
+        [DataMember(Name="Email")]
+        public string Email { get; set; }
 
         /// <summary>
-        /// Gets or Sets Message
+        /// Gets or Sets Password
         /// </summary>
-        [DataMember(Name="message")]
-        public string Message { get; set; }
-
+        [DataMember(Name="Password")]
+        public string Password { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -70,8 +58,9 @@ namespace WebAPI.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class MessageContentDTO {\n");
-            sb.Append("  Message: ").Append(Message).Append("\n");
+            sb.Append("class UserCredentials {\n");
+            sb.Append("  Email: ").Append(Email).Append("\n");
+            sb.Append("  Password: ").Append(Password).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -94,26 +83,29 @@ namespace WebAPI.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((MessageContentDTO)obj);
+            return obj.GetType() == GetType() && Equals((UserCredentials)obj);
         }
 
         /// <summary>
-        /// Returns true if MessageContentDTO instances are equal
+        /// Returns true if UserCredentials instances are equal
         /// </summary>
-        /// <param name="other">Instance of MessageContentDTO to be compared</param>
+        /// <param name="other">Instance of UserCredentials to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(MessageContentDTO other)
+        public bool Equals(UserCredentials other)
         {
-
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
             return 
                 (
-                    this.Message == other.Message ||
-                    this.Message != null &&
-                    this.Message.Equals(other.Message)
+                    Email == other.Email ||
+                    Email != null &&
+                    Email.Equals(other.Email)
+                ) && 
+                (
+                    Password == other.Password ||
+                    Password != null &&
+                    Password.Equals(other.Password)
                 );
         }
 
@@ -123,30 +115,32 @@ namespace WebAPI.Models
         /// <returns>Hash code</returns>
         public override int GetHashCode()
         {
-            // credit: http://stackoverflow.com/a/263416/677735
             unchecked // Overflow is fine, just wrap
             {
-                int hash = 41;
+                var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                if (this.Message != null)
-                    hash = hash * 59 + this.Message.GetHashCode();
-                return hash;
+                    if (Email != null)
+                    hashCode = hashCode * 59 + Email.GetHashCode();
+                    if (Password != null)
+                    hashCode = hashCode * 59 + Password.GetHashCode();
+                return hashCode;
             }
         }
 
         #region Operators
+        #pragma warning disable 1591
 
-        public static bool operator ==(MessageContentDTO left, MessageContentDTO right)
+        public static bool operator ==(UserCredentials left, UserCredentials right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(MessageContentDTO left, MessageContentDTO right)
+        public static bool operator !=(UserCredentials left, UserCredentials right)
         {
             return !Equals(left, right);
         }
 
+        #pragma warning restore 1591
         #endregion Operators
-
     }
 }

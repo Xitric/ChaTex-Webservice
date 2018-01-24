@@ -27,89 +27,45 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
-namespace WebAPI.Models
-{
+namespace IO.Swagger.Models
+{ 
     /// <summary>
     /// 
     /// </summary>
     [DataContract]
     public partial class CreateGroupDTO :  IEquatable<CreateGroupDTO>
-    {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CreateGroupDTO" /> class.
-        /// </summary>
-        /// <param name="GroupName">GroupName (required).</param>
-        /// <param name="AllowEmployeeSticky">AllowEmployeeSticky (required).</param>
-        /// <param name="AllowEmployeeAcknowledgeable">AllowEmployeeAcknowledgeable (required).</param>
-        /// <param name="AllowEmployeeBookmark">AllowEmployeeBookmark (required).</param>
-        public CreateGroupDTO(string GroupName = null, bool? AllowEmployeeSticky = null, bool? AllowEmployeeAcknowledgeable = null, bool? AllowEmployeeBookmark = null)
-        {
-            // to ensure "GroupName" is required (not null)
-            if (GroupName == null)
-            {
-                throw new InvalidDataException("GroupName is a required property for CreateGroupDTO and cannot be null");
-            }
-            else
-            {
-                this.GroupName = GroupName;
-            }
-            // to ensure "AllowEmployeeSticky" is required (not null)
-            if (AllowEmployeeSticky == null)
-            {
-                throw new InvalidDataException("AllowEmployeeSticky is a required property for CreateGroupDTO and cannot be null");
-            }
-            else
-            {
-                this.AllowEmployeeSticky = AllowEmployeeSticky;
-            }
-            // to ensure "AllowEmployeeAcknowledgeable" is required (not null)
-            if (AllowEmployeeAcknowledgeable == null)
-            {
-                throw new InvalidDataException("AllowEmployeeAcknowledgeable is a required property for CreateGroupDTO and cannot be null");
-            }
-            else
-            {
-                this.AllowEmployeeAcknowledgeable = AllowEmployeeAcknowledgeable;
-            }
-            // to ensure "AllowEmployeeBookmark" is required (not null)
-            if (AllowEmployeeBookmark == null)
-            {
-                throw new InvalidDataException("AllowEmployeeBookmark is a required property for CreateGroupDTO and cannot be null");
-            }
-            else
-            {
-                this.AllowEmployeeBookmark = AllowEmployeeBookmark;
-            }
-            
-        }
-
+    { 
         /// <summary>
         /// Gets or Sets GroupName
         /// </summary>
-        [DataMember(Name="groupName")]
+        [Required]
+        [DataMember(Name="GroupName")]
         public string GroupName { get; set; }
 
         /// <summary>
         /// Gets or Sets AllowEmployeeSticky
         /// </summary>
-        [DataMember(Name="allowEmployeeSticky")]
+        [Required]
+        [DataMember(Name="AllowEmployeeSticky")]
         public bool? AllowEmployeeSticky { get; set; }
 
         /// <summary>
         /// Gets or Sets AllowEmployeeAcknowledgeable
         /// </summary>
-        [DataMember(Name="allowEmployeeAcknowledgeable")]
+        [Required]
+        [DataMember(Name="AllowEmployeeAcknowledgeable")]
         public bool? AllowEmployeeAcknowledgeable { get; set; }
 
         /// <summary>
         /// Gets or Sets AllowEmployeeBookmark
         /// </summary>
-        [DataMember(Name="allowEmployeeBookmark")]
+        [Required]
+        [DataMember(Name="AllowEmployeeBookmark")]
         public bool? AllowEmployeeBookmark { get; set; }
-
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -145,8 +101,7 @@ namespace WebAPI.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((CreateGroupDTO)obj);
+            return obj.GetType() == GetType() && Equals((CreateGroupDTO)obj);
         }
 
         /// <summary>
@@ -156,30 +111,29 @@ namespace WebAPI.Models
         /// <returns>Boolean</returns>
         public bool Equals(CreateGroupDTO other)
         {
-
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
             return 
                 (
-                    this.GroupName == other.GroupName ||
-                    this.GroupName != null &&
-                    this.GroupName.Equals(other.GroupName)
+                    GroupName == other.GroupName ||
+                    GroupName != null &&
+                    GroupName.Equals(other.GroupName)
                 ) && 
                 (
-                    this.AllowEmployeeSticky == other.AllowEmployeeSticky ||
-                    this.AllowEmployeeSticky != null &&
-                    this.AllowEmployeeSticky.Equals(other.AllowEmployeeSticky)
+                    AllowEmployeeSticky == other.AllowEmployeeSticky ||
+                    AllowEmployeeSticky != null &&
+                    AllowEmployeeSticky.Equals(other.AllowEmployeeSticky)
                 ) && 
                 (
-                    this.AllowEmployeeAcknowledgeable == other.AllowEmployeeAcknowledgeable ||
-                    this.AllowEmployeeAcknowledgeable != null &&
-                    this.AllowEmployeeAcknowledgeable.Equals(other.AllowEmployeeAcknowledgeable)
+                    AllowEmployeeAcknowledgeable == other.AllowEmployeeAcknowledgeable ||
+                    AllowEmployeeAcknowledgeable != null &&
+                    AllowEmployeeAcknowledgeable.Equals(other.AllowEmployeeAcknowledgeable)
                 ) && 
                 (
-                    this.AllowEmployeeBookmark == other.AllowEmployeeBookmark ||
-                    this.AllowEmployeeBookmark != null &&
-                    this.AllowEmployeeBookmark.Equals(other.AllowEmployeeBookmark)
+                    AllowEmployeeBookmark == other.AllowEmployeeBookmark ||
+                    AllowEmployeeBookmark != null &&
+                    AllowEmployeeBookmark.Equals(other.AllowEmployeeBookmark)
                 );
         }
 
@@ -189,24 +143,24 @@ namespace WebAPI.Models
         /// <returns>Hash code</returns>
         public override int GetHashCode()
         {
-            // credit: http://stackoverflow.com/a/263416/677735
             unchecked // Overflow is fine, just wrap
             {
-                int hash = 41;
+                var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                if (this.GroupName != null)
-                    hash = hash * 59 + this.GroupName.GetHashCode();
-                if (this.AllowEmployeeSticky != null)
-                    hash = hash * 59 + this.AllowEmployeeSticky.GetHashCode();
-                if (this.AllowEmployeeAcknowledgeable != null)
-                    hash = hash * 59 + this.AllowEmployeeAcknowledgeable.GetHashCode();
-                if (this.AllowEmployeeBookmark != null)
-                    hash = hash * 59 + this.AllowEmployeeBookmark.GetHashCode();
-                return hash;
+                    if (GroupName != null)
+                    hashCode = hashCode * 59 + GroupName.GetHashCode();
+                    if (AllowEmployeeSticky != null)
+                    hashCode = hashCode * 59 + AllowEmployeeSticky.GetHashCode();
+                    if (AllowEmployeeAcknowledgeable != null)
+                    hashCode = hashCode * 59 + AllowEmployeeAcknowledgeable.GetHashCode();
+                    if (AllowEmployeeBookmark != null)
+                    hashCode = hashCode * 59 + AllowEmployeeBookmark.GetHashCode();
+                return hashCode;
             }
         }
 
         #region Operators
+        #pragma warning disable 1591
 
         public static bool operator ==(CreateGroupDTO left, CreateGroupDTO right)
         {
@@ -218,7 +172,7 @@ namespace WebAPI.Models
             return !Equals(left, right);
         }
 
+        #pragma warning restore 1591
         #endregion Operators
-
     }
 }

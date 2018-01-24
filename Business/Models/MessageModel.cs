@@ -6,11 +6,15 @@ namespace Business.Models
     {
         public int? Id { get; set; }
 
-        public string Content { get; set; }
+        private string content;
+        public string Content {
+            get => DeletionTime == null ? content : "";
+            set => content = value;
+        }
 
         public UserModel Author { get; set; }
 
-        public DateTime? CreationTime { get; set; }
+        public DateTime CreationTime { get; set; }
 
         public DateTime? DeletionTime { get; set; }
 

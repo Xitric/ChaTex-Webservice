@@ -1,8 +1,5 @@
 ﻿using Business.Models;
 using DAL.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DAL.Mapper
 {
@@ -10,7 +7,11 @@ namespace DAL.Mapper
     {
         public static GroupRole MapGroupRoleModelToEntity(GroupRoleModel groupRoleModel)
         {
-            if (groupRoleModel == null) return null;
+            if (groupRoleModel == null)
+            {
+                return null;
+            }
+
             return new GroupRole()
             {
                 GroupId = groupRoleModel.Group.Id == null ? 0 : groupRoleModel.Group.Id.Value,
@@ -20,7 +21,11 @@ namespace DAL.Mapper
 
         public static GroupRoleModel MapGroupRoleEntityToModel(GroupRole groupRole)
         {
-            if (groupRole == null) return null;
+            if (groupRole == null)
+            {
+                return null;
+            }
+
             return new GroupRoleModel()
             {
                 Group = GroupMapper.MapGroupEntityToModel(groupRole.Group),

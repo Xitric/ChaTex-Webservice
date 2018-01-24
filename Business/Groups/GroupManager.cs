@@ -1,44 +1,25 @@
 ﻿using System.Collections.Generic;
 using Business.Models;
 using System.Linq;
-using System;
+using System.Threading;
 
 namespace Business.Groups
 {
-    class GroupManager : IGroupManager
+    class GroupManager : AuthenticatedManager, IGroupManager
     {
         private readonly IGroupRepository groupRepository;
-        public GroupManager(IGroupRepository groupRepository)
+        private readonly ReaderWriterLock groupLock;
+
+        public GroupManager(IGroupRepository groupRepository) : base(groupRepository)
         {
             this.groupRepository = groupRepository;
-        }
 
-        public void AddUsersToGroup(int groupId, List<int> userIds, int loggedInUserId)
-        {
-            var loggedInUser = groupRepository.GetGroupUser(groupId, loggedInUserId);
-            //Iterates through all user ids, creates a GroupUserModel and sends that to our group repository
-            if (loggedInUser.IsAdministrator)
-            {
-                groupRepository.AddMembersToGroup(groupUserModel: userIds.Select(userId => new GroupUserModel()
-                {
-                    Group = new GroupModel()
-                    {
-                        Id = groupId
-                    },
-                    User = new UserModel()
-                    {
-                        Id = userId
-                    }
-                }));
-            }
-            else
-            {
-                throw new Exception("The user was not authorized to add users to the group");
-            }
+            groupLock = new ReaderWriterLock();
         }
 
         public int? CreateGroup(int userId, string groupName, bool allowEmployeeSticky = false, bool allowEmployeeAcknowledgeable = false, bool allowEmployeeBookmark = false)
         {
+            //No need to use locks here, as creating a group has no effect on, and is not affecte by other methods
             var user = new UserModel()
             {
                 Id = userId
@@ -64,141 +45,212 @@ namespace Business.Groups
             };
 
             groupRepository.AddMemberToGroup(groupUserModel);
+
             return group.Id;
         }
 
-        public bool DeleteGroup(int groupId, int callerId)
+        public void DeleteGroup(int groupId, int callerId)
         {
-            var loggedInUser = groupRepository.GetGroupUser(groupId, callerId);
-            if (loggedInUser.IsAdministrator)
+            throwIfNotAdministrator(groupId, callerId);
+
+            //Lock here to ensure that we don't accidentally delete a group that is being modified elsewhere
+            try
             {
-             return groupRepository.DeleteGroup(groupId);
+                groupLock.AcquireWriterLock(Timeout.Infinite);
+                groupRepository.DeleteGroup(groupId);
             }
-            return false;
+            finally
+            {
+                groupLock.ReleaseLock();
+            }
         }
 
         public void UpdateGroup(int groupId, string groupName, int callerId)
         {
-            var loggedInUser = groupRepository.GetGroupUser(groupId, callerId);
-            if(loggedInUser.IsAdministrator)
+            throwIfNotAdministrator(groupId, callerId);
+
+            //Lock to prevent concurrent modification and deletion of groups
+            try
             {
-                groupRepository.UpdateGroup(groupId, groupName, callerId);
+                groupLock.AcquireWriterLock(Timeout.Infinite);
+                groupRepository.UpdateGroup(groupId, groupName);
             }
-            
+            finally
+            {
+                groupLock.ReleaseLock();
+            }
         }
 
-        public void RemoveUsersFromGroup(int groupId, List<int> userIds, int loggedInUserId)
+        public void AddUsersToGroup(int groupId, IEnumerable<int> userIds, int callerId)
         {
-            var loggedInUser = groupRepository.GetGroupUser(groupId, loggedInUserId);
+            throwIfNotAdministrator(groupId, callerId);
+
+            //Lock modification of groups to ensure that the group id not deleted while we add members
+            try
+            {
+                groupLock.AcquireWriterLock(Timeout.Infinite);
+                addUsersToGroupInternal(groupId, userIds);
+            }
+            finally
+            {
+                groupLock.ReleaseLock();
+            }
+        }
+
+        private void addUsersToGroupInternal(int groupId, IEnumerable<int> userIds)
+        {
             //Iterates through all user ids, creates a GroupUserModel and sends that to our group repository
-            if (loggedInUser.IsAdministrator)
+            groupRepository.AddMembersToGroup(groupUserModel: userIds.Select(userId => new GroupUserModel()
             {
-                //Iterates through all user ids, creates a GroupUserModel and sends that to our group repository
-                groupRepository.RemoveUsersFromGroup(groupUserModel: userIds.Select(userId => new GroupUserModel()
+                Group = new GroupModel()
                 {
-                    Group = new GroupModel()
-                    {
-                        Id = groupId
-                    },
-                    User = new UserModel()
-                    {
-                        Id = userId
-                    }
-                }));
-            }
-            else
+                    Id = groupId
+                },
+                User = new UserModel()
+                {
+                    Id = userId
+                }
+            }));
+        }
+
+        public void RemoveUsersFromGroup(int groupId, IEnumerable<int> userIds, int callerId)
+        {
+            throwIfNotAdministrator(groupId, callerId);
+
+            //Lock modification of groups to ensure that the group is not deleted while we remove members
+            try
             {
-                throw new Exception("The user was not authorized to remove users to the group");
+                groupLock.AcquireWriterLock(Timeout.Infinite);
+                removeUsersFromGroupInternal(groupId, userIds);
+            }
+            finally
+            {
+                groupLock.ReleaseLock();
             }
         }
 
-        public void AddRolesToGroup(int groupId, int callerId, IEnumerable<int> roleIds)
+        private void removeUsersFromGroupInternal(int groupId, IEnumerable<int> userIds)
         {
-            var loggedInUser = groupRepository.GetGroupUser(groupId, callerId);
-
-            if (loggedInUser.IsAdministrator)
+            //Iterates through all user ids, creates a GroupUserModel and sends that to our group repository
+            groupRepository.RemoveUsersFromGroup(groupUserModel: userIds.Select(userId => new GroupUserModel()
             {
-                groupRepository.AddRolesToGroup(groupRoleModel: roleIds.Select(roleId => new GroupRoleModel()
+                Group = new GroupModel()
                 {
-                    Group = new GroupModel()
-                    {
-                        Id = groupId
-                    },
-                    Role = new RoleModel()
-                    {
-                        Id = roleId,
-                    }
-                }));
-            }
-            else
-            {
-                throw new Exception("The user was not authorized to add roles to the group");
-            }
-
+                    Id = groupId
+                },
+                User = new UserModel()
+                {
+                    Id = userId
+                }
+            }));
         }
 
-        public void RemoveRolesFromGroup(int groupId, int callerId, IEnumerable<int> roleIds)
+        public void AddRolesToGroup(int groupId, IEnumerable<int> roleIds, int callerId)
         {
-            var loggedInUser = groupRepository.GetGroupUser(groupId, callerId);
+            throwIfNotAdministrator(groupId, callerId);
 
-            if (loggedInUser.IsAdministrator)
+            //Lock modification of groups to ensure that the group is not deleted while we add roles
+            try
             {
-                groupRepository.RemoveRolesFromGroup(groupRoleModel: roleIds.Select(roleId => new GroupRoleModel()
+                groupLock.AcquireWriterLock(Timeout.Infinite);
+                addRolesToGroupInternal(groupId, roleIds);
+            }
+            finally
+            {
+                groupLock.ReleaseLock();
+            }
+        }
+
+        private void addRolesToGroupInternal(int groupId, IEnumerable<int> roleIds)
+        {
+            groupRepository.AddRolesToGroup(groupRoleModel: roleIds.Select(roleId => new GroupRoleModel()
+            {
+                Group = new GroupModel()
                 {
-                    Group = new GroupModel()
-                    {
-                        Id = groupId
-                    },
-                    Role = new RoleModel()
-                    {
-                        Id = roleId,
-                    }
-                }));
-            }
-            else
+                    Id = groupId
+                },
+                Role = new RoleModel()
+                {
+                    Id = roleId,
+                }
+            }));
+        }
+
+        public void RemoveRolesFromGroup(int groupId, IEnumerable<int> roleIds, int callerId)
+        {
+            throwIfNotAdministrator(groupId, callerId);
+
+            //Lock modification of groups to ensure that the group is not deleted while we add members
+            try
             {
-                throw new Exception("The user was not authorized to remove roles from the group");
+                groupLock.AcquireWriterLock(Timeout.Infinite);
+                removeRolesFromGroupInternal(groupId, roleIds);
             }
+            finally
+            {
+                groupLock.ReleaseLock();
+            }
+        }
+
+        private void removeRolesFromGroupInternal(int groupId, IEnumerable<int> roleIds)
+        {
+            groupRepository.RemoveRolesFromGroup(groupRoleModel: roleIds.Select(roleId => new GroupRoleModel()
+            {
+                Group = new GroupModel()
+                {
+                    Id = groupId
+                },
+                Role = new RoleModel()
+                {
+                    Id = roleId,
+                }
+            }));
         }
 
         public void SetUserAdministratorOnGroup(int groupId, int userId, int callerId, bool isAdministrator)
         {
-            var loggedInUserInGroupUser = groupRepository.GetGroupUser(groupId, callerId);
+            throwIfNotAdministrator(groupId, callerId);
 
-            if (loggedInUserInGroupUser.IsAdministrator)
+            try
             {
-                groupRepository.SetUserAdministratorOnGroup(new GroupUserModel()
-                {
-                    Group = new GroupModel()
-                    {
-                        Id = groupId
-                    },
-                    User = new UserModel()
-                    {
-                        Id = userId
-                    },
-
-                    IsAdministrator = isAdministrator
-                });
+                groupLock.AcquireWriterLock(Timeout.Infinite);
+                setUserAdministratorOnGroupInternal(groupId, userId, isAdministrator);
             }
-            else
+            finally
             {
-                throw new Exception("The user was not authorized to change administrator");
+                groupLock.ReleaseLock();
             }
         }
 
-        public IEnumerable<UserModel> GetAllGroupUsers(int groupId, int callerId) { 
-        
-            var loggedInUserInGroupUser = groupRepository.GetGroupUser(groupId, callerId);
+        private void setUserAdministratorOnGroupInternal(int groupId, int userId, bool isAdministrator)
+        {
+            groupRepository.SetUserAdministratorOnGroup(new GroupUserModel()
+            {
+                Group = new GroupModel()
+                {
+                    Id = groupId
+                },
+                User = new UserModel()
+                {
+                    Id = userId
+                },
 
-            if (loggedInUserInGroupUser != null)
-            {
-               return groupRepository.GetAllGroupUsers(groupId);
-            }
-            else
-            {
-                throw new Exception("Failed to get all group users");
-            }
+                IsAdministrator = isAdministrator
+            });
+        }
+
+        public IEnumerable<UserModel> GetAllGroupUsers(int groupId, int callerId)
+        {
+            throwIfNotMember(groupId, callerId);
+            
+            return groupRepository.GetAllGroupUsers(groupId);
+        }
+
+        public IEnumerable<UserModel> GetAllGroupAdmins(int groupId, int callerId)
+        {
+            throwIfNotMember(groupId, callerId);
+            
+            return groupRepository.GetAllGroupAdmins(groupId);
         }
 
         public IEnumerable<GroupModel> GetGroupsForUser(int userId)
@@ -206,9 +258,14 @@ namespace Business.Groups
             return groupRepository.GetGroupsForUser(userId);
         }
 
-        public void UpdateGroup(int groupId, string groupName)
+        public IEnumerable<UserModel> GetAllDirectGroupUsers(int groupId, int callerId)
         {
-            throw new NotImplementedException();
+            return groupRepository.GetAllDirectGroupUsers(groupId);
+        }
+
+        public IEnumerable<RoleModel> GetAllGroupRoles(int groupId)
+        {
+            return groupRepository.GetAllGroupRoles(groupId);
         }
     }
 }

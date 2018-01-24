@@ -21,88 +21,35 @@
  */
 
 using System;
+using System.Linq;
 using System.IO;
 using System.Text;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
-namespace WebAPI.Models
-{
+namespace IO.Swagger.Models
+{ 
     /// <summary>
     /// 
     /// </summary>
     [DataContract]
     public partial class UserDTO :  IEquatable<UserDTO>
-    {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UserDTO" /> class.
-        /// </summary>
-        /// <param name="Id">Id (required).</param>
-        /// <param name="FirstName">FirstName (required).</param>
-        /// <param name="MiddleInitial">MiddleInitial.</param>
-        /// <param name="LastName">LastName (required).</param>
-        /// <param name="Email">Email (required).</param>
-        /// <param name="Me">Me (required).</param>
-        public UserDTO(int? Id = null, string FirstName = null, string MiddleInitial = null, string LastName = null, string Email = null, bool? Me = null)
-        {
-            // to ensure "Id" is required (not null)
-            if (Id == null)
-            {
-                throw new InvalidDataException("Id is a required property for UserDTO and cannot be null");
-            }
-            else
-            {
-                this.Id = Id;
-            }
-            // to ensure "FirstName" is required (not null)
-            if (FirstName == null)
-            {
-                throw new InvalidDataException("FirstName is a required property for UserDTO and cannot be null");
-            }
-            else
-            {
-                this.FirstName = FirstName;
-            }
-            // to ensure "LastName" is required (not null)
-            if (LastName == null)
-            {
-                throw new InvalidDataException("LastName is a required property for UserDTO and cannot be null");
-            }
-            else
-            {
-                this.LastName = LastName;
-            }
-            // to ensure "Email" is required (not null)
-            if (Email == null)
-            {
-                throw new InvalidDataException("Email is a required property for UserDTO and cannot be null");
-            }
-            else
-            {
-                this.Email = Email;
-            }
-            // to ensure "Me" is required (not null)
-            if (Me == null)
-            {
-                throw new InvalidDataException("Me is a required property for UserDTO and cannot be null");
-            }
-            else
-            {
-                this.Me = Me;
-            }
-            this.MiddleInitial = MiddleInitial;
-            
-        }
-
+    { 
         /// <summary>
         /// Gets or Sets Id
         /// </summary>
+        [Required]
         [DataMember(Name="Id")]
         public int? Id { get; set; }
 
         /// <summary>
         /// Gets or Sets FirstName
         /// </summary>
+        [Required]
         [DataMember(Name="FirstName")]
         public string FirstName { get; set; }
 
@@ -115,21 +62,29 @@ namespace WebAPI.Models
         /// <summary>
         /// Gets or Sets LastName
         /// </summary>
+        [Required]
         [DataMember(Name="LastName")]
         public string LastName { get; set; }
 
         /// <summary>
         /// Gets or Sets Email
         /// </summary>
+        [Required]
         [DataMember(Name="Email")]
         public string Email { get; set; }
 
         /// <summary>
         /// Gets or Sets Me
         /// </summary>
+        [Required]
         [DataMember(Name="Me")]
         public bool? Me { get; set; }
 
+        /// <summary>
+        /// Gets or Sets IsDeleted
+        /// </summary>
+        [DataMember(Name="IsDeleted")]
+        public bool? IsDeleted { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -145,6 +100,7 @@ namespace WebAPI.Models
             sb.Append("  LastName: ").Append(LastName).Append("\n");
             sb.Append("  Email: ").Append(Email).Append("\n");
             sb.Append("  Me: ").Append(Me).Append("\n");
+            sb.Append("  IsDeleted: ").Append(IsDeleted).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -167,8 +123,7 @@ namespace WebAPI.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((UserDTO)obj);
+            return obj.GetType() == GetType() && Equals((UserDTO)obj);
         }
 
         /// <summary>
@@ -178,40 +133,44 @@ namespace WebAPI.Models
         /// <returns>Boolean</returns>
         public bool Equals(UserDTO other)
         {
-
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
             return 
                 (
-                    this.Id == other.Id ||
-                    this.Id != null &&
-                    this.Id.Equals(other.Id)
+                    Id == other.Id ||
+                    Id != null &&
+                    Id.Equals(other.Id)
                 ) && 
                 (
-                    this.FirstName == other.FirstName ||
-                    this.FirstName != null &&
-                    this.FirstName.Equals(other.FirstName)
+                    FirstName == other.FirstName ||
+                    FirstName != null &&
+                    FirstName.Equals(other.FirstName)
                 ) && 
                 (
-                    this.MiddleInitial == other.MiddleInitial ||
-                    this.MiddleInitial != null &&
-                    this.MiddleInitial.Equals(other.MiddleInitial)
+                    MiddleInitial == other.MiddleInitial ||
+                    MiddleInitial != null &&
+                    MiddleInitial.Equals(other.MiddleInitial)
                 ) && 
                 (
-                    this.LastName == other.LastName ||
-                    this.LastName != null &&
-                    this.LastName.Equals(other.LastName)
+                    LastName == other.LastName ||
+                    LastName != null &&
+                    LastName.Equals(other.LastName)
                 ) && 
                 (
-                    this.Email == other.Email ||
-                    this.Email != null &&
-                    this.Email.Equals(other.Email)
+                    Email == other.Email ||
+                    Email != null &&
+                    Email.Equals(other.Email)
                 ) && 
                 (
-                    this.Me == other.Me ||
-                    this.Me != null &&
-                    this.Me.Equals(other.Me)
+                    Me == other.Me ||
+                    Me != null &&
+                    Me.Equals(other.Me)
+                ) && 
+                (
+                    IsDeleted == other.IsDeleted ||
+                    IsDeleted != null &&
+                    IsDeleted.Equals(other.IsDeleted)
                 );
         }
 
@@ -221,28 +180,30 @@ namespace WebAPI.Models
         /// <returns>Hash code</returns>
         public override int GetHashCode()
         {
-            // credit: http://stackoverflow.com/a/263416/677735
             unchecked // Overflow is fine, just wrap
             {
-                int hash = 41;
+                var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                if (this.Id != null)
-                    hash = hash * 59 + this.Id.GetHashCode();
-                if (this.FirstName != null)
-                    hash = hash * 59 + this.FirstName.GetHashCode();
-                if (this.MiddleInitial != null)
-                    hash = hash * 59 + this.MiddleInitial.GetHashCode();
-                if (this.LastName != null)
-                    hash = hash * 59 + this.LastName.GetHashCode();
-                if (this.Email != null)
-                    hash = hash * 59 + this.Email.GetHashCode();
-                if (this.Me != null)
-                    hash = hash * 59 + this.Me.GetHashCode();
-                return hash;
+                    if (Id != null)
+                    hashCode = hashCode * 59 + Id.GetHashCode();
+                    if (FirstName != null)
+                    hashCode = hashCode * 59 + FirstName.GetHashCode();
+                    if (MiddleInitial != null)
+                    hashCode = hashCode * 59 + MiddleInitial.GetHashCode();
+                    if (LastName != null)
+                    hashCode = hashCode * 59 + LastName.GetHashCode();
+                    if (Email != null)
+                    hashCode = hashCode * 59 + Email.GetHashCode();
+                    if (Me != null)
+                    hashCode = hashCode * 59 + Me.GetHashCode();
+                    if (IsDeleted != null)
+                    hashCode = hashCode * 59 + IsDeleted.GetHashCode();
+                return hashCode;
             }
         }
 
         #region Operators
+        #pragma warning disable 1591
 
         public static bool operator ==(UserDTO left, UserDTO right)
         {
@@ -254,7 +215,7 @@ namespace WebAPI.Models
             return !Equals(left, right);
         }
 
+        #pragma warning restore 1591
         #endregion Operators
-
     }
 }

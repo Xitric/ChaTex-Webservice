@@ -27,84 +27,36 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
-namespace WebAPI.Models
-{
+namespace IO.Swagger.Models
+{ 
     /// <summary>
     /// 
     /// </summary>
     [DataContract]
     public partial class GetMessageDTO :  IEquatable<GetMessageDTO>
-    {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GetMessageDTO" /> class.
-        /// </summary>
-        /// <param name="Id">Id (required).</param>
-        /// <param name="CreationTime">CreationTime (required).</param>
-        /// <param name="Content">Content (required).</param>
-        /// <param name="DeletionDate">DeletionDate.</param>
-        /// <param name="LastEdited">LastEdited.</param>
-        /// <param name="Sender">Sender (required).</param>
-        public GetMessageDTO(int? Id = null, DateTime? CreationTime = null, string Content = null, DateTime? DeletionDate = null, DateTime? LastEdited = null, UserDTO Sender = null)
-        {
-            // to ensure "Id" is required (not null)
-            if (Id == null)
-            {
-                throw new InvalidDataException("Id is a required property for GetMessageDTO and cannot be null");
-            }
-            else
-            {
-                this.Id = Id;
-            }
-            // to ensure "CreationTime" is required (not null)
-            if (CreationTime == null)
-            {
-                throw new InvalidDataException("CreationTime is a required property for GetMessageDTO and cannot be null");
-            }
-            else
-            {
-                this.CreationTime = CreationTime;
-            }
-            // to ensure "Content" is required (not null)
-            if (Content == null)
-            {
-                throw new InvalidDataException("Content is a required property for GetMessageDTO and cannot be null");
-            }
-            else
-            {
-                this.Content = Content;
-            }
-            // to ensure "Sender" is required (not null)
-            if (Sender == null)
-            {
-                throw new InvalidDataException("Sender is a required property for GetMessageDTO and cannot be null");
-            }
-            else
-            {
-                this.Sender = Sender;
-            }
-            this.DeletionDate = DeletionDate;
-            this.LastEdited = LastEdited;
-            
-        }
-
+    { 
         /// <summary>
         /// Gets or Sets Id
         /// </summary>
+        [Required]
         [DataMember(Name="Id")]
         public int? Id { get; set; }
 
         /// <summary>
         /// Gets or Sets CreationTime
         /// </summary>
+        [Required]
         [DataMember(Name="CreationTime")]
         public DateTime? CreationTime { get; set; }
 
         /// <summary>
         /// Gets or Sets Content
         /// </summary>
+        [Required]
         [DataMember(Name="Content")]
         public string Content { get; set; }
 
@@ -123,9 +75,9 @@ namespace WebAPI.Models
         /// <summary>
         /// Gets or Sets Sender
         /// </summary>
+        [Required]
         [DataMember(Name="Sender")]
         public UserDTO Sender { get; set; }
-
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -163,8 +115,7 @@ namespace WebAPI.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((GetMessageDTO)obj);
+            return obj.GetType() == GetType() && Equals((GetMessageDTO)obj);
         }
 
         /// <summary>
@@ -174,40 +125,39 @@ namespace WebAPI.Models
         /// <returns>Boolean</returns>
         public bool Equals(GetMessageDTO other)
         {
-
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
             return 
                 (
-                    this.Id == other.Id ||
-                    this.Id != null &&
-                    this.Id.Equals(other.Id)
+                    Id == other.Id ||
+                    Id != null &&
+                    Id.Equals(other.Id)
                 ) && 
                 (
-                    this.CreationTime == other.CreationTime ||
-                    this.CreationTime != null &&
-                    this.CreationTime.Equals(other.CreationTime)
+                    CreationTime == other.CreationTime ||
+                    CreationTime != null &&
+                    CreationTime.Equals(other.CreationTime)
                 ) && 
                 (
-                    this.Content == other.Content ||
-                    this.Content != null &&
-                    this.Content.Equals(other.Content)
+                    Content == other.Content ||
+                    Content != null &&
+                    Content.Equals(other.Content)
                 ) && 
                 (
-                    this.DeletionDate == other.DeletionDate ||
-                    this.DeletionDate != null &&
-                    this.DeletionDate.Equals(other.DeletionDate)
+                    DeletionDate == other.DeletionDate ||
+                    DeletionDate != null &&
+                    DeletionDate.Equals(other.DeletionDate)
                 ) && 
                 (
-                    this.LastEdited == other.LastEdited ||
-                    this.LastEdited != null &&
-                    this.LastEdited.Equals(other.LastEdited)
+                    LastEdited == other.LastEdited ||
+                    LastEdited != null &&
+                    LastEdited.Equals(other.LastEdited)
                 ) && 
                 (
-                    this.Sender == other.Sender ||
-                    this.Sender != null &&
-                    this.Sender.Equals(other.Sender)
+                    Sender == other.Sender ||
+                    Sender != null &&
+                    Sender.Equals(other.Sender)
                 );
         }
 
@@ -217,28 +167,28 @@ namespace WebAPI.Models
         /// <returns>Hash code</returns>
         public override int GetHashCode()
         {
-            // credit: http://stackoverflow.com/a/263416/677735
             unchecked // Overflow is fine, just wrap
             {
-                int hash = 41;
+                var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                if (this.Id != null)
-                    hash = hash * 59 + this.Id.GetHashCode();
-                if (this.CreationTime != null)
-                    hash = hash * 59 + this.CreationTime.GetHashCode();
-                if (this.Content != null)
-                    hash = hash * 59 + this.Content.GetHashCode();
-                if (this.DeletionDate != null)
-                    hash = hash * 59 + this.DeletionDate.GetHashCode();
-                if (this.LastEdited != null)
-                    hash = hash * 59 + this.LastEdited.GetHashCode();
-                if (this.Sender != null)
-                    hash = hash * 59 + this.Sender.GetHashCode();
-                return hash;
+                    if (Id != null)
+                    hashCode = hashCode * 59 + Id.GetHashCode();
+                    if (CreationTime != null)
+                    hashCode = hashCode * 59 + CreationTime.GetHashCode();
+                    if (Content != null)
+                    hashCode = hashCode * 59 + Content.GetHashCode();
+                    if (DeletionDate != null)
+                    hashCode = hashCode * 59 + DeletionDate.GetHashCode();
+                    if (LastEdited != null)
+                    hashCode = hashCode * 59 + LastEdited.GetHashCode();
+                    if (Sender != null)
+                    hashCode = hashCode * 59 + Sender.GetHashCode();
+                return hashCode;
             }
         }
 
         #region Operators
+        #pragma warning disable 1591
 
         public static bool operator ==(GetMessageDTO left, GetMessageDTO right)
         {
@@ -250,7 +200,7 @@ namespace WebAPI.Models
             return !Equals(left, right);
         }
 
+        #pragma warning restore 1591
         #endregion Operators
-
     }
 }

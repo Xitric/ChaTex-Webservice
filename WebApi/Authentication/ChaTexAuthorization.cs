@@ -23,12 +23,13 @@ namespace WebAPI.Authentication
         public void OnAuthorization(AuthorizationFilterContext context)
         {
             string token = context.HttpContext.Request.Headers[TokenKey];
-            int? userId = authenticator.AuthenticateGetId(token);
+            int? userId = authenticator.GetUserIdFromToken(token);
 
             if (userId != null)
             {
                 context.HttpContext.Items[UserIdKey] = userId;
-            } else
+            }
+            else
             {
                 context.Result = new UnauthorizedResult();
             }

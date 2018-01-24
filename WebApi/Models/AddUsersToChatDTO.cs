@@ -27,57 +27,31 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
-namespace WebAPI.Models
-{
+namespace IO.Swagger.Models
+{ 
     /// <summary>
     /// 
     /// </summary>
     [DataContract]
-    public partial class AddUsersToGroupDTO :  IEquatable<AddUsersToGroupDTO>
-    {
+    public partial class AddUsersToChatDTO :  IEquatable<AddUsersToChatDTO>
+    { 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AddUsersToGroupDTO" /> class.
+        /// Gets or Sets ChatId
         /// </summary>
-        /// <param name="GroupId">GroupId (required).</param>
-        /// <param name="UserIds">UserIds (required).</param>
-        public AddUsersToGroupDTO(int? GroupId = null, List<int?> UserIds = null)
-        {
-            // to ensure "GroupId" is required (not null)
-            if (GroupId == null)
-            {
-                throw new InvalidDataException("GroupId is a required property for AddUsersToGroupDTO and cannot be null");
-            }
-            else
-            {
-                this.GroupId = GroupId;
-            }
-            // to ensure "UserIds" is required (not null)
-            if (UserIds == null)
-            {
-                throw new InvalidDataException("UserIds is a required property for AddUsersToGroupDTO and cannot be null");
-            }
-            else
-            {
-                this.UserIds = UserIds;
-            }
-            
-        }
-
-        /// <summary>
-        /// Gets or Sets GroupId
-        /// </summary>
-        [DataMember(Name="groupId")]
-        public int? GroupId { get; set; }
+        [Required]
+        [DataMember(Name="chatId")]
+        public int? ChatId { get; set; }
 
         /// <summary>
         /// Gets or Sets UserIds
         /// </summary>
+        [Required]
         [DataMember(Name="userIds")]
         public List<int?> UserIds { get; set; }
-
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -86,8 +60,8 @@ namespace WebAPI.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class AddUsersToGroupDTO {\n");
-            sb.Append("  GroupId: ").Append(GroupId).Append("\n");
+            sb.Append("class AddUsersToChatDTO {\n");
+            sb.Append("  ChatId: ").Append(ChatId).Append("\n");
             sb.Append("  UserIds: ").Append(UserIds).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
@@ -111,31 +85,29 @@ namespace WebAPI.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((AddUsersToGroupDTO)obj);
+            return obj.GetType() == GetType() && Equals((AddUsersToChatDTO)obj);
         }
 
         /// <summary>
-        /// Returns true if AddUsersToGroupDTO instances are equal
+        /// Returns true if AddUsersToChatDTO instances are equal
         /// </summary>
-        /// <param name="other">Instance of AddUsersToGroupDTO to be compared</param>
+        /// <param name="other">Instance of AddUsersToChatDTO to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(AddUsersToGroupDTO other)
+        public bool Equals(AddUsersToChatDTO other)
         {
-
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
             return 
                 (
-                    this.GroupId == other.GroupId ||
-                    this.GroupId != null &&
-                    this.GroupId.Equals(other.GroupId)
+                    ChatId == other.ChatId ||
+                    ChatId != null &&
+                    ChatId.Equals(other.ChatId)
                 ) && 
                 (
-                    this.UserIds == other.UserIds ||
-                    this.UserIds != null &&
-                    this.UserIds.SequenceEqual(other.UserIds)
+                    UserIds == other.UserIds ||
+                    UserIds != null &&
+                    UserIds.SequenceEqual(other.UserIds)
                 );
         }
 
@@ -145,32 +117,32 @@ namespace WebAPI.Models
         /// <returns>Hash code</returns>
         public override int GetHashCode()
         {
-            // credit: http://stackoverflow.com/a/263416/677735
             unchecked // Overflow is fine, just wrap
             {
-                int hash = 41;
+                var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                if (this.GroupId != null)
-                    hash = hash * 59 + this.GroupId.GetHashCode();
-                if (this.UserIds != null)
-                    hash = hash * 59 + this.UserIds.GetHashCode();
-                return hash;
+                    if (ChatId != null)
+                    hashCode = hashCode * 59 + ChatId.GetHashCode();
+                    if (UserIds != null)
+                    hashCode = hashCode * 59 + UserIds.GetHashCode();
+                return hashCode;
             }
         }
 
         #region Operators
+        #pragma warning disable 1591
 
-        public static bool operator ==(AddUsersToGroupDTO left, AddUsersToGroupDTO right)
+        public static bool operator ==(AddUsersToChatDTO left, AddUsersToChatDTO right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(AddUsersToGroupDTO left, AddUsersToGroupDTO right)
+        public static bool operator !=(AddUsersToChatDTO left, AddUsersToChatDTO right)
         {
             return !Equals(left, right);
         }
 
+        #pragma warning restore 1591
         #endregion Operators
-
     }
 }

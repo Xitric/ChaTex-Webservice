@@ -1,31 +1,94 @@
 ﻿using DAL.Models;
 using Business;
 using Business.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using DAL.Mapper;
 
+[assembly: InternalsVisibleTo("ChaTexTest")]
 namespace DAL
 {
     class UserRepository : IUserRepository
     {
-        public string GetSessionToken(string email)
+        public string GetSessionToken(int userId)
         {
             using (var context = new ChatexdbContext())
             {
-                int? userID = GetUserIdFromEmail(email);
-                if (userID == null) return null;
+                return context.UserToken
+                    .Find(userId)?
+                    .Token;
+            }
+        }
 
-                UserToken uToken = context.UserToken
-                    .Find(userID);
-
-                if (uToken != null)
+        public void SaveUserToken(int userId, string token)
+        {
+            using (var context = new ChatexdbContext())
+            {
+                UserToken userToken = new UserToken()
                 {
-                    return uToken.Token;
-                }
+                    UserId = userId,
+                    Token = token
+                };
 
-                return null;
+                context.UserToken.Add(userToken);
+                context.SaveChanges();
+            }
+        }
+
+        public void DeleteUserToken(int userId)
+        {
+            using (var context = new ChatexdbContext())
+            {
+                UserToken userToken = new UserToken()
+                {
+                    UserId = userId
+                };
+
+                context.UserToken.Remove(userToken);
+                context.SaveChanges();
+            }
+        }
+
+        public int? GetUserIdFromEmail(string email)
+        {
+            using (var context = new ChatexdbContext())
+            {
+                return context.User
+                    .Where(u => u.Email.Equals(email))
+                    .Select(u => (int?)u.UserId)
+                    .SingleOrDefault();
+            }
+        }
+
+        public string GetUserPasswordHash(int userId)
+        {
+            using (var context = new ChatexdbContext())
+            {
+                return context.User
+                    .Find(userId)?
+                    .PasswordHash;
+            }
+        }
+
+        public byte[] GetUserSalt(int userId)
+        {
+            using (var context = new ChatexdbContext())
+            {
+                return context.User
+                    .Find(userId)?
+                    .Salt;
+            }
+        }
+
+        public int? GetUserIdFromToken(string token)
+        {
+            using (var context = new ChatexdbContext())
+            {
+                return context.UserToken
+                    .Where(u => u.Token.Equals(token))
+                    .Select(u => u.UserId)
+                    .FirstOrDefault();
             }
         }
 
@@ -37,114 +100,46 @@ namespace DAL
             }
         }
 
-        public bool SaveUserToken(string email, string token)
-        {
-            using (var context = new ChatexdbContext())
-            {
-                int? userID = GetUserIdFromEmail(email);
-                if (userID == null) return false;
-
-                UserToken uToken = new UserToken()
-                {
-                    UserId = (int)userID,
-                    Token = token
-                };
-
-                context.UserToken.Add(uToken);
-                context.SaveChanges();
-            }
-
-            return true;
-        }
-
-        public void DeleteUserToken(string email)
-        {
-            using (var context = new ChatexdbContext())
-            {
-                int? userID = GetUserIdFromEmail(email);
-                if (userID == null) return;
-
-                UserToken uToken = new UserToken()
-                {
-                    UserId = (int)userID
-                };
-
-                context.UserToken.Remove(uToken);
-                context.SaveChanges();
-            }
-        }
-
-        private int? GetUserIdFromEmail(string email)
-        {
-            using (var context = new ChatexdbContext())
-            {
-                try
-                {
-                    return context.User
-                    .Where(u => u.Email.Equals(email))
-                    .Select(u => u.UserId)
-                    .Single();
-                }
-                catch (InvalidOperationException)
-                {
-                    return null;
-                }
-            }
-        }
-
-        public int? GetUserIdFromToken(string token)
-        {
-            using (var context = new ChatexdbContext())
-            {
-                try
-                {
-                    return context.UserToken
-                    .Where(u => u.Token.Equals(token))
-                    .Select(u => u.UserId)
-                    .Single();
-                }
-                catch (InvalidOperationException)
-                {
-                    return null;
-                }
-            }
-        }
-
         public void UpdateUser(UserModel userModel)
         {
-            using (var db = new ChatexdbContext())
+            using (var context = new ChatexdbContext())
             {
-                User userEntity = db.User.Where(id => id.UserId == userModel.Id).FirstOrDefault();
+                User userEntity = context.User.Where(id => id.UserId == userModel.Id).FirstOrDefault();
+
                 userEntity.FirstName = userModel.FirstName;
                 userEntity.MiddleInitial = userModel.MiddleInitial.ToString();
                 userEntity.LastName = userModel.LastName;
                 userEntity.Email = userModel.Email;
                 userEntity.IsDeleted = userModel.IsDeleted;
-                db.SaveChanges();
+
+                context.SaveChanges();
             }
         }
 
         public UserModel GetUser(int userId)
         {
-            using(var db = new ChatexdbContext())
+            using (var context = new ChatexdbContext())
             {
-                var user = db.User.Where(i => i.UserId == userId).FirstOrDefault();
-                return UserMapper.MapUserEntityToModel(user);
+                return UserMapper.MapUserEntityToModel(
+                    context.User.Where(i => i.UserId == userId).FirstOrDefault());
             }
         }
 
         public bool IsUserAdmin(int userId)
         {
-            using (var db = new ChatexdbContext())
+            using (var context = new ChatexdbContext())
             {
-                var isAdmin = db.SystemAdministrator.Where(x => x.UserId == userId).Any();
-                if(isAdmin == true)
-                {
-                    return true;
-                } else
-                {
-                    return false;
-                }
+                return context.SystemAdministrator.Where(x => x.UserId == userId).Any();
+            }
+        }
+        public IEnumerable<RoleModel> GetAllUserRoles(int userId)
+        {
+            using (var context = new ChatexdbContext())
+            {
+                return context.UserRole
+                    .Where(ur => ur.UserId == userId)
+                    .Select(ur => RoleMapper.MapRoleEntityToModel(ur.Role))
+                    .ToList();
             }
         }
     }

@@ -11,7 +11,12 @@ namespace WebAPI.Models.Mappers
     {
         public static RoleDTO MapRoleToRoleDTO(RoleModel roleModel)
         {
-            return new RoleDTO(roleModel.Id,roleModel.Name,roleModel.IsDeleted);
+            return new RoleDTO()
+            {
+                Id = roleModel.Id,
+                Name = roleModel.Name,
+                IsDeleted = roleModel.IsDeleted
+            };
         }
     }
 }

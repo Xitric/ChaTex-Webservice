@@ -13,24 +13,28 @@ namespace DAL
     {
         public MessageModel GetMessage(int messageId)
         {
-            using (var db = new ChatexdbContext())
+            using (var context = new ChatexdbContext())
             {
-                return MessageMapper.MapMessageEntityToModel(db.Message.Where(i => i.MessageId == messageId).Include(x => x.ChannelMessages).Include(x => x.User).ToList().FirstOrDefault());
+                return MessageMapper.MapMessageEntityToModel(
+                    context.Message.Where(i => i.MessageId == messageId)
+                    .Include(x => x.ChannelMessages)
+                    .Include(x => x.User)
+                    .ToList().FirstOrDefault());
             }
         }
 
-        public IEnumerable<MessageModel> GetMessages(int channelId, int from, int count)
+        public IEnumerable<MessageModel> GetMessages(int channelId, DateTime before, int count)
         {
-            using (var db = new ChatexdbContext())
+            using (var context = new ChatexdbContext())
             {
-                return db.ChannelMessages
+                return context.ChannelMessages
                     .Where(cm => cm.ChannelId == channelId)
                     .Include(cm => cm.Message)
                         .ThenInclude(m => m.User)
                     .ToList()
                     .Select(cm => cm.Message)
                     .OrderByDescending(m => m.CreationDate)
-                    .Skip(from)
+                    .SkipWhile(m => m.CreationDate >= before)
                     .Take(count)
                     .Reverse()
                     .ToList()
@@ -41,9 +45,9 @@ namespace DAL
 
         private IEnumerable<Message> getMessageInChannel(int channelId)
         {
-            using (var db = new ChatexdbContext())
+            using (var context = new ChatexdbContext())
             {
-                return db.ChannelMessages
+                return context.ChannelMessages
                     .Where(cm => cm.ChannelId == channelId)
                     .Include(cm => cm.Message)
                         .ThenInclude(m => m.User)
@@ -54,7 +58,7 @@ namespace DAL
 
         public IEnumerable<MessageModel> GetMessagesSince(int channelId, DateTime since)
         {
-            using (var db = new ChatexdbContext())
+            using (var context = new ChatexdbContext())
             {
                 return getMessageInChannel(channelId)
                     .Where(m => m.CreationDate > since)
@@ -66,7 +70,7 @@ namespace DAL
 
         public IEnumerable<MessageModel> GetDeletedMessagesSince(int channelId, DateTime since)
         {
-            using (var db = new ChatexdbContext())
+            using (var context = new ChatexdbContext())
             {
                 return getMessageInChannel(channelId)
                     .Where(m => m.DeletionDate > since)
@@ -77,7 +81,7 @@ namespace DAL
 
         public IEnumerable<MessageModel> GetEditedMessagesSince(int channelId, DateTime since)
         {
-            using (var db = new ChatexdbContext())
+            using (var context = new ChatexdbContext())
             {
                 return getMessageInChannel(channelId)
                     .Where(m => m.LastEditDate > since)
@@ -86,26 +90,25 @@ namespace DAL
             }
         }
 
-        public void CreateMessage(MessageModel message, int channelId)
+        public int CreateMessage(MessageModel message, int channelId)
         {
-            if (message != null)
+            using (var context = new ChatexdbContext())
             {
-                using (var context = new ChatexdbContext())
+                Message messageEntity = MessageMapper.MapMessageModelToEntity(message);
+                messageEntity.CreationDate = DateTime.UtcNow;
+
+                context.Message.Add(messageEntity);
+                context.SaveChanges();
+
+                ChannelMessages channelMessageEntity = new ChannelMessages()
                 {
-                    Message dalmessage = MessageMapper.MapMessageModelToEntity(message);
-                    dalmessage.CreationDate = DateTime.Now;
+                    ChannelId = channelId,
+                    MessageId = messageEntity.MessageId,
+                };
 
-                    context.Message.Add(dalmessage);
-                    context.SaveChanges();
-
-                    ChannelMessages channelMessage = new ChannelMessages()
-                    {
-                        ChannelId = channelId,
-                        MessageId = dalmessage.MessageId,
-                    };
-                    context.ChannelMessages.Add(channelMessage);
-                    context.SaveChanges();
-                }
+                context.ChannelMessages.Add(channelMessageEntity);
+                context.SaveChanges();
+                return messageEntity.MessageId;
             }
         }
 
@@ -113,8 +116,9 @@ namespace DAL
         {
             using (var context = new ChatexdbContext())
             {
-                Message dalmessage = context.Message.Find(messageId);
-                dalmessage.DeletionDate = DateTime.Now;
+                Message entity = context.Message.Find(messageId);
+                entity.DeletionDate = DateTime.UtcNow;
+
                 context.SaveChanges();
             }
         }
@@ -123,20 +127,20 @@ namespace DAL
         {
             using (var context = new ChatexdbContext())
             {
-                Message dalmessage = context.Message.Find(messageId);
+                Message entity = context.Message.Find(messageId);
 
                 //Save message revision
                 MessageRevision revision = new MessageRevision()
                 {
-                    Content = dalmessage.Content,
-                    EditDate = dalmessage.LastEditDate == null ? dalmessage.CreationDate : (DateTime)dalmessage.LastEditDate,
-                    MessageId = dalmessage.MessageId
+                    Content = entity.Content,
+                    EditDate = entity.LastEditDate == null ? entity.CreationDate : (DateTime)entity.LastEditDate,
+                    MessageId = entity.MessageId
                 };
                 context.MessageRevision.Add(revision);
 
                 //Update current message
-                dalmessage.Content = content;
-                dalmessage.LastEditDate = DateTime.Now;
+                entity.Content = content;
+                entity.LastEditDate = DateTime.UtcNow;
 
                 context.SaveChanges();
             }

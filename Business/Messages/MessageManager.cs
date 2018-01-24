@@ -1,81 +1,74 @@
 ﻿using Business.Models;
 using System.Collections.Generic;
-using System.Linq;
 using System;
-using System.Threading;
+using Business.Channels;
+using Business.Errors;
 
 namespace Business.Messages
 {
-    class MessageManager : IMessageManager
+    class MessageManager : AuthenticatedManager, IMessageManager
     {
         private readonly IMessageRepository messageRepository;
         private readonly IGroupRepository groupRepository;
         private readonly IChannelRepository channelRepository;
+        private readonly ChannelEventManager channelEventManager;
 
-        //These locks are used to ensure that two threads do not perform mutually exclusive operations on messages simultaneously
-        private readonly Dictionary<int, object> messageLocks;
-        private readonly int sleepInterval = 2000;
-
-        public MessageManager(IMessageRepository messages, IGroupRepository groups, IChannelRepository channels)
+        public MessageManager(IMessageRepository messageRepository, IGroupRepository groupRepository, IChannelRepository channelRepository, ChannelEventManager channelEventManager) : base(groupRepository)
         {
-            messageRepository = messages;
-            groupRepository = groups;
-            channelRepository = channels;
-            messageLocks = new Dictionary<int, object>();
+            this.messageRepository = messageRepository;
+            this.groupRepository = groupRepository;
+            this.channelRepository = channelRepository;
+            this.channelEventManager = channelEventManager;
         }
 
-        private object GetLockForChannel(int channelId)
+        public IEnumerable<MessageModel> GetMessages(int channelId, int callerId, DateTime before, int count)
         {
-            object msgLock = messageLocks.GetValueOrDefault(channelId);
+            throwIfNoAccessToChannel(channelId, callerId);
 
-            if (msgLock == null)
+            //There is no reason to use any locks in this method, as it does not matter if something happens in the channel while simply getting messages - it only matters when listening for events
+            //Also, each method in the repository is expected to be threadsafe
+            return messageRepository.GetMessages(channelId, before.ToUniversalTime(), count);
+        }
+
+        public MessageModel GetMessage(int callerId, int messageId)
+        {
+            //No need to use locks here either
+            MessageModel message = messageRepository.GetMessage(messageId);
+            if (message == null)
             {
-                //No lock exists, so make a new one
-                msgLock = new object();
-                bool success = messageLocks.TryAdd(channelId, msgLock);
-
-                if (!success)
-                {
-                    //This indicates that another thread was faster, so use the existing lock
-                    msgLock = messageLocks[channelId];
-                }
+                throw new InvalidArgumentException("The requested message does not exist", ParamNameType.MessageId);
             }
 
-            return msgLock;
+            throwIfNoAccessToChannel(message.ChannelId, callerId);
+
+            return message;
         }
 
-        private bool IsUserInChannel(int userId, int channelId)
+        public int CreateMessage(int callerId, int channelId, string messageContent)
         {
-            return groupRepository.GetGroupsForUser(userId)
-                .Select(g => g.Channels.Any(c => c.Id == channelId))
-                .Any();
-        }
-
-        /// <exception cref="ArgumentException">The channel with the specified id does not exist, or the caller does not have access to the specified channel</exception>
-        public IEnumerable<MessageModel> GetMessages(int channelId, int callerId, int from, int count)
-        {
-            bool hasAccess = IsUserInChannel(callerId, channelId);
-
-            if (!hasAccess)
+            //We lock here to ensure that messages are not added until the channel is ready, and to ensure that the channel is not deleted while we add a message
+            try
             {
-                throw new ArgumentException("User does not have access to the specified channel", "callerId");
+                channelEventManager.LockChannelForWrite(channelId);
+                return createMessageInternal(callerId, channelId, messageContent);
+            }
+            finally
+            {
+                channelEventManager.UnlockChannelForWrite(channelId);
+            }
+        }
+
+        /// <summary>
+        /// Internal, non-threadsafe method for creating a new message. This method expects synchronization to happen elsewhere.
+        /// </summary>
+        private int createMessageInternal(int callerId, int channelId, string messageContent)
+        {
+            if (channelRepository.GetChannel(channelId) == null)
+            {
+                throw new InvalidArgumentException("The specified channel does not exist. Maybe it has been deleted.", ParamNameType.ChannelId);
             }
 
-            //This should be threadsafe
-            IEnumerable<MessageModel> messages = messageRepository.GetMessages(channelId, from, count);
-            CensorMessages(messages);
-            return messages;
-        }
-
-        /// <exception cref="ArgumentException">The channel with the specified id does not exist, or the caller does not have access to the specified channel</exception>
-        public void CreateMessage(int callerId, int channelId, string messageContent)
-        {
-            bool hasAccess = IsUserInChannel(callerId, channelId);
-
-            if (!hasAccess)
-            {
-                throw new ArgumentException("User does not have access to the specified channel", "callerId");
-            }
+            throwIfNoAccessToChannel(channelId, callerId);
 
             MessageModel message = new MessageModel()
             {
@@ -83,191 +76,118 @@ namespace Business.Messages
                 Content = messageContent,
             };
 
-            //Wait until we are allowed to add new messages
-            object msgLock;
-            lock (msgLock = GetLockForChannel(channelId))
-            {
-                messageRepository.CreateMessage(message, channelId);
+            return messageRepository.CreateMessage(message, channelId);
+        }
 
-                //Inform waiting threads that a new message was posted
-                Console.WriteLine($"New message for channel {channelId}, wake up my little lambs!");
-                Monitor.PulseAll(msgLock);
+        public void DeleteMessage(int callerId, int messageId)
+        {
+            //This is threadsafe, as messages don't change channel ids over time
+            var channel = getChannelForMessage(messageId);
+
+            try
+            {
+                channelEventManager.LockChannelForWrite((int)channel.Id);
+                deleteMessageInternal(callerId, messageId);
+            }
+            finally
+            {
+                channelEventManager.UnlockChannelForWrite((int)channel.Id);
             }
         }
 
-        /// <exception cref="ArgumentException">The message with the specified id does not exist, or the caller does not have the rights to delete the specified message</exception>
-        public void DeleteMessage(int callerId, int messageId)
+        /// <summary>
+        /// Internal, non-threadsafe method for deleting a message. This method expects synchronization to happen elsewhere.
+        /// </summary>
+        private void deleteMessageInternal(int callerId, int messageId)
         {
-            MessageModel message = messageRepository.GetMessage(messageId);
-            if (message == null) throw new ArgumentException("Message with the specified id does not exist", "messageId");
+            throwIfNotAllowedToModifyMessage(callerId, messageId);
 
-            var channel = channelRepository.GetChannel(message.ChannelId);
-
-            //Since message ids are fixed and messages don't change channels, these operations did not need to be within the lock
-            object msgLock;
-            lock (msgLock = GetLockForChannel((int)channel.Id))
-            {
-                var loggedInUser = groupRepository.GetGroupUser(channel.GroupId, callerId);
-
-                if (loggedInUser.IsAdministrator || message.Author.Id == callerId)
-                {
-                    messageRepository.DeleteMessage(messageId);
-
-                    //Inform waiting threads that a message was deleted
-                    Console.WriteLine($"Message deleted in channel {channel.Id}, wake up my little lambs!");
-                    Monitor.PulseAll(msgLock);
-                }
-                else
-                {
-                    throw new ArgumentException("User does not have the rights to delete the specified message", "callerId");
-                }
-            }
+            messageRepository.DeleteMessage(messageId);
         }
 
         public void EditMessage(int callerId, int messageId, string newContent)
         {
-            MessageModel message = messageRepository.GetMessage(messageId);
-            if (message == null) throw new ArgumentException("Message with the specified id does not exist", "messageId");
+            var channel = getChannelForMessage(messageId);
 
-            var channel = channelRepository.GetChannel(message.ChannelId);
-
-            //Since message ids are fixed and messages don't change channels, these operations did not need to be within the lock
-            object msgLock;
-            lock (msgLock = GetLockForChannel((int)channel.Id))
+            try
             {
-                var loggedInUser = groupRepository.GetGroupUser(channel.GroupId, callerId);
-
-                if (loggedInUser.IsAdministrator || message.Author.Id == callerId)
-                {
-                    messageRepository.EditMessage(messageId, newContent);
-
-                    //Inform waiting threads that a message was edited
-                    Console.WriteLine($"Message edited in channel {channel.Id}, wake up my little lambs!");
-                    Monitor.PulseAll(msgLock);
-                }
-                else
-                {
-                    throw new ArgumentException("User does not have the rights to delete the specified message", "callerId");
-                }
+                channelEventManager.LockChannelForWrite((int)channel.Id);
+                editMessageInternal(callerId, messageId, newContent);
+            }
+            finally
+            {
+                channelEventManager.UnlockChannelForWrite((int)channel.Id);
             }
         }
 
-        public MessageModel GetMessage(int callerId, int messageId)
+        /// <summary>
+        /// Internal, non-threadsafe method for editing a message. This method expects synchronization to happen elsewhere.
+        /// </summary>
+        private void editMessageInternal(int callerId, int messageId, string newContent)
+        {
+            throwIfNotAllowedToModifyMessage(callerId, messageId);
+
+            messageRepository.EditMessage(messageId, newContent);
+        }
+
+        /// <summary>
+        /// Throw an InvalidArgumentException if the user with the specified id does not have the rights to modify the message with the specified id. This method should only be used inside a synchronized context.
+        /// </summary>
+        /// <param name="callerId">The id of the user to test for</param>
+        /// <param name="messageId">The id of the message to test for</param>
+        /// <exception cref="InvalidArgumentException">If the user does not have the rights to modify the message</exception>
+        private void throwIfNotAllowedToModifyMessage(int callerId, int messageId)
+        {
+            var channel = getChannelForMessage(messageId);
+            var membershipDetails = groupRepository.GetGroupMembershipDetailsForUser(channel.GroupId, callerId);
+            var author = getAuthorForMessage(messageId);
+
+            if (!membershipDetails.IsAdministrator && author.Id != callerId)
+            {
+                throw new InvalidArgumentException("User does not have the rights to modify the specified message", ParamNameType.CallerId);
+            }
+        }
+
+        /// <summary>
+        /// Get the channel that contains the specified message. This method should only be used inside a synchronized context.
+        /// </summary>
+        /// <param name="messageId">The id of the message</param>
+        /// <returns>The channel that contains the specified message</returns>
+        /// <exception cref="InvalidArgumentException">If the message does not exist</exception>
+        private ChannelModel getChannelForMessage(int messageId)
         {
             MessageModel message = messageRepository.GetMessage(messageId);
-            if (message.DeletionTime != null) message.Content = "";
+
             if (message == null)
             {
-                throw new ArgumentException("Message does not exist in the database", "messageId");
+                throw new InvalidArgumentException("The message with the specified id does not exist", ParamNameType.MessageId);
             }
-            if (IsUserInChannel(callerId, message.ChannelId))
+
+            var channel = channelRepository.GetChannel(message.ChannelId);
+            if (channel == null)
             {
-                return message;
+                throw new InvalidArgumentException("This message no longer exists", ParamNameType.MessageId);
             }
-            else
-            {
-                throw new ArgumentException("Message couldnt be retrieved because the user isnt in the channel group", "callerId");
-            }
+
+            return channel;
         }
 
         /// <summary>
-        /// Request events about messages in the specified channel. This method will block until a new message has been posted, a message has been deleted, or a message has been edited.
+        /// Get the author of the specified message. This method should only be used inside a synchronized context.
         /// </summary>
-        /// <param name="channelId">The channel to wait for events in</param>
-        /// <param name="callerId">The id of the client making this request</param>
-        /// <param name="since">The timestamp from which to get events</param>
-        /// <param name="cancellation">Token specifying if this blocking method should be cancelled</param>
-        /// <returns>A collection of message events, or null if the method was cancelled</returns>
-        /// <exception cref="ArgumentException">The channel with the specified id does not exist, or the caller does not have access to the specified channel</exception>
-        public IEnumerable<MessageEventModel> GetMessageEvents(int channelId, int callerId, DateTime since, CancellationToken cancellation)
+        /// <param name="messageId">The id of the message</param>
+        /// <returns>The author of the message with the specified id</returns>
+        /// <exception cref="InvalidArgumentException">If the message does not exist</exception>
+        private UserModel getAuthorForMessage(int messageId)
         {
-            bool hasAccess = IsUserInChannel(callerId, channelId);
+            MessageModel message = messageRepository.GetMessage(messageId);
 
-            if (!hasAccess)
+            if (message == null)
             {
-                throw new ArgumentException("User does not have access to the specified channel", "callerId");
+                throw new InvalidArgumentException("The message with the specified id does not exist", ParamNameType.MessageId);
             }
 
-            //We should ensure that we are not looking for changes while they are being made
-            //This logic is dependent on the fact that a message event does not occur after looking for changes and before calling wait()
-            object msgLock;
-            lock (msgLock = GetLockForChannel(channelId))
-            {
-                IEnumerable<MessageModel> newMessages;
-                IEnumerable<MessageModel> deletedMessages;
-                IEnumerable<MessageModel> editedMessages;
-
-                while (true)
-                {
-                    newMessages = messageRepository.GetMessagesSince(channelId, since);
-                    deletedMessages = messageRepository.GetDeletedMessagesSince(channelId, since);
-                    editedMessages = messageRepository.GetEditedMessagesSince(channelId, since);
-
-                    //Stop looking if something happened
-                    if (newMessages.Any() || deletedMessages.Any() || editedMessages.Any())
-                    {
-                        break;
-                    }
-
-                    //Nothing happened, so wait a while
-                    Console.WriteLine($"No new messages in channel {channelId}, waiting...");
-                    Monitor.Wait(msgLock, sleepInterval);
-
-                    //Stop looking if the user requested so
-                    if (cancellation.IsCancellationRequested)
-                    {
-                        Console.WriteLine($"Client gave up listening to channel {channelId}...");
-                        return null;
-                    }
-                }
-
-                //At this point we know that an event has happened
-                Console.WriteLine($"Something happened in channel {channelId}");
-                CensorMessages(newMessages);
-                CensorMessages(deletedMessages);
-                CensorMessages(editedMessages);
-                return ConstructMessageEvents(newMessages, deletedMessages, editedMessages);
-            }
-        }
-
-        /// <summary>
-        /// Remove the content of deleted messages. This operation is important to ensure that the contents of deleted messages do not get distributed to clients.
-        /// </summary>
-        /// <param name="messages">The messages to censor</param>
-        private void CensorMessages(IEnumerable<MessageModel> messages)
-        {
-            foreach (MessageModel message in messages)
-            {
-                if (message.DeletionTime != null)
-                {
-                    message.Content = "";
-                }
-            }
-        }
-
-        private IEnumerable<MessageEventModel> ConstructMessageEvents(IEnumerable<MessageModel> newMessages, IEnumerable<MessageModel> deletedMessages, IEnumerable<MessageModel> editedMessages)
-        {
-            List<MessageEventModel> messageEvents = new List<MessageEventModel>();
-
-            messageEvents.AddRange(newMessages.Select(m => new MessageEventModel()
-            {
-                Type = MessageEventType.NewMessage,
-                Message = m
-            }));
-
-            messageEvents.AddRange(deletedMessages.Select(m => new MessageEventModel()
-            {
-                Type = MessageEventType.DeleteMessage,
-                Message = m
-            }));
-
-            messageEvents.AddRange(editedMessages.Select(m => new MessageEventModel()
-            {
-                Type = MessageEventType.UpdateMessage,
-                Message = m
-            }));
-
-            return messageEvents;
+            return message.Author;
         }
     }
 }

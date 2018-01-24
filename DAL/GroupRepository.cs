@@ -5,130 +5,170 @@ using DAL.Models;
 using DAL.Mapper;
 using System.Linq;
 using System.Collections.Generic;
+using System.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace DAL
 {
     class GroupRepository : IGroupRepository
     {
+        public GroupModel GetGroup(int groupId)
+        {
+            using (var context = new ChatexdbContext())
+            {
+                return GroupMapper.MapGroupEntityToModel(context.Group.Find(groupId));
+            }
+        }
+
         public void AddMemberToGroup(GroupUserModel groupUserModel)
         {
-            using (var db = new ChatexdbContext())
+            using (var context = new ChatexdbContext())
             {
                 var entity = GroupUserMapper.MapGroupUserModelToEntity(groupUserModel);
-                db.GroupUser.Add(entity);
-                db.SaveChanges();
+
+                if (context.GroupUser.Find(entity.GroupId, entity.UserId) == null)
+                {
+                    context.GroupUser.Add(entity);
+                    context.SaveChanges();
+                }
             }
         }
 
         public void AddMembersToGroup(IEnumerable<GroupUserModel> groupUserModels)
         {
-            using (var db = new ChatexdbContext())
+            using (var context = new ChatexdbContext())
             {
                 var entities = groupUserModels.Select(x => GroupUserMapper.MapGroupUserModelToEntity(x));
-                db.GroupUser.AddRange(entities);
-                db.SaveChanges();
+                var entitiesToAdd = entities.Where(e => context.GroupUser.Find(e.GroupId, e.UserId) == null);
+
+                context.GroupUser.AddRange(entitiesToAdd);
+                context.SaveChanges();
             }
         }
 
         public int CreateGroup(GroupModel group)
         {
             var entity = GroupMapper.MapGroupModelToEntity(group);
-            using (var db = new ChatexdbContext())
+
+            using (var context = new ChatexdbContext())
             {
-                db.Group.Add(entity);
-                db.SaveChanges();
+                context.Group.Add(entity);
+                context.SaveChanges();
             }
+
             return entity.GroupId;
         }
 
-        public bool DeleteGroup(int groupId)
+        public void DeleteGroup(int groupId)
         {
-            using (var db = new ChatexdbContext())
+            using (var context = new ChatexdbContext())
             {
-                var entity = db.Group.FirstOrDefault(x => x.GroupId == groupId);
+                var entity = context.Group.FirstOrDefault(x => x.GroupId == groupId);
+
                 entity.IsDeleted = true;
-                db.SaveChanges();
+                context.SaveChanges();
             }
-            return true;
         }
 
         public void RemoveUsersFromGroup(IEnumerable<GroupUserModel> groupUserModels)
         {
-            using (var db = new ChatexdbContext())
+            using (var context = new ChatexdbContext())
             {
                 var entities = groupUserModels.Select(x => GroupUserMapper.MapGroupUserModelToEntity(x));
-                db.GroupUser.RemoveRange(entities);
-                db.SaveChanges();
+                var entitiesToRemove = context.GroupUser.Where(etr => entities.Where(e => e.UserId == etr.UserId && e.GroupId == etr.GroupId).Any());
+
+                context.GroupUser.RemoveRange(entitiesToRemove);
+                context.SaveChanges();
             }
         }
 
         public void AddRolesToGroup(IEnumerable<GroupRoleModel> groupRoleModels)
         {
-            using (var db = new ChatexdbContext())
+            using (var context = new ChatexdbContext())
             {
                 var entities = groupRoleModels.Select(x => GroupRoleMapper.MapGroupRoleModelToEntity(x));
-                db.GroupRole.AddRange(entities);
-                db.SaveChanges();
+                var entitiesToAdd = entities.Where(e => context.GroupRole.Find(e.GroupId, e.RoleId) == null);
+
+                context.GroupRole.AddRange(entitiesToAdd);
+                context.SaveChanges();
             }
         }
 
         public void RemoveRolesFromGroup(IEnumerable<GroupRoleModel> groupRoleModels)
         {
-            using (var db = new ChatexdbContext())
+            using (var context = new ChatexdbContext())
             {
                 var entities = groupRoleModels.Select(x => GroupRoleMapper.MapGroupRoleModelToEntity(x));
-                db.GroupRole.RemoveRange(entities);
-                db.SaveChanges();
+                var entitiesToRemove = context.GroupRole.Where(etr => entities.Where(e => e.RoleId == etr.RoleId && e.GroupId == etr.GroupId).Any());
+
+                context.GroupRole.RemoveRange(entitiesToRemove);
+                context.SaveChanges();
             }
         }
 
-        public bool SetUserAdministratorOnGroup(GroupUserModel groupUserModel)
+        public void SetUserAdministratorOnGroup(GroupUserModel groupUserModel)
         {
-            using (var db = new ChatexdbContext())
+            using (var context = new ChatexdbContext())
             {
                 var groupUser = GroupUserMapper.MapGroupUserModelToEntity(groupUserModel);
-                var existing = db.GroupUser.FirstOrDefault(gu => gu.GroupId == groupUser.GroupId && gu.UserId == groupUser.UserId);
-                if (existing == null) return false;
+                var existing = context.GroupUser.FirstOrDefault(gu => gu.GroupId == groupUser.GroupId && gu.UserId == groupUser.UserId);
 
-                existing.IsAdministrator = groupUser.IsAdministrator;
+                if (existing == null)
+                {
+                    context.GroupUser.Add(groupUser);
+                }
+                else
+                {
+                    existing.IsAdministrator = groupUser.IsAdministrator;
+                }
 
-                db.SaveChanges();
-            }
-
-            return true;
-        }
-       
-        public GroupUserModel GetGroupUser (int groupId, int loggedInUser)
-        {
-            using (var db = new ChatexdbContext())
-            {
-                return GroupUserMapper.MapGroupUserEntityToModel(
-                                       db.GroupUser.FirstOrDefault(x => x.GroupId == groupId && x.UserId == loggedInUser));
+                context.SaveChanges();
             }
         }
 
         public IEnumerable<UserModel> GetAllGroupUsers(int groupId)
         {
-            using (var db = new ChatexdbContext())
+            using (var context = new ChatexdbContext())
             {
-                IQueryable<User> groupUsers = db.GroupUser
-                    .Where(gu => gu.GroupId == groupId)
-                    .Select(gu => gu.User);
+                using (var transaction = context.Database.BeginTransaction(IsolationLevel.Snapshot))
+                {
+                    Group group = context.Group.Find(groupId);
+                    if (group != null && group.IsDeleted == true)
+                    {
+                        return new List<UserModel>();
+                    }
 
+                    List<User> groupUsers = context.GroupUser
+                        .Where(gu => gu.GroupId == groupId)
+                        .Select(gu => gu.User)
+                        .ToList();
 
-                //Select User from UserRole where the role id is in the collection:
-                //  Select role id from GroupRole where the group id is matched
-                IQueryable<User> userMatchingGroupRole = db.UserRole
-                    .Where(ur => db.GroupRole
-                        .Where(gr => gr.GroupId == groupId)
-                        .Select(gr => gr.Role.RoleId)
-                        .Contains(ur.RoleId))
-                    .Select(ur => ur.User);
+                    List<User> userMatchingGroupRole = context.UserRole
+                        .Where(ur => context.GroupRole
+                            .Where(gr => gr.GroupId == groupId)
+                            .Select(gr => gr.Role.RoleId)
+                            .Contains(ur.RoleId))
+                        .Select(ur => ur.User)
+                        .ToList();
 
-                return groupUsers.Union(userMatchingGroupRole)
-                    .Where(u => u.IsDeleted == false)
-                    .Select(u => UserMapper.MapUserEntityToModel(u))
+                    List<UserModel> users = groupUsers.Union(userMatchingGroupRole)
+                        .Where(u => u.IsDeleted == false)
+                        .Select(u => UserMapper.MapUserEntityToModel(u))
+                        .ToList();
+
+                    transaction.Commit();
+                    return users;
+                }
+            }
+        }
+
+        public IEnumerable<UserModel> GetAllGroupAdmins(int groupId)
+        {
+            using (var context = new ChatexdbContext())
+            {
+                return context.GroupUser
+                    .Where(i => i.GroupId == groupId && i.IsAdministrator == true)
+                    .Select(x => UserMapper.MapUserEntityToModel(x.User))
                     .ToList();
             }
         }
@@ -137,47 +177,112 @@ namespace DAL
         {
             using (var context = new ChatexdbContext())
             {
-                IQueryable<Group> groupsUser = context.GroupUser
-                    .Where(gu => gu.UserId == userId)
-                    .Select(gu => gu.Group);
+                using (var transaction = context.Database.BeginTransaction(IsolationLevel.Snapshot))
+                {
+                    IQueryable<Group> groupsUser = context.GroupUser
+                        .Where(gu => gu.UserId == userId)
+                        .Select(gu => gu.Group);
 
-                //Select Group from GroupRole where the role id is in the collection:
-                //  Select role id from UserRole where the user id is matched
-                IQueryable<Group> groupsRole = context.GroupRole
-                    .Where(gr => context.UserRole
-                        .Where(ur => ur.UserId == userId)
-                        .Select(ur => ur.Role.RoleId)
-                        .Contains(gr.RoleId))
-                    .Select(gr => gr.Group);
+                    IQueryable<Group> groupsRole = context.GroupRole
+                        .Where(gr => context.UserRole
+                            .Where(ur => ur.UserId == userId)
+                            .Select(ur => ur.Role.RoleId)
+                            .Contains(gr.RoleId))
+                        .Select(gr => gr.Group);
 
-                return groupsUser.Union(groupsRole)
-                    .Where(g => g.IsDeleted == false)
-                    .Include(g => g.Channel)
-                    .Select(g => GroupMapper.MapGroupEntityToModel(g))
-                    .ToList();
+                    IQueryable<Group> unionGroups = groupsUser.Union(groupsRole)
+                        .Where(g => g.IsDeleted == false);
+
+                    //Load and track only those channels that are not deleted
+                    foreach (Group group in unionGroups)
+                    {
+                        context.Entry(group)
+                            .Collection(g => g.Channel)
+                            .Query()
+                            .Where(c => c.IsDeleted == false)
+                            .ToList();
+                    }
+
+                    //Convert to group models
+                    List<GroupModel> groups = unionGroups
+                        .Select(g => GroupMapper.MapGroupEntityToModel(g))
+                        .ToList();
+
+                    transaction.Commit();
+                    return groups;
+                }
             }
         }
-
-        /// <summary>
-        /// changing the group name of a spcific group
-        /// </summary>
-        /// <param name="groupId"></param>
-        /// <param name="groupName"></param>
 
         public void UpdateGroup(int groupId, string groupName)
         {
-            using (var db = new ChatexdbContext())
+            using (var context = new ChatexdbContext())
             {
-                var entity = db.Group.FirstOrDefault(x => x.GroupId == groupId);
-                entity.Name = groupName; 
-                db.SaveChanges();             
-            }
+                var entity = context.Group.FirstOrDefault(x => x.GroupId == groupId);
+                entity.Name = groupName;
 
+                context.SaveChanges();
+            }
         }
 
-        public void UpdateGroup(int groupId, string groupName, int callerId)
+        public GroupMembershipDetails GetGroupMembershipDetailsForUser(int groupId, int userId)
         {
-            throw new NotImplementedException();
+            bool isUserMember = GetAllGroupUsers(groupId).Where(u => u.Id == userId).Any();
+            bool isUserAdmin = GetAllGroupAdmins(groupId).Where(u => u.Id == userId).Any();
+
+            return new GroupMembershipDetails()
+            {
+                GroupId = groupId,
+                UserId = userId,
+                IsMember = isUserMember,
+                IsAdministrator = isUserAdmin
+            };
+        }
+
+        public IEnumerable<UserModel> GetAllDirectGroupUsers(int groupId)
+        {
+            using (var context = new ChatexdbContext())
+            {
+                using (var transaction = context.Database.BeginTransaction(IsolationLevel.Snapshot))
+                {
+                    Group group = context.Group.Find(groupId);
+                    if (group != null && group.IsDeleted == true)
+                    {
+                        return new List<UserModel>();
+                    }
+
+                    List<UserModel> users = context.GroupUser
+                        .Where(gu => gu.GroupId == groupId)
+                        .Select(gu => UserMapper.MapUserEntityToModel(gu.User))
+                        .ToList();
+
+                    transaction.Commit();
+                    return users;
+                }
+            }
+        }
+
+        public IEnumerable<RoleModel> GetAllGroupRoles(int groupId)
+        {
+            using (var context = new ChatexdbContext())
+            {
+                using (var transaction = context.Database.BeginTransaction(IsolationLevel.Snapshot))
+                {
+                    Group group = context.Group.Find(groupId);
+                    if (group != null && group.IsDeleted == true)
+                    {
+                        return new List<RoleModel>();
+                    }
+
+                    List<RoleModel> roles = context.GroupRole
+                        .Where(gr => gr.GroupId == groupId)
+                        .Select(gr => RoleMapper.MapRoleEntityToModel(gr.Role))
+                        .ToList();
+
+                    transaction.Commit();
+                    return roles;
+                }
+            }
         }
     }
 }

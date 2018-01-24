@@ -27,41 +27,37 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
-namespace WebAPI.Models
-{
+namespace IO.Swagger.Models
+{ 
     /// <summary>
     /// 
     /// </summary>
     [DataContract]
-    public partial class CreateChannelDTO :  IEquatable<CreateChannelDTO>
-    {
+    public partial class ChatDTO :  IEquatable<ChatDTO>
+    { 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CreateChannelDTO" /> class.
+        /// Gets or Sets Id
         /// </summary>
-        /// <param name="ChannelName">ChannelName (required).</param>
-        public CreateChannelDTO(string ChannelName = null)
-        {
-            // to ensure "ChannelName" is required (not null)
-            if (ChannelName == null)
-            {
-                throw new InvalidDataException("ChannelName is a required property for CreateChannelDTO and cannot be null");
-            }
-            else
-            {
-                this.ChannelName = ChannelName;
-            }
-            
-        }
+        [Required]
+        [DataMember(Name="Id")]
+        public int? Id { get; set; }
 
         /// <summary>
-        /// Gets or Sets ChannelName
+        /// Gets or Sets Name
         /// </summary>
-        [DataMember(Name="channelName")]
-        public string ChannelName { get; set; }
+        [Required]
+        [DataMember(Name="Name")]
+        public string Name { get; set; }
 
+        /// <summary>
+        /// Gets or Sets Users
+        /// </summary>
+        [DataMember(Name="Users")]
+        public List<UserDTO> Users { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -70,8 +66,10 @@ namespace WebAPI.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class CreateChannelDTO {\n");
-            sb.Append("  ChannelName: ").Append(ChannelName).Append("\n");
+            sb.Append("class ChatDTO {\n");
+            sb.Append("  Id: ").Append(Id).Append("\n");
+            sb.Append("  Name: ").Append(Name).Append("\n");
+            sb.Append("  Users: ").Append(Users).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -94,26 +92,34 @@ namespace WebAPI.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((CreateChannelDTO)obj);
+            return obj.GetType() == GetType() && Equals((ChatDTO)obj);
         }
 
         /// <summary>
-        /// Returns true if CreateChannelDTO instances are equal
+        /// Returns true if ChatDTO instances are equal
         /// </summary>
-        /// <param name="other">Instance of CreateChannelDTO to be compared</param>
+        /// <param name="other">Instance of ChatDTO to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(CreateChannelDTO other)
+        public bool Equals(ChatDTO other)
         {
-
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
             return 
                 (
-                    this.ChannelName == other.ChannelName ||
-                    this.ChannelName != null &&
-                    this.ChannelName.Equals(other.ChannelName)
+                    Id == other.Id ||
+                    Id != null &&
+                    Id.Equals(other.Id)
+                ) && 
+                (
+                    Name == other.Name ||
+                    Name != null &&
+                    Name.Equals(other.Name)
+                ) && 
+                (
+                    Users == other.Users ||
+                    Users != null &&
+                    Users.SequenceEqual(other.Users)
                 );
         }
 
@@ -123,30 +129,34 @@ namespace WebAPI.Models
         /// <returns>Hash code</returns>
         public override int GetHashCode()
         {
-            // credit: http://stackoverflow.com/a/263416/677735
             unchecked // Overflow is fine, just wrap
             {
-                int hash = 41;
+                var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                if (this.ChannelName != null)
-                    hash = hash * 59 + this.ChannelName.GetHashCode();
-                return hash;
+                    if (Id != null)
+                    hashCode = hashCode * 59 + Id.GetHashCode();
+                    if (Name != null)
+                    hashCode = hashCode * 59 + Name.GetHashCode();
+                    if (Users != null)
+                    hashCode = hashCode * 59 + Users.GetHashCode();
+                return hashCode;
             }
         }
 
         #region Operators
+        #pragma warning disable 1591
 
-        public static bool operator ==(CreateChannelDTO left, CreateChannelDTO right)
+        public static bool operator ==(ChatDTO left, ChatDTO right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(CreateChannelDTO left, CreateChannelDTO right)
+        public static bool operator !=(ChatDTO left, ChatDTO right)
         {
             return !Equals(left, right);
         }
 
+        #pragma warning restore 1591
         #endregion Operators
-
     }
 }
